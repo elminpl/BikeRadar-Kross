@@ -1,3 +1,23 @@
+# BikeRadar-Kross — additional agent instructions
+
+These project-specific instructions supplement the inherited upstream guidance below. Where the upstream text describes the original Garmin-only product, treat it as background, not as a statement that Kross vehicle detection already works.
+
+- **Project:** develop Kross Echo Pro BLE integration while preserving Garmin V1/V2 behavior.
+- **Language:** report to the user in Polish; be concise, technical, and specific.
+- **Autonomy:** investigate, implement, build, test and document without routine confirmation. Request input for physical-device tests, missing essential artifacts, destructive operations or release approval.
+- **Branch safety:** work on `feature/kross-echo-pro` or a task branch derived from it. Do not change `main`, force-push, merge, publish releases or distribute APKs without explicit authorization.
+- **Context:** read all four files in `docs/kross/` before editing BLE, decoder or radar UI code. Earlier ChatGPT conversations, experimental APKs and raw logs are not automatically available.
+- **Architecture:** `RadarLinkController` owns the GATT lifecycle and `BleOpQueue`. Confirm Kross services/characteristic properties before writes; keep Garmin AMV handshake, V1 fallback, V2 watchdog and CCCD safety behavior unchanged.
+- **State semantics:** distinguish connecting, GATT connected, subscribed BLE notifications, verified decoded telemetry, and vehicle detections. Do not show a Kross radar as vehicle-ready based only on handshake or unknown packets.
+- **Safety:** no Kross vehicle targets or alerts until the decoder is validated on physical captures. Avoid unbounded reconnect/log loops and direct Smali patch ports.
+- **Quality:** run relevant unit tests, build a debug APK, and run Roborazzi with JVM timezone UTC (`-Duser.timezone=UTC`). Record limitations and tests that could not be run. Never regenerate screenshot goldens merely to hide timezone differences.
+- **Data:** do not commit raw captures with device identifiers, credentials or personal data, or binary APKs without review.
+- **Attribution:** preserve original authorship, GPL-3.0-or-later license, and upstream history.
+
+---
+
+## Inherited upstream engineering guidance
+
 # AGENTS.md
 
 Pointer doc for agent-style tools working in this repo. Public-safe.
