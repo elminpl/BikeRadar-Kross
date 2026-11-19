@@ -522,16 +522,15 @@ class RadarLinkControllerHarnessTest {
         val command = gatt.getService(commandService).getCharacteristic(commandInput)
         assertTrue(pumpUntil { shadowOf(gatt).latestWrittenBytes?.contentEquals(request) == true })
         cb.onCharacteristicWrite(gatt, command, BluetoothGatt.GATT_SUCCESS)
-        val reply = ByteArray(23).apply {
-            this[0] = 0x10
-            this[2] = 0xba.toByte()
-            this[3] = 2
-            this[4] = 90
-            this[5] = 1
-        } + "VER:1.2.3".encodeToByteArray()
+        // Echo Pro response captured on hardware. The reserved bytes are zero.
+        val header = "1033ba0146000000000000000000000000000000000000"
+        val firmware = "5645523a312e302e322041707220313020323032332031303a35353a3430"
+        val reply = (header + firmware).hexToBytes()
         cb.onCharacteristicChanged(gatt, gatt.getService(commandService).getCharacteristic(commandOutput), reply)
-        assertTrue(pumpUntil { p.krossProbeResult?.contains("firmware≈1.2.3") == true })
-        assertTrue(requireNotNull(p.krossProbeResult).startsWith("2A19=70%"))
+        assertTrue(pumpUntil { p.krossProbeResult != null })
+        val result = requireNotNull(p.krossProbeResult)
+        assertTrue(result, result.startsWith("2A19=70%"))
+        assertTrue(result, result.endsWith("FFF1=0xba (53 B) mode=1 brightness=70 charging=0 firmware≈1.0.2"))
         assertEquals(DataSource.KROSS, RadarStateBus.state.value.source)
         assertEquals(0, gateway.connects)
 

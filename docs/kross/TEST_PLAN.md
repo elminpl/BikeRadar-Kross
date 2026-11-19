@@ -9,12 +9,14 @@
 | Read-only Kross diagnostics | 252 selected tests passed, including 165 BLE controller tests and 9 screenshot tests. The harness checked that the query is opt-in and that telemetry continues while a simulated response is processed. |
 | 1.12.2.k1 packaging | Release build and DEX keep verification passed. Package `es.jjrh.bikeradar.kross`, version code 45 and the existing test certificate were verified. The previous selected tests cover its app behavior. |
 
+| Hardware-response and roadside replay follow-up | 177 selected tests passed, including 9 Debug screenshots. The BLE harness uses the captured 53-byte FFF1 reply. The decoder replays 22 FFE2 frames with relative timestamps from the two roadside sessions, including transitions to empty frames. |
+
 An earlier broad test run reported four Roborazzi discrepancies. The selected runs above used a UTC JVM and kept the existing reference images. The table describes the recorded checkpoints. A full clean test suite on k1 has yet to be recorded.
 
 ## Next device checks
 
 1. **Connection and status on S24+.** Open the Radar screen and select the Echo Pro. Check its status in Home, System, Settings → Quick Status and Settings → Connections. Expect connecting, Bluetooth connected, and limited coverage once decoded frames arrive. Confirm that Paired reflects the Android bond. Repeat after turning Bluetooth off and on, moving out of range and restarting the app.
-2. **Read-only diagnostics.** Before connecting, enable capture logging and Record connection setup. In Debug → Kross Echo Pro, enable the device read. Check the last result for battery, model, configuration reply and firmware. Record one complete FFF1 response for comparison with the vendor parser. Check captures for identifiers before sharing them.
+2. **Read-only diagnostics.** The first stationary S24+ read on k1 passed. Repeat after reconnecting or with another firmware and compare the result. Enable capture logging before connecting to capture a complete FFF1 response. Check captures for identifiers before sharing them.
 3. **Targets on the overlay.** Compare displayed range, threat color, audible alerts and clearing of targets against observed traffic. Record independent timestamps in a controlled setting. The existing stationary captures cover passes on both sides and support range and threat decoding.
 4. **Unknown fields.** Collect a capture containing type 0x31, a controlled speed reference and a side code that varies with the setup. Record which firmware produced each capture.
 5. **Garmin regression.** With a Garmin V1 or V2 unit, verify selecting the radar, reconnect, telemetry and audible alerts. Rerun relevant JVM and Roborazzi tests with `-Duser.timezone=UTC` on BLE or UI changes.

@@ -53,9 +53,8 @@ an already open connection when first enabled. The probe reads Battery Level
 command profile it sends `11 02 BA A9` to `FFF2` after subscribing to
 `FFF1`. This is the vendor's configuration query. A `0x10` response with
 at least 23 bytes is summarized using the vendor's field offsets. The
-response layout and reported firmware revision still need confirmation on
-the physical unit. The complete BLE response can be recorded with capture
-logging. The Garmin settings probe remains a separate tool.
+Echo Pro response was confirmed on a physical unit with version 1.12.2.k1.
+Capture logging can record the full response. The Garmin settings probe remains a separate tool.
 
 ## Evidence from stationary roadside captures
 
@@ -73,5 +72,19 @@ so the scale alone is insufficient to assign a unit. BikeRadar uses decoded
 distance and the reported threat level for this profile.
 
 The application expects a verified Kross GATT profile before using its
-diagnostic query. The response parser has automated coverage with a simulated
-reply. See the [test plan](TEST_PLAN.md) for the remaining hardware checks.
+diagnostic query. The response parser is tested with a reply captured from
+the physical unit. See the [test plan](TEST_PLAN.md) for the remaining hardware checks.
+
+
+## Physical configuration read on S24+
+
+In one stationary session on 1.12.2.k1, the device reported 100% via
+`180F/2A19` and model `pan1080xb1` via `180A/2A24`. The negotiated ATT
+MTU was 252. The reply on FFF1 was 53 bytes with header `10 33 BA`,
+followed by mode 1, brightness 70 and charging setting 0. At offset 23
+it reported `VER:1.0.2 Apr 10 2023 10:55:40`.
+
+The capture held 351 empty FFE2 frames of type 0x30 and one FFF1 reply. FFE2
+frames occurred 93 ms before and 66 ms after the reply. This confirms
+the read and concurrent telemetry for this session. The meaning of each
+mode and the effect of the charging setting still require device checks.

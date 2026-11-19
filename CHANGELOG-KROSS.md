@@ -31,4 +31,9 @@ Pierwsza numerowana wersja testowa modyfikacji Krossa. Zbiera dotychczasowe zmia
 - Opcjonalne odczyty baterii, modelu i ustawień Krossa w Diagnostyce. Narzędzia Garmina są nadal dostępne.
 - Polska wersja językowa.
 
-Kod APK Krossa to **45**. Na fizycznym radarze nadal trzeba sprawdzić odczyt ustawień i działanie alertów podczas jazdy. Prędkość, strona mijania i piąty cel wymagają dodatkowych pomiarów.
+Kod APK Krossa to **45**. Na fizycznym radarze nadal trzeba sprawdzić działanie alertów podczas jazdy. Prędkość, strona mijania i piąty cel wymagają dodatkowych pomiarów.
+
+
+### Próba na sprzęcie po udostępnieniu k1
+
+Na S24+ potwierdzono odczyt baterii (100%), modelu `pan1080xb1` oraz odpowiedzi FFF1 zawierającej firmware `1.0.2`. Strumień FFE2 działał podczas odczytu. Szczegóły są w [opisie BLE](docs/kross/BLE_PROTOCOL.md#physical-configuration-read-on-s24).
