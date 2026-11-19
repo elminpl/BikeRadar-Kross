@@ -4,7 +4,7 @@
 
 Projekt jest prywatną, niezależną modyfikacją [Bike Radar Overlay autorstwa partymola](https://github.com/partymola/android-bike-radar-overlay). Celem jest dodanie obsługi Kross Echo Pro bez pogorszenia kompatybilności z radarami Garmin. Nie jest to oficjalna aplikacja Kross ani wydanie oryginalnego autora.
 
-> **Stan projektu.** Wersja testowa `1.12.2.k1` odbiera dane Kross Echo Pro i pokazuje odległość oraz poziom zagrożenia. Odczyty prędkości, strony mijania i zachowanie podczas jazdy wymagają dalszych testów na sprzęcie.
+> **Stan projektu.** Wersja testowa `1.12.2.k1` odbiera dane Kross Echo Pro i pokazuje odległość oraz poziom zagrożenia. Dwa nagrania z S24+ potwierdzają dekodowanie odległości i zagrożenia. Odczyt ustawień, prędkość, strona mijania i działanie alertów podczas jazdy wymagają dalszych prób na sprzęcie.
 
 ## Cele
 
@@ -12,7 +12,7 @@ Projekt jest prywatną, niezależną modyfikacją [Bike Radar Overlay autorstwa 
 - Stabilne połączenie BLE/GATT, subskrypcja powiadomień i diagnostyka sesji.
 - Czytelne, spójne statusy: łączenie, połączenie BLE, aktywna telemetria i rozłączenie.
 - Rozpoznanie formatu ramek i bezpieczne dekodowanie rzeczywistych zdarzeń.
-- Docelowo: wyświetlanie pojazdów na nakładce i alerty, **dopiero po weryfikacji na sprzęcie**.
+- Weryfikacja nakładki i alertów podczas jazdy.
 - Zachowanie istniejącej obsługi Garmin V1/V2.
 
 ## Co już ustalono
@@ -22,13 +22,15 @@ Aplikacja wykrywa Kross Echo Pro, pokazuje stan połączenia i dekoduje odległo
 ## Dokumentacja
 
 - [Wersje Kross i lista zmian](CHANGELOG-KROSS.md)
-- [Historia projektu i przekazanie kontekstu](docs/kross/PROJECT_HISTORY.md)
+- [Historia projektu i archiwum APK](docs/kross/PROJECT_HISTORY.md)
 - [Obserwacje protokołu BLE](docs/kross/BLE_PROTOCOL.md)
 - [Znane problemy i regresje](docs/kross/KNOWN_ISSUES.md)
 - [Plan testów](docs/kross/TEST_PLAN.md)
 - [Instrukcje dla Codexa i agentów](AGENTS.md)
 
 ## Organizacja prac
+
+Workflow [Kross upstream update](.github/workflows/kross-upstream.yml) sprawdza nowe stabilne wersje oryginału i przygotowuje aktualizację do przeglądu.
 
 - `main` — punkt odniesienia oparty na oryginalnym projekcie.
 - `feature/kross-echo-pro` — dokumentacja i rozwój obsługi Kross.

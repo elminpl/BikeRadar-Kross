@@ -15,6 +15,12 @@ Dla nowszego tagu workflow przygotowuje osobną gałąź, ustawia `k1` i kolejny
 
 GitHub wymaga uprawnienia **Allow GitHub Actions to create and approve pull requests** do otwarcia PR przez `GITHUB_TOKEN`. Podsumowanie wskazuje też porównanie gałęzi, z którego można otworzyć PR ręcznie.
 
+## Historia przed numeracją
+
+Archiwum obejmuje 19 plików APK i 8 etapów funkcjonalnych, z czego 7 przypada na bazę 1.12.2. Pierwsza numerowana wersja `1.12.2.k1` obejmuje stan z ostatniego etapu. [Pełny wykaz APK i wersji z manifestów](docs/kross/PROJECT_HISTORY.md#pliki-apk)
+
+Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktualizowania GitHuba po kompilacji. Następna wersja aplikacji na bazie 1.12.2 otrzyma numer `k2`.
+
 ## 1.12.2.k1
 
 Pierwsza numerowana wersja testowa modyfikacji Krossa. Zbiera dotychczasowe zmiany z eksperymentalnych APK, które używały opisowych nazw wersji i kodu 44.

@@ -1,31 +1,53 @@
-# Kross Echo Pro — project handover
+# Kross Echo Pro — historia projektu
 
-## Scope and provenance
-This is a handover of observations from prior Bike Radar APK/Smali experiments on a Samsung Galaxy S24+. It is **not** source code already merged into this repository. Observations are from user-supplied diagnostic bundles and previous development notes; original capture files and APKs must be inspected independently before trusting details.
+Projekt startował od prób z APK oryginału 1.11.0. Obsługa rozwijana w Kotlinie na gałęzi `feature/kross-echo-pro` bazuje na Bike Radar Overlay 1.12.2.
 
-Upstream: https://github.com/partymola/android-bike-radar-overlay
-Working branch: `feature/kross-echo-pro`. Preserve upstream license and attribution.
+## Etapy rozwoju
 
-## Development chronology
-1. Started from Bike Radar 1.11.0 (code 41). Modified an APK through apktool/Smali; multiple experimental builds were produced.
-2. Kross-specific BLE service discovery and handshake were added experimentally. One session at 2026-11-17 19:25:52 reported `newState=2`, `radar handshake complete`, and a Kross-specific bypass of a Garmin V2 watchdog.
-3. Other captures reported recurring notifications from characteristic `FFE2` but no decoded vehicle events.
-4. UI/state patches attempted to replace persistent `Connecting` with `BLE połączone`. Subsequent screens showed contradictory top and bottom status cards, e.g. `BLE połączone` and `Rear radar — Brak sygnału`.
-5. A diagnostic journal at 19:57 repeated `connectAndRun entered` many times. Later analysis identified that the log was inserted ahead of Kotlin coroutine resume handling: repeated lines do **not** prove repeated new GATT connections.
-6. User chose to roll back to the earlier `BikeRadar_Kross_UIState.apk` checkpoint, before later StatusFix/BLEStatus changes. This checkpoint is **not yet verified** by a new physical test.
+| Etap | Zmiana |
+|---:|---|
+| 1 | Próby Smali z połączeniem, śladem GATT i stanem interfejsu na bazie 1.11.0. UIState był kandydatem do powrotu. |
+| 2 | Pierwsze kompilacje Kotlin 1.12.2. Oddzielny pakiet testowy na S24+, skan BLE i diagnostyka GATT. |
+| 3 | Wybór Krossa z istniejącej listy i pierwsze statusy po rozpoznaniu jego profilu. |
+| 4 | Subskrypcja FFE2 oraz FFF1 i rozróżnienie kanałów w logach. |
+| 5 | Polska wersja językowa i poprawki zapisu sesji do analizy ramek. |
+| 6 | Odległość i zagrożenie z typu 0x30, cele na dotychczasowej nakładce i podstawowy dźwięk. |
+| 7 | Spójny status w Szybkim stanie i Połączeniach. Etykieta sparowania odpowiada powiązaniu urządzenia w Androidzie. |
+| 8 | Próbny odczyt baterii, modelu, ustawień i firmware w Diagnostyce. Ten stan funkcji trafił do pierwszego numerowanego APK `1.12.2.k1`. |
 
-## Previous artifact names (external, not checked into Git)
-- `BikeRadar_Kross_UIState.apk` — rollback candidate.
-- `BikeRadar_Kross_JobTrace.apk`, `BikeRadar_Kross_ConnectTrace.apk`, `BikeRadar_Kross_GattReturn.apk`, `BikeRadar_Kross_NoResumeFlood.apk` — successive diagnostics.
-- Earlier capture files: `bike-radar-capture-20261117-195438.log` and `bike-radar-capture-20261117-192552.log.gz`.
-- Some artifacts were stored outside Git under Google Drive folder `PROJEKTY/BikeRadarKross`. Availability and hashes have not been validated here.
+Przy liczeniu kolejnych zmian funkcjonalnych wychodzi **8 etapów**, w tym **7 na bazie 1.12.2**. Retrospektywnie odpowiadałoby to `1.12.2.k7`, gdyby numerację uruchomiono na początku prac w Kotlinie. Oficjalna nazwa udostępnionego APK to `1.12.2.k1`. Kompilacje rozwijające tę samą funkcję i nadanie numeru istniejącemu zestawowi funkcji liczą się w ramach tego samego etapu.
 
-## Important lessons
-- Do not port Smali patches wholesale. Reimplement intentionally in Kotlin with tests.
-- Separate physical GATT connectivity, handshake, fresh decoded radar stream, and vehicle detection.
-- Avoid logging on coroutine resume paths as if they were new connections.
-- Do not infer protocol semantics from a single repeated frame.
-- Preserve baseline `main`; implement on feature branch with small, reversible commits.
+## Pliki APK
 
-## First Codex task
-Inspect the actual repository implementation, identify BLE connection/state/decoder paths, and propose a minimal Kross adapter and test harness. Do not change behavior until baseline tests and device evidence are reviewed.
+Daty oznaczają zapis na Dysku Google w strefie Europe/Warsaw. W katalogu projektu było **19 plików BikeRadar-Kross**. Manifesty 18 z nich sprawdzono bezpośrednio. W przypadku dużego pliku debug dostępne były metadane katalogu. Osobne pliki aplikacji producenta nie wchodzą w ten wykaz.
+
+| Data | Plik | Wersja i kod z manifestu | Etap |
+|---|---|---|---:|
+| 2026-11-17 | `BikeRadar_Kross_JobTrace.apk` | `1.11.0` (41) | 1 |
+| 2026-11-17 | `BikeRadar_Kross_ConnectTrace.apk` | `1.11.0` (41) | 1 |
+| 2026-11-17 | `BikeRadar_Kross_GattReturn.apk` | `1.11.0` (41) | 1 |
+| 2026-11-17 | `BikeRadar_Kross_NoResumeFlood.apk` | `1.11.0` (41) | 1 |
+| 2026-11-17 | `BikeRadar_Kross_UIState.apk` | `1.11.0` (41) | 1 |
+| 2026-11-18 | `BikeRadar-Kross-debug-2026-11-18.apk` | Manifest niezweryfikowany | 2 |
+| 2026-11-18 | `BikeRadar-Kross-1.12.2-test-S24.apk` | `1.12.2-kross-test` (44) | 2 |
+| 2026-11-18 | `BikeRadar-Kross-1.12.2-S24-skan-BLE.apk` | `1.12.2-kross-test` (44) | 2 |
+| 2026-11-18 | `BikeRadar-Kross-1.12.2-S24-diagnostyka-GATT.apk` | `1.12.2-kross-test` (44) | 2 |
+| 2026-11-18 | `BikeRadar-Kross-1.12.2-S24-wybor-radaru.apk` | `1.12.2-kross-test-chooser` (44) | 3 |
+| 2026-11-18 | `BikeRadar-Kross-1.12.2-S24-profil-i-wybor.apk` | `1.12.2-kross-test-profile` (44) | 3 |
+| 2026-11-18 | `BikeRadar-Kross-1.12.2-S24-status-i-lista.apk` | `1.12.2-kross-test-status` (44) | 3 |
+| 2026-11-18 | `BikeRadar-Kross-1.12.2-S24-FFE2-FFF1.apk` | `1.12.2-kross-test-ffe2-fff1` (44) | 4 |
+| 2026-11-18 | `BikeRadar-Kross-1.12.2-S24-FFE2-FFF1-PL.apk` | `1.12.2-kross-test-ffe2-fff1-pl` (44) | 5 |
+| 2026-11-19 | `BikeRadar-Kross-1.12.2-S24-logi-PL.apk` | `1.12.2-kross-test-log-pl` (44) | 5 |
+| 2026-11-19 | `BikeRadar-Kross-1.12.2-S24-cele-PL.apk` | `1.12.2-kross-test-targets-pl` (44) | 6 |
+| 2026-11-19 | `BikeRadar-Kross-1.12.2-S24-status-polaczenia-PL.apk` | `1.12.2-kross-test-link-ui-pl` (44) | 7 |
+| 2026-11-19 | `BikeRadar-Kross-1.12.2-S24-diagnostyka-Kross-PL.apk` | `1.12.2-kross-test-diagnostics-pl` (44) | 8 |
+| 2026-11-19 | `BikeRadar-Kross-1.12.2.k1.apk` | `1.12.2.k1` (45) | 8 |
+
+
+Wczesne pliki Smali miały pakiet `es.jjrh.bikeradar`. Sprawdzone kompilacje Kotlin używały osobnego pakietu `es.jjrh.bikeradar.kross`. Trzy pierwsze testowe APK na S24+ zgłaszały tę samą wersję aplikacji, ale miały różne sumy SHA-256.
+
+Najnowszy znaleziony plik testowy to `1.12.2.k1`, zbudowany z commita `7435a067` i oznaczony tagiem `kross-1.12.2.k1`. Późniejsze zmiany na gałęzi rozwojowej dotyczyły automatyzacji GitHub Actions, konfiguracji numeracji i instrukcji projektu. Po tym tagu nie znaleziono nowszego udostępnionego APK w sprawdzonym katalogu ani następnego tagu Krossa w repozytorium.
+
+## Wnioski z prób
+
+W eksperymentalnych wersjach powtarzający się wpis `connectAndRun entered` był powiązany prawdopodobnie ze wznowieniami korutyny. Do oceny ponownych połączeń używamy rzeczywistych zdarzeń GATT. W interfejsie rozróżniamy połączenie Bluetooth, świeże dane i wykrycie celu. Szczegóły oraz otwarte pytania są w [opisie BLE](BLE_PROTOCOL.md), [liście problemów](KNOWN_ISSUES.md) i [planie testów](TEST_PLAN.md).
