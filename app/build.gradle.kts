@@ -25,6 +25,9 @@ val localProps = Properties().apply {
 
 val debugKeystoreFile = rootProject.file("debug.keystore")
 val krossSideBySide = providers.gradleProperty("bikeradar.krossSideBySide").isPresent
+val krossVersion = providers.fileContents(rootProject.layout.projectDirectory.file("gradle/kross-version.properties")).asText.map { contents ->
+    Properties().apply { load(contents.reader()) }
+}
 
 /**
  * Read a git value at configuration time, or null if git could not answer.
@@ -155,8 +158,7 @@ android {
         manifestPlaceholders["radarPermission"] = "es.jjrh.bikeradar.permission.RADAR"
         minSdk = 31
         targetSdk = 36
-        // The Kross package has its own Android upgrade sequence.
-        versionCode = if (krossSideBySide) 45 else 44
+        versionCode = 44
         versionName = "1.12.2"
 
         // Empty by default so no HA bearer token is ever baked into a
@@ -246,7 +248,7 @@ android {
             signingConfig = release ?: signingConfigs.getByName("debug")
             if (krossSideBySide) {
                 applicationIdSuffix = ".kross"
-                versionNameSuffix = ".k1"
+                versionNameSuffix = ".k${krossVersion.get().getProperty("revision").toInt()}"
                 // Android also requires a unique permission owner when both APKs are installed.
                 manifestPlaceholders["radarPermission"] = "es.jjrh.bikeradar.kross.permission.RADAR"
                 signingConfig = signingConfigs.getByName("debug")
@@ -345,6 +347,15 @@ android {
                 test.maxParallelForks = (Runtime.getRuntime().availableProcessors() / 3).coerceIn(1, 8)
                 test.maxHeapSize = "1g"
             }
+        }
+    }
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        if (krossSideBySide) {
+            val versionCode = krossVersion.get().getProperty("androidVersionCode").toInt()
+            variant.outputs.forEach { it.versionCode.set(versionCode) }
         }
     }
 }

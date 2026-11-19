@@ -3,9 +3,17 @@
 Nazwa wersji składa się z wersji oryginału i numeru zmian Krossa. Po `1.12.2.k1` nastąpi `1.12.2.k2`. Przy przejściu na nowszy oryginał numer `k` zaczyna się od 1, a Androidowy `versionCode` nadal rośnie, żeby telefon przyjmował aktualizacje.
 
 - Kod rozwijamy na gałęzi `feature/kross-echo-pro`. Commit zapisuje konkretną zmianę, a tag `kross-<wersja>` wskazuje dokładny stan kodu dla danego APK.
-- Przy następnym wydaniu testowym zaktualizuj końcówkę nazwy i zwiększ kod APK Krossa w `app/build.gradle.kts`. Dodaj u góry tego pliku opis zmian i ograniczenia, a po testach oznacz commit tagiem Krossa.
+- Przy następnym wydaniu testowym zwiększ `revision` oraz `androidVersionCode` w `gradle/kross-version.properties`. Dodaj u góry tego pliku opis zmian i ograniczenia, a po testach oznacz commit tagiem Krossa.
 - APK testowe budujemy z `-Pbikeradar.krossSideBySide` i nazywamy `BikeRadar-Kross-<wersja>.apk`. Identyfikator pakietu i klucz podpisu muszą być takie same jak w poprzednim APK Krossa.
 - Tagi `kross-*` służą do oznaczania stanów kodu. Automatyczne wydania oryginału uruchamiają się po tagach `v*`.
+
+## Aktualizacje oryginału
+
+Workflow [Kross upstream update](.github/workflows/kross-upstream.yml) codziennie sprawdza stabilne tagi oryginału. Można go też uruchomić z zakładki **Actions**. Opcja **Test the current Kross branch or an existing update proposal** uruchamia testy także wtedy, gdy brakuje nowej wersji.
+
+Dla nowszego tagu workflow przygotowuje osobną gałąź, ustawia `k1` i kolejny kod APK oraz otwiera roboczy pull request do gałęzi Krossa. Testy i raporty są w uruchomieniu podlinkowanym w PR. Konflikt zatrzymuje aktualizację i trafia do podsumowania zadania. Po przeglądzie i próbie na radarze można uzupełnić listę zmian, scalić PR i oznaczyć wersję tagiem Krossa.
+
+GitHub wymaga uprawnienia **Allow GitHub Actions to create and approve pull requests** do otwarcia PR przez `GITHUB_TOKEN`. Podsumowanie wskazuje też porównanie gałęzi, z którego można otworzyć PR ręcznie.
 
 ## 1.12.2.k1
 
