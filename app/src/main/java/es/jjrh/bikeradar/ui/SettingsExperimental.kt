@@ -116,7 +116,10 @@ internal fun SettingsExperimentalContent(
                     leadingIcon = Icons.Default.FlashOn,
                     leadingTint = br.brand,
                     title = stringResource(R.string.settings_exp_precog_title),
-                    subtitle = stringResource(R.string.settings_exp_precog_subtitle),
+                    enabled = !krossStreaming,
+                    subtitle = stringResource(
+                        if (krossStreaming) R.string.settings_kross_unavailable else R.string.settings_exp_precog_subtitle,
+                    ),
                     checked = precogEnabled,
                     onCheckedChange = onPrecogChange,
                     isLast = false,

@@ -1,10 +1,10 @@
 # Kross Echo Pro — known issues
 
-Status refers to test APK [1.12.2.k3](../../CHANGELOG-KROSS.md#1122k3).
+Status refers to test APK [1.12.2.k4](../../CHANGELOG-KROSS.md#1122k4).
 
 | Area | Evidence and current status |
 |---|---|
-| BLE discovery and reconnect | S24+ captures show successful discovery and FFE2 telemetry, alongside earlier intermittent GATT status 133. Check reconnect after loss of range, Bluetooth off/on and app restart. |
+| BLE discovery and reconnect | S24+ captures show successful discovery and FFE2 telemetry, alongside earlier intermittent GATT status 133. k4 retries twice after a verified stream without waiting for a new sighting. Hardware timing after standby, loss of range and Bluetooth off/on remains unverified. |
 | Connection labels | The earlier mismatch between the home screen and Settings is covered by automated UI tests. Check the transitions again on the S24+, including an Echo Pro without an Android bond. |
 | Targets and alerts | The decoder was replayed against 1,447 frames from two stationary roadside captures. The overlay and audible alerts still need a physical riding test. |
 | Target speed, direction and fifth slot | Speed units and left/right mapping are unverified. Both captures had side code zero for active targets and contained no type 0x31 frames. |

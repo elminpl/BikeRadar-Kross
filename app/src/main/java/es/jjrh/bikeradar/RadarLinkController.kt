@@ -526,6 +526,7 @@ internal class RadarLinkController(
         currentRadarMac = mac
         legacyTableVerified = false
         var backoffMs = RADAR_RECONNECT_BACKOFF_INITIAL_MS
+        var krossRetriesLeft = 0
         // Beside the backoff it guards, and for the same reason: this loop's
         // state starts fresh, so a restart that never decodes still records
         // its first backoff.
@@ -539,7 +540,18 @@ internal class RadarLinkController(
                 Log.i(TAG, "connect attempt to $name ${LogRedaction.mac(mac)}")
                 lastConnectionReachedDecode = false
                 val quickReconnect = connectAndRun(device, name, diagnosticOnly)
-                if (diagnosticOnly) return
+                if (diagnosticOnly) {
+                    // Retry after a verified stream. Initial probes and exhausted retries
+                    // leave background discovery to the low-power BLE scan.
+                    if (lastConnectionReachedDecode) krossRetriesLeft = KROSS_RECONNECT_DELAYS_MS.size
+                    if (krossRetriesLeft == 0 || prefs.isPaused) return
+                    val retryDelay = KROSS_RECONNECT_DELAYS_MS[KROSS_RECONNECT_DELAYS_MS.size - krossRetriesLeft]
+                    krossRetriesLeft--
+                    journal("Kross retry in ${retryDelay}ms after telemetry")
+                    delay(retryDelay)
+                    if (prefs.isPaused) return
+                    continue
+                }
                 linkState.markDisconnected()
                 if (bondLost) {
                     Log.i(TAG, "bond lost during attempt; exiting reconnect loop")
@@ -955,7 +967,10 @@ internal class RadarLinkController(
                                 break
                             }
                             if (synchronized(linkLock) { linkDown }) break
-                            if (overlayJob == null) overlayJob = overlayPipeline.attach(scope, name)
+                            if (overlayJob == null) {
+                                overlayJob = overlayPipeline.attach(scope, name)
+                                lastConnectionReachedDecode = true
+                            }
                             RadarStateBus.publish(state)
                         }
                     } finally {
@@ -1910,6 +1925,7 @@ internal class RadarLinkController(
             false
         }
         private const val TAG = "BikeRadar.Radar"
+        private val KROSS_RECONNECT_DELAYS_MS = longArrayOf(1_000L, 3_000L)
         private const val CAPTURE_RECONNECT_GRACE_MS = 15_000L
 
         // V2 data-flow watchdog: if no V2 notification arrives for

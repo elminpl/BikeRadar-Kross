@@ -586,6 +586,39 @@ class RadarLinkControllerHarnessTest {
         assertTrue(pumpUntil { p.radarLinkProbe?.endsWith(" out=kross-connect-disconnected-133") == true })
     }
 
+    @Test fun aKrossWithVerifiedTelemetryRetriesTwiceWithoutAnotherScan() = runTest {
+        val link = Link()
+        val service = UUID.fromString("aa86ffe0-3884-465c-a034-c242988b0000")
+        val input = UUID.fromString("aa86ffe1-3884-465c-a034-c242988b0000")
+        val output = UUID.fromString("aa86ffe2-3884-465c-a034-c242988b0000")
+        val gateway = FakeGateway()
+        val controller = controller(link, prefs = prefs(paused = false), gateway = gateway, setUp = { gatt ->
+            val notifications = char(output, propNotify, cccd = true)
+            addService(gatt, service, char(input, propWrite), notifications)
+            shadowOf(gatt).allowCharacteristicNotification(notifications)
+        })
+        startDriver(link)
+        controller.start("Radar123", mac, diagnosticOnly = true)
+        assertTrue(pumpUntil { link.openCount == 1 })
+        bootstrap(link)
+        assertTrue(pumpUntil { gateway.state.radarDiagnosticStage == RadarDiagnosticStage.SUBSCRIBED })
+        notify(link, service, output, "300055000000fff0")
+        assertTrue(pumpUntil { RadarStateBus.state.value.source == DataSource.KROSS })
+
+        fun disconnect(status: Int) {
+            requireNotNull(link.cb).onConnectionStateChange(requireNotNull(link.gatt), status, BluetoothProfile.STATE_DISCONNECTED)
+        }
+
+        disconnect(BluetoothGatt.GATT_SUCCESS)
+        assertTrue(pumpUntil(1_500L) { link.openCount == 2 })
+        disconnect(133)
+        assertTrue(pumpUntil(3_500L) { link.openCount == 3 })
+        disconnect(133)
+        assertTrue(pumpUntil { !controller.isActive() })
+        assertEquals(3, link.openCount)
+        assertEquals(DataSource.NONE, RadarStateBus.state.value.source)
+    }
+
     @Test fun stoppingKrossDiagnosticsClosesTheCurrentAttempt() = runTest {
         val link = Link()
         val gateway = FakeGateway()

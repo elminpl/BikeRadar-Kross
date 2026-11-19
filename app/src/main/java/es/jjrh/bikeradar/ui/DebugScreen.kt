@@ -265,13 +265,13 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .clickable { cueExpanded = !cueExpanded },
+                    .clickable { cueExpanded = !cueExpanded }
+                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(R.string.debug_section_cue_preview),
+                    text = stringResource(R.string.debug_section_cue_preview).uppercase(),
                     color = br.fgDim,
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.SemiBold,

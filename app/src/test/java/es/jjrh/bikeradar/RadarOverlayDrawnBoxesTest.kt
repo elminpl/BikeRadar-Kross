@@ -46,6 +46,23 @@ class RadarOverlayDrawnBoxesTest {
 
     private fun RadarOverlayView.recorder() = BoxRecorder(Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888))
 
+    @Test
+    fun decodedKrossTargetIsDrawnAndTheIdleFrameClearsIt() {
+        val view = overlay(portrait = true)
+        val recorder = view.recorder()
+        val active = requireNotNull(KrossRadarDecoder.decode(byteArrayOf(0x30, 1, 0x55, 8, 0, 0, -1, -16), 1))
+        val idle = requireNotNull(KrossRadarDecoder.decode(byteArrayOf(0x30, 0, 0x55, 0, 0, 0, -1, -16), 2))
+        view.setState(active)
+        view.draw(recorder)
+        val withTarget = recorder.rects.map { RectF(it) }
+
+        recorder.clear()
+        view.setState(idle)
+        view.draw(recorder)
+        val target = (withTarget.toSet() - recorder.rects.toSet()).single()
+        assertTrue("range-only target is drawn in the centre", kotlin.math.abs(target.centerX() - view.width / 2f) < 1f)
+    }
+
     private data class Target(val name: String, val vehicle: (distanceM: Int, lateralPos: Float) -> Vehicle)
 
     private val targets = listOf(
