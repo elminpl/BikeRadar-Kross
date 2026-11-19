@@ -43,7 +43,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
-import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 
@@ -328,6 +327,9 @@ class BikeRadarService : Service() {
         ClosePassStateBus.reset()
         rideStats = RideStatsAccumulator()
         prefs = Prefs(this)
+        krossCandidate.value = prefs.lastKrossSighting?.split('|', limit = 2)
+            ?.takeIf { it.size == 2 && android.bluetooth.BluetoothAdapter.checkBluetoothAddress(it[0].uppercase(Locale.ROOT)) }
+            ?.let { KrossCandidate(it[1], it[0]) }
         // Dirty-restart detection: the marker survives a crash / system kill /
         // force-stop (only onDestroy clears it), so finding it set here means
         // the previous instance died without a clean shutdown.
@@ -771,13 +773,44 @@ class BikeRadarService : Service() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    internal data class KrossCandidate(val name: String, val mac: String)
+
+    private var krossManuallyStopped = false
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (stoppedWithoutNearby) return START_NOT_STICKY
         when (intent?.action) {
             ACTION_READ_DEVICE -> {
                 val mac = intent.getStringExtra(EXTRA_MAC) ?: return START_STICKY
                 val name = intent.getStringExtra(EXTRA_NAME) ?: return START_STICKY
-                if (!prefs.isPaused) scheduleRead(name, mac)
+                if (!prefs.isPaused) {
+                    if (intent.getBooleanExtra(EXTRA_KROSS_DIAGNOSTIC, false)) {
+                        if (!radarLink.isActive() || krossCandidate.value == null) {
+                            val candidate = KrossCandidate(name, mac)
+                            if (candidate != krossCandidate.value) {
+                                prefs.lastKrossSighting = "$mac|$name"
+                                krossCandidate.value = candidate
+                            }
+                        }
+                        if (!krossManuallyStopped) startKrossDiagnostic(name, mac)
+                    } else {
+                        scheduleRead(name, mac)
+                    }
+                }
+            }
+            ACTION_KROSS_CONNECT -> {
+                krossManuallyStopped = false
+                val candidate = krossCandidate.value
+                if (candidate != null) {
+                    startKrossDiagnostic(candidate.name, candidate.mac)
+                } else if (prefs.serviceEnabled && !prefs.isPaused) {
+                    unregisterEventScan()
+                    registerEventScan()
+                }
+            }
+            ACTION_KROSS_DISCONNECT -> {
+                krossManuallyStopped = true
+                radarLink.stopDiagnostic()
             }
             ACTION_UPDATE_NOTIF -> {
                 schedulePauseExpiry()
@@ -827,6 +860,17 @@ class BikeRadarService : Service() {
             ACTION_PREVIEW_CUE -> playPreviewCue(intent.getStringExtra(EXTRA_CUE), alertBeeper)
         }
         return START_STICKY
+    }
+
+    private fun startKrossDiagnostic(name: String, mac: String) {
+        if (prefs.isPaused || !prefs.serviceEnabled) return
+        val pin = prefs.radarMac
+        val mayProbe = if (pin != null) {
+            mac.equals(pin, ignoreCase = true)
+        } else {
+            !RadarSelection.hasLinkableRadar(RadarSelection.bondedDevices(this), null)
+        }
+        if (mayProbe) radarLink.start(name, mac, diagnosticOnly = true)
     }
 
     override fun onDestroy() {
@@ -880,6 +924,7 @@ class BikeRadarService : Service() {
         // same process; clear it so Stop = clean slate for MAC->slug resolution.
         macToSlug.clear()
         radarLinkStateForUi = null
+        krossCandidate.value = null
         flushCaptureLogForUi = null
     }
 
@@ -1067,11 +1112,9 @@ class BikeRadarService : Service() {
             Log.w(TAG, "no BLE scanner")
             return
         }
-        val filters = listOf(
-            ScanFilter.Builder()
-                .setServiceUuid(ParcelUuid(UUID.fromString("0000fe1f-0000-1000-8000-00805f9b34fb")))
-                .build(),
-        )
+        val services = listOf(Uuids.SVC_ACCESSORY_ADVERT) +
+            KrossBleDiagnostics.advertisedServices
+        val filters = services.map { ScanFilter.Builder().setServiceUuid(ParcelUuid(it)).build() }
         // FIRST_MATCH + MATCH_LOST: host process wakes once when a known
         // device appears and once when it disappears, instead of for every
         // advert (~1 Hz/device under ALL_MATCHES). Battery values for the
@@ -1440,6 +1483,9 @@ class BikeRadarService : Service() {
         /** Debug-only radar light-mode write-probe (see [probeWriteRadarLight]).
          *  Forwarded from the dev-only [RemoteControlReceiver]. */
         const val ACTION_RADAR_LIGHT_PROBE_WRITE = "es.jjrh.bikeradar.RADAR_LIGHT_PROBE_WRITE"
+        internal const val ACTION_KROSS_CONNECT = "es.jjrh.bikeradar.KROSS_CONNECT"
+        internal const val ACTION_KROSS_DISCONNECT = "es.jjrh.bikeradar.KROSS_DISCONNECT"
+        internal const val EXTRA_KROSS_DIAGNOSTIC = "krossDiagnostic"
         const val EXTRA_MAC = "mac"
         const val EXTRA_NAME = "name"
         const val EXTRA_RADAR_LIGHT_NN = "nn"
@@ -1537,6 +1583,9 @@ class BikeRadarService : Service() {
          *  camera piggyback reads; read by the overlay composer to resolve the
          *  user-selected dashcam MAC to the right battery entry. */
         val macToSlug = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+        private val krossCandidate = kotlinx.coroutines.flow.MutableStateFlow<KrossCandidate?>(null)
+        internal val krossCandidateForUi: kotlinx.coroutines.flow.StateFlow<KrossCandidate?> = krossCandidate
 
         /**
          * Normalise a device's ADVERTISED name into a slug.

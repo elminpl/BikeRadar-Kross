@@ -24,6 +24,7 @@ val localProps = Properties().apply {
 }
 
 val debugKeystoreFile = rootProject.file("debug.keystore")
+val krossSideBySide = providers.gradleProperty("bikeradar.krossSideBySide").isPresent
 
 /**
  * Read a git value at configuration time, or null if git could not answer.
@@ -151,9 +152,11 @@ android {
 
     defaultConfig {
         applicationId = "es.jjrh.bikeradar"
+        manifestPlaceholders["radarPermission"] = "es.jjrh.bikeradar.permission.RADAR"
         minSdk = 31
         targetSdk = 36
-        versionCode = 44
+        // The Kross package has its own Android upgrade sequence.
+        versionCode = if (krossSideBySide) 45 else 44
         versionName = "1.12.2"
 
         // Empty by default so no HA bearer token is ever baked into a
@@ -241,6 +244,13 @@ android {
             // developer can still produce a release-variant APK for
             // inspection without needing the production keystore.
             signingConfig = release ?: signingConfigs.getByName("debug")
+            if (krossSideBySide) {
+                applicationIdSuffix = ".kross"
+                versionNameSuffix = ".k1"
+                // Android also requires a unique permission owner when both APKs are installed.
+                manifestPlaceholders["radarPermission"] = "es.jjrh.bikeradar.kross.permission.RADAR"
+                signingConfig = signingConfigs.getByName("debug")
+            }
         }
         getByName("debug") {
             // Local dev convenience only: seed HA creds from local.properties

@@ -74,6 +74,7 @@ import es.jjrh.bikeradar.HaStatusDeriver
 import es.jjrh.bikeradar.MissingPermission
 import es.jjrh.bikeradar.Permissions
 import es.jjrh.bikeradar.R
+import es.jjrh.bikeradar.RadarDiagnosticStage
 import es.jjrh.bikeradar.RadarLinkCoordinator
 import es.jjrh.bikeradar.RadarLinkState
 import es.jjrh.bikeradar.RadarLinkStatus
@@ -206,7 +207,7 @@ private fun MainScreenBody(navController: NavController, prefs: Prefs) {
     val radarFresh = radarStreamIsLive(radarState, now)
     // A range-only source is delivering, but cannot raise the urgent warning
     // or log a close pass, so the row must not render it as full cover.
-    val radarLimited = radarState.source == DataSource.V1
+    val radarLimited = radarState.source == DataSource.V1 || radarState.source == DataSource.KROSS
     // For the close-pass card alone, which must say the same before and after
     // a ride as during it (`ClosePassCardStoredRadarTest`).
     val closePassRangeOnly = RadarSelection.reportsDistanceOnly(radarState.source, prefs.rangeOnlyRadarMac, prefsSnap.radarMac, paired)
@@ -217,6 +218,8 @@ private fun MainScreenBody(navController: NavController, prefs: Prefs) {
     // signal" about the same radar.
     val noRadarLinkFlow = remember { MutableStateFlow(RadarLinkState()) }
     val radarLinkSnap by (BikeRadarService.radarLinkStateForUi ?: noRadarLinkFlow).collectAsState()
+    val radarDiagnosticStage = radarLinkSnap.radarDiagnosticStage
+    val krossCandidate by BikeRadarService.krossCandidateForUi.collectAsState()
     val radarConnecting = RadarLinkStatus.isConnecting(radarLinkSnap, SystemClock.elapsedRealtime())
     // Counted by the service across failed attempts, so reopening this screen
     // does not restart it (`thePowerCycleWaitIsTheServicesNotTheScreens`).
@@ -272,8 +275,9 @@ private fun MainScreenBody(navController: NavController, prefs: Prefs) {
         walkAwayAlarmOn = prefsSnap.walkAwayAlarmEnabled,
         radarLeftOnAlarmOn = prefsSnap.radarLeftOnAlarmEnabled,
         radarConnecting = radarConnecting,
+        radarDiagnosticStage = radarDiagnosticStage,
         connectingAdviceDue = connectingAdviceDue,
-        radarPickOffered = radarPickOffered,
+        radarPickOffered = radarPickOffered || krossCandidate != null,
         pinnedOffRadarName = pinnedOffRadarName,
     )
     val statusModel = MainStatusDeriver.derive(
@@ -372,6 +376,7 @@ private fun MainScreenBody(navController: NavController, prefs: Prefs) {
             ebikeStage = shownEBikeStage(ebikeStage, missingPermission),
             radarLimited = radarLimited,
             radarConnecting = radarConnecting,
+            radarDiagnosticStage = radarDiagnosticStage,
             hasBond = hasBond,
             dashcamOwned = dashcamOwned,
             dashcamFresh = dashcamFresh,
@@ -420,6 +425,7 @@ internal fun MainScreenContent(
     ebikeStage: EBikeStage = EBikeStage.NOT_STARTED,
     radarLimited: Boolean = false,
     radarConnecting: Boolean = false,
+    radarDiagnosticStage: RadarDiagnosticStage? = null,
     hasBond: Boolean,
     dashcamOwned: Boolean,
     dashcamFresh: Boolean,
@@ -459,6 +465,7 @@ internal fun MainScreenContent(
             ebikeStage = ebikeStage,
             radarLimited = radarLimited,
             radarConnecting = radarConnecting,
+            radarDiagnosticStage = radarDiagnosticStage,
             hasBond = hasBond,
             dashcamOwned = dashcamOwned,
             dashcamFresh = dashcamFresh,
@@ -494,6 +501,7 @@ internal fun MainScreenContent(
             ebikeStage = ebikeStage,
             radarLimited = radarLimited,
             radarConnecting = radarConnecting,
+            radarDiagnosticStage = radarDiagnosticStage,
             hasBond = hasBond,
             dashcamOwned = dashcamOwned,
             dashcamFresh = dashcamFresh,
@@ -564,6 +572,7 @@ private fun MainScreenPortrait(
     ebikeStage: EBikeStage = EBikeStage.NOT_STARTED,
     radarLimited: Boolean = false,
     radarConnecting: Boolean = false,
+    radarDiagnosticStage: RadarDiagnosticStage? = null,
     hasBond: Boolean,
     dashcamOwned: Boolean,
     dashcamFresh: Boolean,
@@ -612,6 +621,7 @@ private fun MainScreenPortrait(
                 ebikeStage = ebikeStage,
                 radarLimited = radarLimited,
                 radarConnecting = radarConnecting,
+                radarDiagnosticStage = radarDiagnosticStage,
                 hasBond = hasBond,
                 btEnabled = btEnabled,
                 dashcamOwned = dashcamOwned,
@@ -665,6 +675,7 @@ private fun MainScreenLandscape(
     ebikeStage: EBikeStage = EBikeStage.NOT_STARTED,
     radarLimited: Boolean = false,
     radarConnecting: Boolean = false,
+    radarDiagnosticStage: RadarDiagnosticStage? = null,
     hasBond: Boolean,
     dashcamOwned: Boolean,
     dashcamFresh: Boolean,
@@ -738,6 +749,7 @@ private fun MainScreenLandscape(
                     radarFresh = radarFresh,
                     radarLimited = radarLimited,
                     radarConnecting = radarConnecting,
+                    radarDiagnosticStage = radarDiagnosticStage,
                     hasBond = hasBond,
                     btEnabled = btEnabled,
                     dashcamOwned = dashcamOwned,
@@ -796,6 +808,8 @@ internal fun ctaFor(
         label = stringResource(R.string.main_cta_turn_on_bluetooth),
         onClick = { ctx.startActivity(Intent(AndroidSettings.ACTION_BLUETOOTH_SETTINGS)) },
     )
+
+    inputs.radarDiagnosticStage != null -> null
 
     !inputs.hasBond -> StatusCta(
         label = stringResource(R.string.main_cta_pair),

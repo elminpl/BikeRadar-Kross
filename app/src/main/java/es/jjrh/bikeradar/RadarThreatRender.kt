@@ -80,10 +80,10 @@ internal fun threatLevelFor(
     source: DataSource,
     bands: SpeedBands,
     visualMaxM: Int,
-): ThreatLevel = if (source.hasClosingSpeed) {
-    threatLevel(v.closingKmh, bands)
-} else {
-    threatLevelFromRange(v.distanceM, visualMaxM)
+): ThreatLevel = when {
+    source == DataSource.KROSS -> if (v.reportedThreatLevel == 2) ThreatLevel.DANGER else ThreatLevel.WARNING
+    source.hasClosingSpeed -> threatLevel(v.closingKmh, bands)
+    else -> threatLevelFromRange(v.distanceM, visualMaxM)
 }
 
 /**

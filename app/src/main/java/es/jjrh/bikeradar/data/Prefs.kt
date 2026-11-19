@@ -83,6 +83,8 @@ data class PrefsSnapshot(
     val captureLoggingEnabled: Boolean,
     val setupTranscriptEnabled: Boolean,
     val radarLeftOnAlarmEnabled: Boolean,
+    val krossProbeEnabled: Boolean = false,
+    val krossProbeResult: String? = null,
 ) {
     /** See [Prefs.activeDashcamMac]. */
     val activeDashcamMac: String?
@@ -796,6 +798,12 @@ class Prefs(context: Context) {
             sp.edit().putString(KEY_RADAR_MAC, v).apply()
         }
 
+    internal var lastKrossSighting: String?
+        get() = learned.getString("last_kross_sighting", null)
+        set(value) {
+            learned.edit().putString("last_kross_sighting", value).apply()
+        }
+
     /** Display name of the pinned radar, written with [radarMac]. */
     @set:VisibleForTesting
     var radarDisplayName: String?
@@ -997,6 +1005,18 @@ class Prefs(context: Context) {
             sp.edit().putBoolean(KEY_RADAR_SETTINGS_PROBE, v).apply()
         }
 
+    internal var krossProbeEnabled: Boolean
+        get() = sp.getBoolean(KEY_KROSS_PROBE_ENABLED, false)
+        set(value) {
+            sp.edit().putBoolean(KEY_KROSS_PROBE_ENABLED, value).apply()
+        }
+
+    internal var krossProbeResult: String?
+        get() = sp.getString(KEY_KROSS_PROBE_RESULT, null)
+        set(value) {
+            sp.edit().putString(KEY_KROSS_PROBE_RESULT, value).apply()
+        }
+
     /** Master switch for the per-ride capture log. Off by default: the log
      *  records the exact timing of every radar packet, BLE notify and eBike
      *  snapshot to app-specific external storage - ride-tracking-grade data
@@ -1150,6 +1170,8 @@ class Prefs(context: Context) {
         captureLoggingEnabled = captureLoggingEnabled,
         setupTranscriptEnabled = setupTranscriptEnabled,
         radarLeftOnAlarmEnabled = radarLeftOnAlarmEnabled,
+        krossProbeEnabled = krossProbeEnabled,
+        krossProbeResult = krossProbeResult,
     )
 
     /** Snapshots are read in `map` on the collector, never in the producer or
@@ -1234,6 +1256,8 @@ class Prefs(context: Context) {
         appendLine("ebike_ownership=$eBikeOwnership")
         appendLine("ebike_unknown_object_log_enabled=$eBikeUnknownObjectLogEnabled")
         appendLine("radar_settings_probe_enabled=$radarSettingsProbeEnabled")
+        appendLine("kross_probe_enabled=$krossProbeEnabled")
+        appendLine("kross_probe_result=${krossProbeResult ?: "<unset>"}")
         appendLine("capture_logging_enabled=$captureLoggingEnabled")
         appendLine("capture_setup_transcript_enabled=$setupTranscriptEnabled")
         appendLine("dirty_restart_count=$dirtyRestartCount")
@@ -1353,6 +1377,8 @@ class Prefs(context: Context) {
         const val KEY_EBIKE_DATA_ENABLED = "ebike_data_enabled"
         const val KEY_EBIKE_OWNERSHIP = "ebike_ownership"
         const val KEY_EBIKE_UNKNOWN_OBJ_LOG = "ebike_unknown_object_log_enabled"
+        const val KEY_KROSS_PROBE_ENABLED = "kross_probe_enabled"
+        const val KEY_KROSS_PROBE_RESULT = "kross_probe_result"
         const val KEY_RADAR_SETTINGS_PROBE = "radar_settings_probe_enabled"
         const val KEY_CAPTURE_LOGGING = "capture_logging_enabled"
         const val KEY_SETUP_TRANSCRIPT = "capture_setup_transcript_enabled"

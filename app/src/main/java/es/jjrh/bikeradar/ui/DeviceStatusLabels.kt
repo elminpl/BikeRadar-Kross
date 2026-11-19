@@ -32,6 +32,7 @@ fun radarLinkLabel(state: DeviceLinkState): Int = when (state) {
     DeviceLinkState.LIVE -> R.string.device_status_live
     DeviceLinkState.LIMITED -> R.string.device_status_limited
     DeviceLinkState.CONNECTING -> R.string.device_status_connecting
+    DeviceLinkState.BLUETOOTH_CONNECTED -> R.string.device_status_bluetooth_connected
     DeviceLinkState.NO_SIGNAL -> R.string.device_status_no_signal
 }
 
@@ -50,6 +51,7 @@ fun dashcamLinkLabel(state: DeviceLinkState): Int = when (state) {
     DeviceLinkState.LIVE -> R.string.device_status_cam_live
     DeviceLinkState.LIMITED -> R.string.device_status_cam_limited
     DeviceLinkState.CONNECTING -> R.string.device_status_connecting
+    DeviceLinkState.BLUETOOTH_CONNECTED -> R.string.device_status_bluetooth_connected
     DeviceLinkState.NO_SIGNAL -> R.string.device_status_no_signal
 }
 

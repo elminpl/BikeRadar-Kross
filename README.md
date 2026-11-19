@@ -4,7 +4,7 @@
 
 Projekt jest prywatną, niezależną modyfikacją [Bike Radar Overlay autorstwa partymola](https://github.com/partymola/android-bike-radar-overlay). Celem jest dodanie obsługi Kross Echo Pro bez pogorszenia kompatybilności z radarami Garmin. Nie jest to oficjalna aplikacja Kross ani wydanie oryginalnego autora.
 
-> **Stan projektu: prace rozwojowe.** W eksperymentalnym APK udało się nawiązać połączenie GATT, wykonać handshake i odbierać powiadomienia BLE. Format danych o pojazdach nie został jeszcze potwierdzony, dlatego **wykrywanie pojazdów i alerty Kross nie są obecnie zweryfikowane**. Eksperymentalne modyfikacje Smali nie zostały automatycznie przeniesione do kodu źródłowego.
+> **Stan projektu.** Wersja testowa `1.12.2.k1` odbiera dane Kross Echo Pro i pokazuje odległość oraz poziom zagrożenia. Odczyty prędkości, strony mijania i zachowanie podczas jazdy wymagają dalszych testów na sprzęcie.
 
 ## Cele
 
@@ -17,10 +17,11 @@ Projekt jest prywatną, niezależną modyfikacją [Bike Radar Overlay autorstwa 
 
 ## Co już ustalono
 
-W eksperymentalnych testach zaobserwowano usługi `FFE0` / `FFF0`, charakterystyki `FFE1`, `FFE2`, `FFF1`, `FFF2` oraz powtarzającą się ramkę `30 00 55 00 00 00 FF F0`. Znaczenie tej ramki jest nieznane. Pełne informacje i ograniczenia dowodowe opisano w [dokumentacji Kross](docs/kross/).
+Aplikacja wykrywa Kross Echo Pro, pokazuje stan połączenia i dekoduje odległość oraz zagrożenie z potwierdzonych ramek. Menu Diagnostyka zawiera próbny odczyt danych urządzenia. Szczegóły opisuje [dokumentacja BLE](docs/kross/BLE_PROTOCOL.md).
 
 ## Dokumentacja
 
+- [Wersje Kross i lista zmian](CHANGELOG-KROSS.md)
 - [Historia projektu i przekazanie kontekstu](docs/kross/PROJECT_HISTORY.md)
 - [Obserwacje protokołu BLE](docs/kross/BLE_PROTOCOL.md)
 - [Znane problemy i regresje](docs/kross/KNOWN_ISSUES.md)
@@ -37,5 +38,11 @@ Kod Android jest rozwijany i testowany w Codexie. Kompilacja debug APK i testy j
 ## Pochodzenie i licencja
 
 Oparty na [partymola/android-bike-radar-overlay](https://github.com/partymola/android-bike-radar-overlay). Prawa autorskie do oryginalnego kodu należą do jego autorów. Zachowujemy historię Git, informacje o autorach i [licencję GNU GPL v3 lub nowszą](LICENSE). Zmiany BikeRadar-Kross są niezależnym rozwinięciem projektu.
+
+Sześć plików kontraktu IPC ma licencję [Apache-2.0](LICENSES/Apache-2.0.txt):
+`IRadarService.aidl`, `IRadarListener.aidl`, `RadarStateParcel.aidl`,
+`RadarContract.kt`, `RadarStateParcel.kt` i `RadarVehicleParcel.kt`.
+Zasady dotyczące aplikacji korzystających wyłącznie z tego interfejsu
+określa [dodatkowe zezwolenie GPL](additional-permission.txt).
 
 Funkcje i deklaracje dotyczące radarów Garmin w oryginalnym projekcie nie oznaczają, że analogiczne funkcje są już dostępne dla Kross Echo Pro.

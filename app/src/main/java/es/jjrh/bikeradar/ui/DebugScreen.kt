@@ -179,6 +179,7 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
                 val src = when (s.source) {
                     DataSource.V2 -> "v=2"
                     DataSource.V1 -> "v=1"
+                    DataSource.KROSS -> "Kross"
                     DataSource.NONE -> "v=?"
                 }
                 val n = s.vehicles.size
@@ -198,6 +199,24 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         ) {
             SettingsHeader(stringResource(R.string.debug_title), onBack = { navController.popBackStack() })
+
+            SettingsSectionLabel(stringResource(R.string.debug_kross_title))
+            SettingsRowGroup {
+                SettingsToggleRow(
+                    title = stringResource(R.string.debug_kross_probe),
+                    subtitle = stringResource(R.string.debug_kross_probe_help),
+                    checked = prefsSnap.krossProbeEnabled,
+                    onCheckedChange = { prefs.krossProbeEnabled = it },
+                )
+                prefsSnap.krossProbeResult?.let { result ->
+                    Text(
+                        text = stringResource(R.string.debug_kross_last_result, result),
+                        color = br.fgDim,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                    )
+                }
+            }
 
             // Scenarios
             DebugScenarioControls(

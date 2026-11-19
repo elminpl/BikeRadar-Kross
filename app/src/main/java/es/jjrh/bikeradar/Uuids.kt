@@ -9,6 +9,7 @@ object Uuids {
     // neither advertises 6a4e2xxx in advert data. Scan filter MUST use
     // 0000fe1f, not the radar service UUID, or the Vue will be missed.
     const val COMPANY_UUID_HEX = "0000fe1f"
+    val SVC_ACCESSORY_ADVERT: UUID = UUID.fromString("$COMPANY_UUID_HEX-0000-1000-8000-00805f9b34fb")
 
     // Standard Battery Service (both Vue and RearVue820)
     val SVC_BATTERY: UUID = UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")

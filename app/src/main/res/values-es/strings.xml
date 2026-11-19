@@ -159,6 +159,7 @@
     <string name="device_status_not_paired">No emparejado</string>
     <string name="device_status_live">Activo</string>
     <string name="device_status_limited">Limitado</string>
+    <string name="device_status_bluetooth_connected">Bluetooth conectado</string>
     <string name="device_status_connecting">Conectando…</string>
     <string name="device_status_no_signal">Sin señal</string>
     <!-- Formas de la cámara: femenino, para "la Cámara". "Sin señal" y
@@ -520,6 +521,8 @@
     <string name="settings_radardev_pair_different_title">Emparejar un radar distinto</string>
     <string name="settings_radardev_open">Abrir</string>
     <string name="settings_radardev_pair_different_subtitle">Abre los ajustes de Bluetooth. ¿Sustituyes tu radar? Olvida allí primero el antiguo.</string>
+    <string name="settings_radardev_kross_disconnected">Desconectado · Pulsa para conectar</string>
+    <string name="settings_radardev_kross_connected">Bluetooth conectado · Pulsa para desconectar</string>
     <string name="settings_radardev_section_position">Posición del radar</string>
     <string name="settings_radardev_position_title">Desfase lateral</string>
     <string name="settings_radardev_position_helper">Desliza hacia el lado donde está montado el radar.</string>
@@ -737,6 +740,10 @@
     <!-- ════════════════════════════════════════════════════════════════
          Pantalla de depuración (DebugScreen.kt) - diagnósticos tras desbloqueo de dev
          ════════════════════════════════════════════════════════════════ -->
+    <string name="debug_kross_title">Kross Echo Pro</string>
+    <string name="debug_kross_probe">Leer datos de diagnóstico</string>
+    <string name="debug_kross_probe_help">Una vez por conexión con Kross. Lee la batería, el modelo y los ajustes. Activa el registro de capturas para guardar la respuesta BLE.</string>
+    <string name="debug_kross_last_result">Última lectura: %1$s</string>
     <string name="debug_title">Depuración</string>
     <string name="debug_section_scenarios">Escenarios</string>
     <string name="debug_replay">Reproducir</string>
@@ -779,7 +786,7 @@
     <string name="debug_section_diagnostics">Diagnósticos</string>
     <string name="debug_log_unknown_ebike_ids_title">Registrar IDs de objeto desconocidos de la eBike</string>
     <string name="debug_log_unknown_ebike_ids_subtitle">Escribe líneas ebike_unk para los registros sin mapear. Alterna cada estado de la bici durante una captura para identificar los IDs de bloqueo/luz/cargador, luego desactívalo.</string>
-    <string name="debug_probe_radar_settings_title">Sondear el canal de ajustes del radar</string>
+    <string name="debug_probe_radar_settings_title">Sondear el canal de ajustes del radar Garmin</string>
     <string name="debug_probe_radar_settings_subtitle">Registra líneas radar_2f14 / radar_2f12 del servicio de control del radar. Recorre los modos de la luz trasera (botón o app del fabricante) para identificar la codificación de noche/día, luego desactívalo.</string>
     <string name="debug_send">Enviar</string>
     <string name="debug_copy_diagnostic_bundle">Copiar paquete de diagnóstico</string>

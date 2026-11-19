@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import es.jjrh.bikeradar.BatteryStateBus
 import es.jjrh.bikeradar.BikeRadarService
@@ -53,6 +54,7 @@ import es.jjrh.bikeradar.DataSource
 import es.jjrh.bikeradar.MissingPermission
 import es.jjrh.bikeradar.Permissions
 import es.jjrh.bikeradar.R
+import es.jjrh.bikeradar.RadarDiagnosticStage
 import es.jjrh.bikeradar.RadarLinkState
 import es.jjrh.bikeradar.RadarLinkStatus
 import es.jjrh.bikeradar.RadarSelection
@@ -144,7 +146,11 @@ private fun SettingsRadarDeviceBody(navController: NavController, prefs: Prefs) 
     val linkSnap by (BikeRadarService.radarLinkStateForUi ?: noServiceFlow).collectAsState()
 
     val chosen = prefsSnap.radarMac
-    val activeName = RadarSelection.activeRadarName(allBonded, chosen)
+    val radioUp = radioUsable(!bluetoothOff, missing)
+    val krossStage = linkSnap.radarDiagnosticStage.takeIf { radioUp }
+    val krossCandidate by BikeRadarService.krossCandidateForUi.collectAsState()
+    val krossName = krossCandidate?.name?.takeIf { radioUp }
+    val activeName = RadarSelection.activeRadarName(allBonded, chosen) ?: krossName.takeIf { krossStage != null }
 
     var offsetCm by rememberSaveable { mutableIntStateOf(prefs.radarLateralOffsetCm) }
 
@@ -160,10 +166,11 @@ private fun SettingsRadarDeviceBody(navController: NavController, prefs: Prefs) 
         // first, as on the home row ([radioUsable]): with Scan alone denied the
         // list still reads, and the screen asks for the permission as the row
         // does (`SettingsRadarDevicePermissionTest`).
-        linked = radioUsable(!bluetoothOff, missing) && RadarSelection.hasLinkableRadar(allBonded, chosen),
+        linked = radioUp && RadarSelection.hasLinkableRadar(allBonded, chosen),
         fresh = connected,
-        limited = radarState.source == DataSource.V1,
+        limited = radarState.source == DataSource.V1 || radarState.source == DataSource.KROSS,
         connecting = RadarLinkStatus.isConnecting(linkSnap, SystemClock.elapsedRealtime()),
+        diagnosticStage = krossStage,
     )
 
     SettingsRadarDeviceContent(
@@ -190,6 +197,16 @@ private fun SettingsRadarDeviceBody(navController: NavController, prefs: Prefs) 
         onOffsetChange = { offsetCm = it },
         onOffsetCommit = { prefs.radarLateralOffsetCm = offsetCm },
         firmwareRev = prefsSnap.radarFirmwareRev,
+        krossName = krossName,
+        krossStage = krossStage,
+        onKrossAction = {
+            val action = if (krossStage == null) {
+                BikeRadarService.ACTION_KROSS_CONNECT
+            } else {
+                BikeRadarService.ACTION_KROSS_DISCONNECT
+            }
+            ContextCompat.startForegroundService(ctx, Intent(ctx, BikeRadarService::class.java).setAction(action))
+        },
     )
 }
 
@@ -231,6 +248,9 @@ internal fun SettingsRadarDeviceContent(
     onOffsetChange: (Int) -> Unit = {},
     onOffsetCommit: () -> Unit = {},
     firmwareRev: String? = null,
+    krossName: String? = null,
+    krossStage: RadarDiagnosticStage? = null,
+    onKrossAction: () -> Unit = {},
 ) {
     val br = LocalBrColors.current
     var othersExpanded by rememberSaveable { mutableStateOf(false) }
@@ -298,6 +318,9 @@ internal fun SettingsRadarDeviceContent(
                     expanded = othersExpanded,
                     onToggle = { othersExpanded = !othersExpanded },
                     onSelectRadar = onSelectRadar,
+                    krossName = krossName,
+                    krossStage = krossStage,
+                    onKrossAction = onKrossAction,
                     title = stringResource(R.string.onboarding_pair_radar_other_title),
                     subtitle = stringResource(R.string.onboarding_pair_radar_other_sub),
                 )
@@ -383,7 +406,13 @@ internal fun SettingsRadarDeviceContent(
                         if (distanceOnly) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = stringResource(R.string.settings_radardev_limited_source),
+                                text = stringResource(
+                                    if (krossStage != null) {
+                                        R.string.main_status_limited_sub
+                                    } else {
+                                        R.string.settings_radardev_limited_source
+                                    },
+                                ),
                                 color = br.caution,
                                 fontSize = 11.sp,
                             )
@@ -422,6 +451,9 @@ internal fun SettingsRadarDeviceContent(
                 expanded = othersExpanded,
                 onToggle = { othersExpanded = !othersExpanded },
                 onSelectRadar = onSelectRadar,
+                krossName = krossName,
+                krossStage = krossStage,
+                onKrossAction = onKrossAction,
             )
 
             SettingsSectionLabel(stringResource(R.string.settings_radardev_section_position))
@@ -506,8 +538,11 @@ internal fun RadarNotListedHatch(
     bordered: Boolean = false,
     paddingHorizontal: Dp = 16.dp,
     topGap: Dp = 8.dp,
+    krossName: String? = null,
+    krossStage: RadarDiagnosticStage? = null,
+    onKrossAction: () -> Unit = {},
 ) {
-    if (others.isEmpty()) return
+    if (others.isEmpty() && krossName == null) return
     val br = LocalBrColors.current
     if (topGap > 0.dp) Spacer(modifier = Modifier.height(topGap))
     SettingsRowGroup(paddingHorizontal = paddingHorizontal, bordered = bordered) {
@@ -525,6 +560,22 @@ internal fun RadarNotListedHatch(
             isLast = !expanded,
         )
         if (expanded) {
+            if (krossName != null) {
+                val status = when (krossStage) {
+                    null -> R.string.settings_radardev_kross_disconnected
+                    RadarDiagnosticStage.CONNECTING -> R.string.device_status_connecting
+                    RadarDiagnosticStage.GATT_CONNECTED, RadarDiagnosticStage.SUBSCRIBED -> R.string.settings_radardev_kross_connected
+                }
+                SettingsRow(
+                    icon = Icons.Default.Bluetooth,
+                    iconTint = br.fgMuted,
+                    title = krossName,
+                    subtitle = stringResource(status),
+                    onClick = onKrossAction,
+                    chevron = false,
+                    isLast = others.isEmpty(),
+                )
+            }
             others.forEachIndexed { i, dev ->
                 val isChosen = dev.mac.equals(chosenMac, ignoreCase = true)
                 SettingsRow(

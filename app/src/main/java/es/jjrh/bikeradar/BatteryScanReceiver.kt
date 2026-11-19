@@ -17,13 +17,13 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import es.jjrh.bikeradar.data.Prefs
+import java.util.UUID
 
 /**
  * Receives advertisement-batch broadcasts from the OS BLE scanner.
  *
  * BikeRadarService registers a PendingIntent scan with a hardware filter on
- * Garmin's 16-bit company UUID 0000fe1f. The BT controller does the matching
- * off-host; we only get woken when a Vue or RearVue actually starts advertising.
+ * the supported service UUIDs. Kross candidates also require a matching local name.
  *
  * For each matching result we hand off to BikeRadarService via ACTION_READ_DEVICE;
  * the service throttles per-device so rapid-fire adverts don't trigger rapid-fire
@@ -78,13 +78,17 @@ class BatteryScanReceiver : BroadcastReceiver() {
             val name = s.name ?: continue
             val mac = s.mac ?: continue
             val pinned = pinnedRadarMac != null && mac.equals(pinnedRadarMac, ignoreCase = true)
-            if (!matchesVariaName(name) && !pinned) continue
-            // Defence-in-depth: only act on devices the user has paired
-            // with through the system. Without this gate, a peer
-            // advertising the Garmin company UUID + a name matching the
-            // heuristic could trigger GATT churn or BatteryEntry slug
-            // injection.
-            if (!s.bonded) {
+            val knownAccessory = matchesVariaName(name)
+            val accessoryAdvert = Uuids.SVC_ACCESSORY_ADVERT in s.services
+            val diagnostic = !knownAccessory &&
+                !accessoryAdvert &&
+                (pinned || pinnedRadarMac == null) &&
+                KrossBleDiagnostics.matchesAdvertisement(name, s.services)
+            if (!knownAccessory && !pinned && !diagnostic) continue
+            // New filters must not widen the regular accessory path.
+            if (!diagnostic && !accessoryAdvert && s.services.any { it in KrossBleDiagnostics.advertisedServices }) continue
+            // Only a bounded Kross diagnostic can run without a system bond.
+            if (!s.bonded && !diagnostic) {
                 Log.d(TAG, "skip $name: not bonded")
                 continue
             }
@@ -94,6 +98,7 @@ class BatteryScanReceiver : BroadcastReceiver() {
                 action = BikeRadarService.ACTION_READ_DEVICE
                 putExtra(BikeRadarService.EXTRA_NAME, name)
                 putExtra(BikeRadarService.EXTRA_MAC, mac)
+                if (diagnostic) putExtra(BikeRadarService.EXTRA_KROSS_DIAGNOSTIC, true)
             }
             try {
                 ContextCompat.startForegroundService(ctx, i)
@@ -109,7 +114,7 @@ class BatteryScanReceiver : BroadcastReceiver() {
         }
     }
 
-    private class Sighting(val name: String?, val mac: String?, val bonded: Boolean)
+    private class Sighting(val name: String?, val mac: String?, val bonded: Boolean, val services: List<UUID>)
 
     /**
      * Reads every result's device fields up front, or null when the read is
@@ -129,6 +134,7 @@ class BatteryScanReceiver : BroadcastReceiver() {
                 name = r.scanRecord?.deviceName ?: r.device?.name,
                 mac = r.device?.address,
                 bonded = r.device?.bondState == BluetoothDevice.BOND_BONDED,
+                services = r.scanRecord?.serviceUuids.orEmpty().map { it.uuid },
             )
         }
     } catch (_: SecurityException) {

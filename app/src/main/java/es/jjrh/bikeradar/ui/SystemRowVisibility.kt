@@ -2,6 +2,8 @@
 // Copyright (C) 2026 JJ del Rio
 package es.jjrh.bikeradar.ui
 
+import es.jjrh.bikeradar.RadarDiagnosticStage
+
 /**
  * Pure visibility/state predicates for device rows, so the data-driven "what
  * shows when" contracts are unit-asserted instead of pinned only by Roborazzi
@@ -23,7 +25,7 @@ package es.jjrh.bikeradar.ui
  *    yet (amber).
  *  - [NO_SIGNAL] paired, not connecting, no fresh reading (amber).
  */
-enum class DeviceLinkState { NOT_PAIRED, LIVE, LIMITED, CONNECTING, NO_SIGNAL }
+enum class DeviceLinkState { NOT_PAIRED, LIVE, LIMITED, CONNECTING, BLUETOOTH_CONNECTED, NO_SIGNAL }
 
 /**
  * Classify a rear-radar / front-dashcam row.
@@ -49,6 +51,7 @@ enum class DeviceLinkState { NOT_PAIRED, LIVE, LIMITED, CONNECTING, NO_SIGNAL }
  * @param fresh a reading arrived inside the row's freshness window.
  * @param limited the source is delivering, but cannot supply the full feature
  *   set. Only meaningful alongside [fresh].
+ * @param diagnosticStage the Kross transport state, available without an Android bond.
  * @param connecting the app currently holds or is establishing a link but has
  *   no fresh reading yet.
  */
@@ -57,7 +60,11 @@ fun deviceLinkState(
     fresh: Boolean,
     limited: Boolean = false,
     connecting: Boolean = false,
+    diagnosticStage: RadarDiagnosticStage? = null,
 ): DeviceLinkState = when {
+    diagnosticStage == RadarDiagnosticStage.CONNECTING -> DeviceLinkState.CONNECTING
+    diagnosticStage == RadarDiagnosticStage.SUBSCRIBED && fresh -> DeviceLinkState.LIMITED
+    diagnosticStage != null -> DeviceLinkState.BLUETOOTH_CONNECTED
     !linked -> DeviceLinkState.NOT_PAIRED
     fresh && limited -> DeviceLinkState.LIMITED
     fresh -> DeviceLinkState.LIVE

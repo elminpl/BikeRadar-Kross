@@ -38,6 +38,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -182,6 +183,7 @@ class RadarLinkControllerHarnessTest {
             return false
         }
         override fun markDisconnected(loss: LinkLoss?) {
+            state = state.copy(radarDiagnosticStage = null)
             events += "disconnected"
             losses += loss
             onDisconnect()
@@ -190,6 +192,11 @@ class RadarLinkControllerHarnessTest {
         /** What [snapshot] answers. */
         @Volatile var state = RadarLinkState()
         override fun snapshot(): RadarLinkState = state
+
+        override fun markRadarDiagnosticStage(stage: RadarDiagnosticStage?) {
+            events += "diagnostic:$stage"
+            state = state.copy(radarDiagnosticStage = stage)
+        }
     }
 
     /** Captured handle on the connection the controller opened. */
@@ -449,6 +456,146 @@ class RadarLinkControllerHarnessTest {
     } ?: false
 
     private fun journalHas(needle: String) = journal.toList().any { it.contains(needle) }
+
+    @Test fun aPinnedKrossPublishesTargetsWithoutRunningTheGarminHandshake() = runTest {
+        val link = Link()
+        val gateway = FakeGateway()
+        val p = prefs().apply {
+            radarMac = mac
+            captureLoggingEnabled = true
+            setupTranscriptEnabled = false
+        }
+        val root = Files.createTempDirectory("kross-capture").toFile()
+        val capture = CaptureLogManager(externalFilesDir = { root }, captureLoggingEnabled = { p.captureLoggingEnabled })
+        val service = UUID.fromString("aa86ffe0-3884-465c-a034-c242988b0000")
+        val input = UUID.fromString("aa86ffe1-3884-465c-a034-c242988b0000")
+        val output = UUID.fromString("aa86ffe2-3884-465c-a034-c242988b0000")
+        val commandService = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb")
+        val commandInput = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb")
+        val commandOutput = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
+        val controller = controller(link, prefs = p, gateway = gateway, captureLog = capture, setUp = { gatt ->
+            val notifications = char(output, propNotify, cccd = true)
+            addService(gatt, service, char(input, propWrite), notifications)
+            shadowOf(gatt).allowCharacteristicNotification(notifications)
+            val responses = char(commandOutput, propNotify, cccd = true)
+            addService(gatt, commandService, char(commandInput, propWriteNoResp), responses)
+            shadowOf(gatt).allowCharacteristicNotification(responses)
+            addService(gatt, Uuids.SVC_BATTERY, char(Uuids.CHAR_BATTERY, propRead, cccd = true))
+            addService(gatt, Uuids.SVC_DIS, char(Uuids.DIS_MODEL_NUMBER, propRead))
+        })
+
+        controller.start("Kross Echo Pro", mac)
+        assertTrue(pumpUntil { link.gatt != null })
+        assertEquals(RadarDiagnosticStage.CONNECTING, gateway.state.radarDiagnosticStage)
+        bootstrap(link)
+        assertTrue(pumpUntil { gateway.state.radarDiagnosticStage == RadarDiagnosticStage.SUBSCRIBED })
+        assertEquals(
+            listOf("diagnostic:CONNECTING", "diagnostic:GATT_CONNECTED", "diagnostic:SUBSCRIBED"),
+            gateway.events,
+        )
+        val gatt = requireNotNull(link.gatt)
+        val cb = requireNotNull(link.cb)
+        assertTrue(requireNotNull(p.radarLinkProbe).endsWith(" out=kross-subscribed-both"))
+        notify(link, service, output, "300055000000fff0")
+        notify(link, commandService, commandOutput, "11020013")
+        notify(link, service, output, "300255080000fff0")
+        assertTrue(pumpUntil { RadarStateBus.state.value.source == DataSource.KROSS && RadarStateBus.state.value.vehicles.isNotEmpty() })
+        capture.flushNow()
+        val logged = requireNotNull(File(root, CaptureLogManager.CAPTURE_DIR).listFiles()).single().readText()
+        assertTrue(logged.contains("ffe2 300055000000fff0"))
+        assertTrue(logged.contains("fff1 11020013"))
+        assertEquals(0, gateway.opens)
+        assertEquals(0, gateway.connects)
+        val radar = RadarStateBus.state.value
+        assertEquals(DataSource.KROSS, radar.source)
+        val target = radar.vehicles.single()
+        assertEquals(25, target.distanceM)
+        assertEquals(2, target.reportedThreatLevel)
+        assertTrue(target.lateralUnknown)
+        assertFalse(journalHas("radar handshake complete"))
+
+        val request = "1102baa9".hexToBytes()
+        assertFalse(shadowOf(gatt).latestWrittenBytes?.contentEquals(request) == true)
+        assertNull(p.krossProbeResult)
+        p.krossProbeEnabled = true
+        startDriver(link, batteryByte = 0x46)
+        val command = gatt.getService(commandService).getCharacteristic(commandInput)
+        assertTrue(pumpUntil { shadowOf(gatt).latestWrittenBytes?.contentEquals(request) == true })
+        cb.onCharacteristicWrite(gatt, command, BluetoothGatt.GATT_SUCCESS)
+        val reply = ByteArray(23).apply {
+            this[0] = 0x10
+            this[2] = 0xba.toByte()
+            this[3] = 2
+            this[4] = 90
+            this[5] = 1
+        } + "VER:1.2.3".encodeToByteArray()
+        cb.onCharacteristicChanged(gatt, gatt.getService(commandService).getCharacteristic(commandOutput), reply)
+        assertTrue(pumpUntil { p.krossProbeResult?.contains("firmware≈1.2.3") == true })
+        assertTrue(requireNotNull(p.krossProbeResult).startsWith("2A19=70%"))
+        assertEquals(DataSource.KROSS, RadarStateBus.state.value.source)
+        assertEquals(0, gateway.connects)
+
+        cb.onConnectionStateChange(gatt, BluetoothGatt.GATT_SUCCESS, BluetoothProfile.STATE_DISCONNECTED)
+        runCurrent()
+        assertNull(gateway.state.radarDiagnosticStage)
+        assertEquals(DataSource.NONE, RadarStateBus.state.value.source)
+        assertTrue(journalHas("Kross diagnostic notifications ffe2=2 fff1=2"))
+    }
+
+    @Test fun anIncompleteKrossProfileDoesNotRunTheExistingRadarHandshake() = runTest {
+        val link = Link()
+        val gateway = FakeGateway()
+        val p = prefs().apply { radarMac = mac }
+        val service = UUID.fromString("aa86ffe0-3884-465c-a034-c242988b0000")
+        val output = UUID.fromString("aa86ffe2-3884-465c-a034-c242988b0000")
+        val controller = controller(link, prefs = p, gateway = gateway, setUp = { gatt ->
+            addService(gatt, service, char(output, propNotify, cccd = true))
+        })
+        controller.start("Kross Echo Pro", mac)
+        assertTrue(pumpUntil { link.gatt != null })
+        bootstrap(link)
+        assertTrue(pumpUntil { p.radarLinkProbe?.endsWith(" out=kross-profile-unconfirmed") == true })
+        assertNull(gateway.state.radarDiagnosticStage)
+        assertEquals(0, gateway.opens)
+        assertEquals(0, gateway.connects)
+    }
+
+    @Test fun aKrossDiagnosticDistinguishesARejectedDiscoveryRequest() = runTest {
+        val link = Link()
+        val p = prefs()
+        val controller = controller(link, prefs = p, setUp = {})
+        controller.start("Radar123", mac, diagnosticOnly = true)
+        assertTrue(pumpUntil { link.gatt != null })
+        bootstrap(link)
+        assertTrue(pumpUntil { p.radarLinkProbe?.endsWith(" out=kross-discovery-rejected") == true })
+        assertTrue(journalHas("Kross discovery submitted=false"))
+    }
+
+    @Test fun aKrossDiagnosticDistinguishesADisconnectBeforeDiscovery() = runTest {
+        val link = Link()
+        val p = prefs()
+        val controller = controller(link, prefs = p, setUp = {})
+        controller.start("Radar123", mac, diagnosticOnly = true)
+        assertTrue(pumpUntil { link.gatt != null })
+        requireNotNull(link.cb).onConnectionStateChange(requireNotNull(link.gatt), 133, BluetoothProfile.STATE_DISCONNECTED)
+        assertTrue(pumpUntil { p.radarLinkProbe?.endsWith(" out=kross-connect-disconnected-133") == true })
+    }
+
+    @Test fun stoppingKrossDiagnosticsClosesTheCurrentAttempt() = runTest {
+        val link = Link()
+        val gateway = FakeGateway()
+        val controller = controller(link, gateway = gateway, setUp = {})
+        controller.start("Radar123", mac, diagnosticOnly = true)
+        assertTrue(pumpUntil { link.gatt != null })
+        assertEquals(RadarDiagnosticStage.CONNECTING, gateway.state.radarDiagnosticStage)
+
+        controller.stopDiagnostic()
+        runCurrent()
+
+        assertFalse(controller.isActive())
+        assertNull(gateway.state.radarDiagnosticStage)
+        assertEquals(1, link.openCount)
+    }
 
     // ── happy path: connect -> handshake -> V2 decode + battery ─────────────────
 

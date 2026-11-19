@@ -203,6 +203,7 @@
     <string name="device_status_not_paired">Not paired</string>
     <string name="device_status_live">Live</string>
     <string name="device_status_limited">Limited</string>
+    <string name="device_status_bluetooth_connected">Bluetooth connected</string>
     <string name="device_status_connecting">Connecting…</string>
     <string name="device_status_no_signal">No signal</string>
     <!-- Camera forms. Spanish inflects these for the feminine "Cámara";
@@ -590,6 +591,8 @@
     <string name="settings_radardev_pair_different_title">Pair a different radar</string>
     <string name="settings_radardev_open">Open</string>
     <string name="settings_radardev_pair_different_subtitle">Opens Bluetooth settings. Replacing your radar? Forget the old one there first.</string>
+    <string name="settings_radardev_kross_disconnected">Disconnected · Tap to connect</string>
+    <string name="settings_radardev_kross_connected">Bluetooth connected · Tap to disconnect</string>
     <string name="settings_radardev_section_position">Radar position</string>
     <string name="settings_radardev_position_title">Mount offset</string>
     <string name="settings_radardev_position_helper">Slide toward the side your radar is mounted.</string>
@@ -820,6 +823,10 @@
     <!-- ════════════════════════════════════════════════════════════════
          Debug screen (DebugScreen.kt) - dev-unlock-gated diagnostics
          ════════════════════════════════════════════════════════════════ -->
+    <string name="debug_kross_title">Kross Echo Pro</string>
+    <string name="debug_kross_probe">Read device diagnostics</string>
+    <string name="debug_kross_probe_help">Once per Kross connection. Reads battery, model and device settings. Enable capture logging to save the BLE response.</string>
+    <string name="debug_kross_last_result">Last reading: %1$s</string>
     <string name="debug_title">Debug</string>
     <string name="debug_section_scenarios">Scenarios</string>
     <string name="debug_replay">Replay</string>
@@ -862,7 +869,7 @@
     <string name="debug_section_diagnostics">Diagnostics</string>
     <string name="debug_log_unknown_ebike_ids_title">Log unknown eBike object IDs</string>
     <string name="debug_log_unknown_ebike_ids_subtitle">Writes ebike_unk lines for unmapped records. Toggle each bike state during a capture to pin lock/light/charger IDs, then turn off.</string>
-    <string name="debug_probe_radar_settings_title">Probe radar settings channel</string>
+    <string name="debug_probe_radar_settings_title">Probe Garmin radar settings channel</string>
     <string name="debug_probe_radar_settings_subtitle">Logs radar_2f14 / radar_2f12 lines from the radar control service. Cycle the tail-light modes (button or vendor app) to pin the night/day encoding, then turn off.</string>
     <string name="debug_send">Send</string>
     <string name="debug_copy_diagnostic_bundle">Copy diagnostic bundle</string>

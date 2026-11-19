@@ -4,6 +4,7 @@ package es.jjrh.bikeradar.ui
 
 import es.jjrh.bikeradar.MissingPermission
 import es.jjrh.bikeradar.R
+import es.jjrh.bikeradar.RadarDiagnosticStage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -45,6 +46,22 @@ class MainStatusDeriverTest {
     // formatTime returns a fixed sentinel so tests can assert the clock
     // value is threaded into headlineArgs without depending on a real clock.
     private fun derive(inputs: MainStatusInputs, now: Long = 100L) = MainStatusDeriver.derive(inputs, now) { "HH:MM" }
+
+    @Test fun unbondedKrossShowsItsConnectionProgress() {
+        val inputs = baseInputs(hasBond = false, radarFresh = false)
+        val connecting = derive(inputs.copy(radarDiagnosticStage = RadarDiagnosticStage.CONNECTING))
+        val connected = derive(inputs.copy(radarDiagnosticStage = RadarDiagnosticStage.SUBSCRIBED))
+        assertEquals(R.string.main_status_connecting_title, connecting.headlineRes)
+        assertEquals(R.string.device_status_bluetooth_connected, connected.headlineRes)
+        assertEquals(MainStatusTone.Warn, connected.tone)
+    }
+
+    @Test fun unbondedKrossWithDecodedDataShowsLimitedCoverageOnHome() {
+        val inputs = baseInputs(hasBond = false, radarFresh = true)
+        val status = derive(inputs.copy(radarDiagnosticStage = RadarDiagnosticStage.SUBSCRIBED))
+        assertEquals(R.string.main_status_limited_title, status.headlineRes)
+        assertEquals(MainStatusTone.Warn, status.tone)
+    }
 
     @Test fun pausedBeatsBondCheck() {
         val s = derive(baseInputs(hasBond = false, pausedUntilEpochMs = 200L), now = 100L)

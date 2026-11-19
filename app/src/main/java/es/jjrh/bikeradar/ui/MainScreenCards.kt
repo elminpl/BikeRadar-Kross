@@ -58,6 +58,7 @@ import es.jjrh.bikeradar.ClosePassStateBus
 import es.jjrh.bikeradar.EBikeStage
 import es.jjrh.bikeradar.HaStatus
 import es.jjrh.bikeradar.R
+import es.jjrh.bikeradar.RadarDiagnosticStage
 import es.jjrh.bikeradar.isHollow
 import es.jjrh.bikeradar.isMuted
 
@@ -283,6 +284,7 @@ internal fun SystemCard(
     ebikeStage: EBikeStage = EBikeStage.NOT_STARTED,
     radarLimited: Boolean = false,
     radarConnecting: Boolean = false,
+    radarDiagnosticStage: RadarDiagnosticStage? = null,
     hasBond: Boolean,
     btEnabled: Boolean,
     dashcamOwned: Boolean,
@@ -332,6 +334,7 @@ internal fun SystemCard(
         fresh = radarFresh,
         limited = radarLimited,
         connecting = radarConnecting,
+        diagnosticStage = radarDiagnosticStage.takeIf { btEnabled },
     )
     val radarRow = SystemRow(
         icon = Icons.Default.Sensors,
@@ -346,7 +349,7 @@ internal fun SystemCard(
             // warning, and a link still being established is not cover yet.
             DeviceLinkState.LIMITED -> br.caution
             DeviceLinkState.CONNECTING -> br.caution
-            DeviceLinkState.NO_SIGNAL -> br.caution
+            DeviceLinkState.BLUETOOTH_CONNECTED, DeviceLinkState.NO_SIGNAL -> br.caution
         },
         hollow = radarLink.hollow,
         target = SystemRowTarget.RADAR,
@@ -370,7 +373,7 @@ internal fun SystemCard(
             DeviceLinkState.NOT_PAIRED -> br.fgDim
             DeviceLinkState.LIVE -> br.safe
             DeviceLinkState.LIMITED, DeviceLinkState.CONNECTING -> br.caution
-            DeviceLinkState.NO_SIGNAL -> br.caution
+            DeviceLinkState.BLUETOOTH_CONNECTED, DeviceLinkState.NO_SIGNAL -> br.caution
         },
         hollow = dashcamLink.hollow,
         target = SystemRowTarget.DASHCAM,

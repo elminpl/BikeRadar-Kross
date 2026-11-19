@@ -127,8 +127,13 @@ class BleOpQueue(private val timeoutMs: Long = DEFAULT_TIMEOUT_MS) {
     // GATT ops require BLUETOOTH_CONNECT; the queue only runs against a live
     // connection the service opened after the permission was granted.
     @SuppressLint("MissingPermission")
-    suspend fun writeCccd(gatt: BluetoothGatt, char: BluetoothGattCharacteristic): Boolean {
-        gatt.setCharacteristicNotification(char, true)
+    suspend fun writeCccd(
+        gatt: BluetoothGatt,
+        char: BluetoothGattCharacteristic,
+        requireLocalRegistration: Boolean = false,
+    ): Boolean {
+        val registered = gatt.setCharacteristicNotification(char, true)
+        if (requireLocalRegistration && !registered) return false
         val desc = char.getDescriptor(Uuids.CCCD) ?: return false
         val value = if (char.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0) {
             BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE

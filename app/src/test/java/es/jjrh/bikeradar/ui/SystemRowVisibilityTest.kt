@@ -2,6 +2,7 @@
 // Copyright (C) 2026 JJ del Rio
 package es.jjrh.bikeradar.ui
 
+import es.jjrh.bikeradar.RadarDiagnosticStage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -16,6 +17,24 @@ import org.junit.Test
  * named test, not an opaque image diff.
  */
 class SystemRowVisibilityTest {
+
+    @Test fun unbondedKrossShowsBluetoothWithoutClaimingItDeliversRadarData() {
+        val connecting = deviceLinkState(linked = false, fresh = false, diagnosticStage = RadarDiagnosticStage.CONNECTING)
+        val connected = deviceLinkState(linked = false, fresh = false, diagnosticStage = RadarDiagnosticStage.SUBSCRIBED)
+        assertEquals(DeviceLinkState.CONNECTING, connecting)
+        assertEquals(DeviceLinkState.BLUETOOTH_CONNECTED, connected)
+        assertFalse(connected.isDelivering)
+    }
+
+    @Test fun unbondedKrossWithDecodedDataShowsLimitedCoverage() {
+        assertEquals(
+            DeviceLinkState.BLUETOOTH_CONNECTED,
+            deviceLinkState(linked = false, fresh = true, diagnosticStage = RadarDiagnosticStage.GATT_CONNECTED),
+        )
+        val streaming = deviceLinkState(linked = false, fresh = true, diagnosticStage = RadarDiagnosticStage.SUBSCRIBED)
+        assertEquals(DeviceLinkState.LIMITED, streaming)
+        assertTrue(streaming.isDelivering)
+    }
 
     @Test fun notLinkedIsNotPairedRegardlessOfFreshness() {
         // The link precondition wins over freshness: a stale-but-not-linked row

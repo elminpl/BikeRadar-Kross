@@ -24,6 +24,7 @@ enum class DataSource {
     NONE,
     V1,
     V2,
+    KROSS,
     ;
 
     /** Per-target closing speed. False on [V1]: the legacy threat record's
@@ -177,6 +178,7 @@ data class Vehicle(
      * and kills the re-anchor beep. Default false = fail open.
      */
     val bornInformative: Boolean = false,
+    val reportedThreatLevel: Int? = null,
 ) {
     /**
      * Closing speed in km/h: positive when the target is approaching, which is

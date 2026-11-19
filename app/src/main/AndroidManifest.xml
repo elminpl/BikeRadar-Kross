@@ -11,7 +11,7 @@
          before that app exists, which is why the real gate is ours rather than
          the platform's. -->
     <permission
-        android:name="es.jjrh.bikeradar.permission.RADAR"
+        android:name="${radarPermission}"
         android:description="@string/permission_radar_ipc_description"
         android:label="@string/permission_radar_ipc_label"
         android:protectionLevel="normal" />
@@ -247,7 +247,7 @@
         <service
             android:name=".ipc.RadarIpcService"
             android:exported="true"
-            android:permission="es.jjrh.bikeradar.permission.RADAR">
+            android:permission="${radarPermission}">
             <intent-filter>
                 <action android:name="es.jjrh.bikeradar.action.RADAR_SERVICE" />
             </intent-filter>

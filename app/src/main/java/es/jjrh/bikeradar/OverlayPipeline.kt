@@ -140,6 +140,7 @@ internal class OverlayPipeline(
             var lastLoggedDashcamStatus: DashcamStatus? = null
             var lastAttachFailure: String? = null
             var lastFrame: RadarState? = null
+            var lastKrossThreat = 0
             val ticker = flow {
                 while (true) {
                     emit(Unit)
@@ -209,7 +210,7 @@ internal class OverlayPipeline(
                         val countingEnabled = prefs.closePassLoggingEnabled
                         // Ride statistics run paused or not
                         // (`rideStatisticsStillRunWhilePaused`).
-                        if (newFrame) {
+                        if (newFrame && state.source != DataSource.KROSS) {
                             // Only frames the detector can count from: none on a
                             // range-only stream (`aRangeOnlyRideIsNotCounted`).
                             val counting = countingEnabled && state.source.hasLateral && state.bikeSpeedMs != null
@@ -273,6 +274,16 @@ internal class OverlayPipeline(
                         )
                         view.setBatteryLow(lowSlugs, prefs.batteryShowLabels)
 
+                        if (state.source == DataSource.KROSS) {
+                            if (newFrame && !prefs.isPaused) {
+                                val threat = state.vehicles
+                                    .filter { it.distanceM <= overlayPrefs.alertMaxDistanceM }
+                                    .maxOfOrNull { it.reportedThreatLevel ?: 0 } ?: 0
+                                if (threat > lastKrossThreat) beeper.playCue(AlertCue.Beep(threat))
+                                lastKrossThreat = threat
+                            }
+                            return@collect
+                        }
                         if (!prefs.isPaused) {
                             if (newFrame) fireAlertCue(state, alerts, overlayPrefs, nowMono, now)
                         } else {

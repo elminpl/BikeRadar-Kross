@@ -94,7 +94,7 @@ object RadarSelection {
      * (`ClosePassCardStoredRadarTest`, `SettingsRadarDeviceStatusTest`).
      */
     fun reportsDistanceOnly(source: DataSource, rememberedMac: String?, chosenMac: String?, allBonded: List<BondedRadar>): Boolean {
-        if (source == DataSource.V1) return true
+        if (source == DataSource.V1 || source == DataSource.KROSS) return true
         if (source != DataSource.NONE || rememberedMac == null) return false
         val pairedMacs = allBonded.mapTo(HashSet()) { it.mac }
         return if (pinHolds(chosenMac, pairedMacs)) rememberedMac.equals(chosenMac, ignoreCase = true) else mayStartLink(rememberedMac, pairedMacs)

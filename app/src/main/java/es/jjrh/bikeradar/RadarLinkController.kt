@@ -40,6 +40,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * The boundary to the [RadarLinkState] owned by [RadarLinkCoordinator] (the sole
@@ -52,6 +53,8 @@ internal interface RadarLinkStateGateway {
     /** Service discovery succeeded: the link to [mac] is open. Nothing more;
      *  its readers are listed on [RadarLinkState.radarGattActive]. */
     fun markLinkOpen(mac: String)
+
+    fun markRadarDiagnosticStage(stage: RadarDiagnosticStage?)
 
     /** The radar's first data frame on this connection, called once. A radar
      *  that opens the link and never streams must not reach this, or the
@@ -143,6 +146,7 @@ internal class RadarLinkController(
     // [currentRadarMac], so [followPin] and [start]'s replace decision know
     // it before the loop runs.
     @Volatile private var jobMac: String? = null
+    private var diagnosticJob = false
 
     // True while [followPin] waits for the old loop to finish: a sighting of
     // the old radar then must not take the slot the pinned radar is about to
@@ -348,11 +352,12 @@ internal class RadarLinkController(
      * radar's first frame.
      */
     @Synchronized
-    fun start(name: String, mac: String, bondedMacs: Set<String> = emptySet()) {
+    fun start(name: String, mac: String, bondedMacs: Set<String> = emptySet(), diagnosticOnly: Boolean = false) {
         if (replacingLink) return
         val running = radarJob?.takeIf { it.isActive }
         if (running != null) {
-            if (!RadarSelection.shouldReplaceUnpairedLink(jobMac, mac, bondedMacs)) return
+            if (diagnosticOnly) return
+            if (!diagnosticJob && !RadarSelection.shouldReplaceUnpairedLink(jobMac, mac, bondedMacs)) return
             Log.i(TAG, "moving radar link off an unpaired radar to ${LogRedaction.mac(mac)}")
             journal("radar link moving: the linked radar is not paired")
             running.cancel()
@@ -380,6 +385,7 @@ internal class RadarLinkController(
         Log.i(TAG, "starting radar link to $name ${LogRedaction.mac(mac)}")
         journal("radar link start $name")
         jobMac = mac
+        diagnosticJob = diagnosticOnly
         val replaced = running != null
         radarJob = scope.launch {
             loopLock.withLock {
@@ -387,7 +393,7 @@ internal class RadarLinkController(
                 // its decode loop still drained cannot set the override again.
                 // Only a replace clears it (`aPressHoldsAcrossARestartOfTheSameLink`).
                 if (replaced) radarLightUserOverride = false
-                runRadarConnection(mac, name)
+                runRadarConnection(mac, name, diagnosticOnly)
             }
         }
     }
@@ -482,6 +488,11 @@ internal class RadarLinkController(
         radarJob?.cancel()
     }
 
+    @Synchronized
+    fun stopDiagnostic() {
+        if (diagnosticJob) radarJob?.cancel()
+    }
+
     /** Tear down the bond-state watch on service destroy. The connection
      *  coroutine rides the injected scope, so scope.cancel() in the service
      *  stops it - this only unregisters the receiver. */
@@ -490,7 +501,7 @@ internal class RadarLinkController(
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun runRadarConnection(mac: String, name: String) {
+    private suspend fun runRadarConnection(mac: String, name: String, diagnosticOnly: Boolean) {
         val btMgr = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager ?: return
         val device = try {
             btMgr.adapter?.getRemoteDevice(mac)
@@ -513,7 +524,8 @@ internal class RadarLinkController(
                 }
                 Log.i(TAG, "connect attempt to $name ${LogRedaction.mac(mac)}")
                 lastConnectionReachedDecode = false
-                val quickReconnect = connectAndRun(device, name)
+                val quickReconnect = connectAndRun(device, name, diagnosticOnly)
+                if (diagnosticOnly) return
                 linkState.markDisconnected()
                 if (bondLost) {
                     Log.i(TAG, "bond lost during attempt; exiting reconnect loop")
@@ -563,8 +575,9 @@ internal class RadarLinkController(
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun connectAndRun(device: BluetoothDevice, name: String): Boolean {
-        val notifyChannel = Channel<Pair<UUID, ByteArray>>(Channel.UNLIMITED)
+    private suspend fun connectAndRun(device: BluetoothDevice, name: String, diagnosticOnly: Boolean): Boolean {
+        val krossSelected = diagnosticOnly || KrossBleDiagnostics.isSelected(name, device.address, prefs.radarMac)
+        val notifyChannel = Channel<Pair<UUID, ByteArray>>(if (krossSelected) 64 else Channel.UNLIMITED)
         val queue = BleOpQueue()
         val servicesReady = kotlinx.coroutines.CompletableDeferred<Boolean>()
         var gatt: BluetoothGatt? = null
@@ -573,6 +586,8 @@ internal class RadarLinkController(
         var linkJobs: CoroutineScope? = null
         var v2Decoder: RadarV2Decoder? = null
         var cacheRefreshed = false
+        val krossSetupStage = java.util.concurrent.atomic.AtomicReference("kross-connect")
+        var discoveryJob: Job? = null
         // Set from the binder callback thread and from this loop's finally.
         val gattClosed = java.util.concurrent.atomic.AtomicBoolean(false)
         // The notify channel still drains frames buffered before the disconnect
@@ -622,7 +637,26 @@ internal class RadarLinkController(
                 captureLog.clog("# conn state: status=$status newState=$newState")
                 journal("radar conn state status=$status newState=$newState")
                 when (newState) {
-                    BluetoothProfile.STATE_CONNECTED -> g.discoverServices()
+                    BluetoothProfile.STATE_CONNECTED -> {
+                        if (diagnosticOnly) {
+                            synchronized(linkLock) {
+                                if (linkDown || discoveryJob != null) return
+                                krossSetupStage.set("kross-discovery")
+                                discoveryJob = scope.launch {
+                                    delay(350)
+                                    if (synchronized(linkLock) { linkDown } || servicesReady.isCompleted) return@launch
+                                    val submitted = g.discoverServices()
+                                    journal("Kross discovery submitted=$submitted")
+                                    if (!submitted) {
+                                        krossSetupStage.set("kross-discovery-rejected")
+                                        servicesReady.complete(false)
+                                    }
+                                }
+                            }
+                        } else {
+                            g.discoverServices()
+                        }
+                    }
                     BluetoothProfile.STATE_DISCONNECTED -> {
                         // On a link that streamed and that the app did not end
                         // itself. Once per connection, because closeOnce below
@@ -634,10 +668,19 @@ internal class RadarLinkController(
                         // could not be told from a walk-away
                         // (`aLegacyLinkLostJournalsItsGapToo`).
                         val gapMs = synchronized(linkLock) {
+                            if (krossSelected && linkDown) return
                             linkDown = true
+                            if (diagnosticOnly) {
+                                val stage = krossSetupStage.get()
+                                krossSetupStage.set("$stage-disconnected-$status")
+                            }
                             val gap = if (streamed && !receipts.endedByApp) receipts.gapMs(now) else null
                             val loss = gap?.takeIf { receipts.stream == Uuids.RADAR_V2 }?.let { LinkLoss(it, status) }
-                            linkState.markDisconnected(loss)
+                            if (diagnosticOnly) {
+                                linkState.markRadarDiagnosticStage(null)
+                            } else {
+                                linkState.markDisconnected(loss)
+                            }
                             gap
                         }
                         if (gapMs != null) journal("radar link lost status=$status ${gapMs}ms after its last frame")
@@ -652,8 +695,13 @@ internal class RadarLinkController(
             override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
                 captureLog.clog("# services discovered status=$status services=${g.services.size}")
                 val ok = status == BluetoothGatt.GATT_SUCCESS
+                if (diagnosticOnly) {
+                    val serviceCount = g.services.size
+                    journal("Kross discovery callback status=$status services=$serviceCount")
+                    if (!ok) krossSetupStage.set("kross-discovery-status-$status")
+                }
                 val radarPresent = g.getService(Uuids.SVC_RADAR) != null
-                if (ok && !cacheRefreshed && (g.services.isEmpty() || !radarPresent)) {
+                if (ok && !cacheRefreshed && (g.services.isEmpty() || (!radarPresent && !krossSelected))) {
                     // Stale GATT cache from a prior session can leave the
                     // service list empty or missing the radar service even
                     // when the connection is healthy. Clear the cache and
@@ -720,7 +768,11 @@ internal class RadarLinkController(
         val setupTranscript = prefs.setupTranscriptEnabled
         if (setupTranscript) captureLog.open()
 
-        gatt = openGatt(context, device, true, cb)
+        if (krossSelected) {
+            linkState.markRadarDiagnosticStage(RadarDiagnosticStage.CONNECTING)
+            captureLog.clog("# Kross opening GATT")
+        }
+        gatt = openGatt(context, device, !diagnosticOnly, cb)
         if (gatt == null) {
             captureLog.clog("# connectGatt returned null")
             journal("radar connectGatt returned null")
@@ -729,20 +781,123 @@ internal class RadarLinkController(
             // PREVIOUS attempt's answer is worse than saying nothing - a
             // bundle then names a stopping point this attempt never reached.
             recordPreDiscoveryExit(NO_GATT)
+            if (krossSelected) linkState.markRadarDiagnosticStage(null)
             return false
         }
 
         val queueJob = scope.launch { queue.run() }
 
         return try {
-            val ok = servicesReady.await()
+            val ok = if (krossSelected) {
+                withTimeoutOrNull(15_000L) { servicesReady.await() }
+            } else {
+                servicesReady.await()
+            }
+            if (ok == null) {
+                journal("Kross GATT setup timed out")
+                captureLog.clog("# Kross GATT setup timed out")
+                recordPreDiscoveryExit("${krossSetupStage.get()}-timeout")
+                return false
+            }
             if (!ok) {
                 captureLog.clog("# services discovery failed")
-                journal("radar services discovery failed")
-                recordPreDiscoveryExit(DISCOVERY_FAILED)
+                if (!diagnosticOnly) journal("radar services discovery failed")
+                recordPreDiscoveryExit(if (diagnosticOnly) krossSetupStage.get() else DISCOVERY_FAILED)
                 return false
             }
 
+            if (diagnosticOnly || (krossSelected && gatt.getService(Uuids.SVC_RADAR) == null)) {
+                captureLog.clog("# Kross GATT: ${KrossBleDiagnostics.describe(gatt)}")
+                val channel = KrossBleDiagnostics.notificationChannel(gatt)
+                if (channel == null) {
+                    recordLinkProbe(gatt, "kross-profile-unconfirmed")
+                    captureLog.clog("# Kross diagnostic channel unavailable")
+                    return false
+                }
+                synchronized(linkLock) {
+                    if (linkDown) return false
+                    linkState.markRadarDiagnosticStage(RadarDiagnosticStage.GATT_CONNECTED)
+                }
+                if (!setupTranscript) captureLog.open()
+                val captureEnabled = prefs.captureLoggingEnabled
+                if (captureEnabled && !captureLog.isRecording) {
+                    journal("Kross capture file could not be opened")
+                }
+                val subscribed = queue.writeCccd(gatt, channel, requireLocalRegistration = true)
+                captureLog.clog("# Kross ffe2 subscription=$subscribed")
+                val commandChannel = KrossBleDiagnostics.commandNotificationChannel(gatt)
+                val commandSubscribed = subscribed &&
+                    commandChannel != null &&
+                    queue.writeCccd(gatt, commandChannel, requireLocalRegistration = true)
+                captureLog.clog("# Kross fff1 available=${commandChannel != null} subscription=$commandSubscribed")
+                val outcome = when {
+                    !subscribed -> "kross-subscribe-failed"
+                    commandSubscribed -> "kross-subscribed-both"
+                    else -> "kross-subscribed"
+                }
+                recordLinkProbe(gatt, outcome)
+                captureLog.clog("# $outcome")
+                if (subscribed) {
+                    synchronized(linkLock) {
+                        if (linkDown) return false
+                        linkState.markRadarDiagnosticStage(RadarDiagnosticStage.SUBSCRIBED)
+                    }
+                    val commandUuid = commandChannel?.uuid.takeIf { commandSubscribed }
+                    val configReply = AtomicReference<CompletableDeferred<ByteArray>?>(null)
+                    val probe = CoroutineScope(currentCoroutineContext()).launch {
+                        prefs.flow.first { it.krossProbeEnabled }
+                        val result = try {
+                            KrossDeviceProbe.read(gatt, queue, commandSubscribed, configReply::set)
+                        } catch (_: SecurityException) {
+                            "Bluetooth permission denied"
+                        }
+                        synchronized(linkLock) {
+                            if (!linkDown) {
+                                prefs.krossProbeResult = result
+                                captureLog.clog("# Kross probe $result")
+                                journal("Kross probe $result")
+                            }
+                        }
+                    }
+                    var radarFrames = 0L
+                    var commandFrames = 0L
+                    try {
+                        while (true) {
+                            val state = withTimeoutOrNull(if (overlayJob == null) 30_000L else 3_000L) {
+                                var decoded: RadarState? = null
+                                while (decoded == null) {
+                                    val (uuid, bytes) = notifyChannel.receiveCatching().getOrNull() ?: return@withTimeoutOrNull null
+                                    when (uuid) {
+                                        channel.uuid -> {
+                                            radarFrames++
+                                            decoded = KrossRadarDecoder.decode(bytes, wallClock())
+                                        }
+                                        commandUuid -> {
+                                            commandFrames++
+                                            if (KrossDeviceProbe.isConfigReplyCandidate(bytes)) configReply.get()?.complete(bytes)
+                                        }
+                                    }
+                                }
+                                decoded
+                            }
+                            if (state == null) {
+                                if (!synchronized(linkLock) { linkDown }) captureLog.clog("# Kross diagnostic channels silent")
+                                break
+                            }
+                            if (synchronized(linkLock) { linkDown }) break
+                            if (overlayJob == null) overlayJob = overlayPipeline.attach(scope, name)
+                            RadarStateBus.publish(state)
+                        }
+                    } finally {
+                        probe.cancel()
+                        captureLog.clog("# Kross diagnostic session ended; ffe2=$radarFrames fff1=$commandFrames")
+                        if (captureEnabled) journal("Kross diagnostic notifications ffe2=$radarFrames fff1=$commandFrames")
+                    }
+                }
+                return false
+            }
+
+            if (krossSelected) linkState.markRadarDiagnosticStage(null)
             linkState.markLinkOpen(device.address)
             Log.i(TAG, "connected, running handshake")
             journal("radar connected, running handshake")
@@ -1240,7 +1395,10 @@ internal class RadarLinkController(
         } finally {
             // First, so the setup job installs nothing the resets below would
             // miss. No test interleaves there.
-            synchronized(linkLock) { linkDown = true }
+            synchronized(linkLock) {
+                linkDown = true
+                discoveryJob?.cancel()
+            }
             // None acts on the next link
             // (`aPinMovedDuringTheLightSetLeavesNothingOfTheOldLinksSet`).
             linkJobs?.cancel()
@@ -1250,11 +1408,15 @@ internal class RadarLinkController(
             overlayJob?.cancel()
             queue.cancel()
             queueJob.cancel()
-            linkState.markDisconnected()
-            RadarStateBus.clear()
-            // Fire-and-forget final flush of the ride summary so HA sees
-            // the latest values before the next reconnect's backoff delay.
-            scope.launch(Dispatchers.IO) { haPublisher.publishRideSummaryIfChanged() }
+            if (diagnosticOnly) {
+                linkState.markRadarDiagnosticStage(null)
+                if (overlayJob != null) RadarStateBus.clear()
+            } else {
+                linkState.markDisconnected()
+                RadarStateBus.clear()
+                // Flush the ride summary before the next reconnect's backoff.
+                scope.launch(Dispatchers.IO) { haPublisher.publishRideSummaryIfChanged() }
+            }
             // A radar that sent status frames, none of them the full one, gave
             // no bike speed all connection
             // (`aV2LinkWhoseStatusFramesAreAllSparseJournalsThatItHadNoBikeSpeed`,

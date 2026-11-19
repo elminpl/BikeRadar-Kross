@@ -35,3 +35,28 @@
 
 ## Release gate
 Do not describe Kross vehicle alerts as functional until physical device tests confirm decoded vehicle events. APK smoke test alone is insufficient.
+
+## First Kotlin diagnostic build
+
+Enable capture logging and “Record connection setup” before turning on the
+radar. The app can probe an unpaired advertisement with a `Radar` prefix or
+`Kross Echo Pro` name and service `1816` or `180F`. An existing Garmin connection
+or a different radar pin takes precedence. A bonded Kross can also be pinned
+through Settings → Connections → Radar → “My radar isn't listed”. The Radar
+screen shows the last detected candidate in “Already paired your radar?”
+and lets you start or stop its diagnostic connection. Home and SYSTEM show
+connection progress, including Bluetooth connectivity before validated targets. The
+transcript includes the discovered UUIDs and property flags, the subscription
+result, and the notification count at disconnect. Share captures only after
+checking them for device identifiers and personal data.
+
+This build subscribes to `FFE2` and, when available, `FFF1`. It checks each
+profile's characteristic properties and CCCD before subscribing. The transcript
+records both results and labels packets by channel. It sends no vendor command.
+Use the setup transcript to verify the connection and subscription. Setup times out after 15 s, and a
+subscription closes after 30 s without a notification on its channel. An
+advertisement starts one diagnostic attempt. A pinned device started through
+the existing paired-device path uses the normal reconnect backoff. These
+diagnostic timeouts need physical validation. Verify the
+status on Home, SYSTEM, and the radar settings during adapter off/on and
+out-of-range tests. No Kross frame from this build enables vehicle alerts.

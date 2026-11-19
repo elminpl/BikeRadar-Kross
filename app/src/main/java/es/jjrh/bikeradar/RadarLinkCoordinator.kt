@@ -486,6 +486,10 @@ internal class RadarLinkCoordinator(
      *  device, the last attempt ended no more than [connectingStretchGapMs]
      *  ago and the last open came within the new-ride gap
      *  (`ConnectingStretchTest`). */
+    override fun markRadarDiagnosticStage(stage: RadarDiagnosticStage?) {
+        _radarLinkState.update { it.copy(radarDiagnosticStage = stage) }
+    }
+
     override fun markLinkOpen(mac: String) {
         val nowMs = clock()
         val gapMs = connectingStretchGapMs(prefs.radarLongOfflineCapSec)
@@ -720,6 +724,7 @@ internal class RadarLinkCoordinator(
                 radarLeftOnBothLeft = if (fresh) leftOn?.bothLeft == true else current.radarLeftOnBothLeft,
                 adapterOffInEpisode = if (fresh) adapterOff else current.adapterOffInEpisode,
                 radarGattActive = false,
+                radarDiagnosticStage = null,
                 radarLinkClosedAtMs = if (current.radarGattActive) nowMs else current.radarLinkClosedAtMs,
                 radarConnectStartMs = null,
                 sessionRadarConnectedMs = current.sessionRadarConnectedMs + addedMs,

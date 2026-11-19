@@ -189,8 +189,9 @@ private fun SettingsScreenBody(navController: NavController, prefs: Prefs) {
         // `radarSelected` is already false there.
         linked = radioUp && radarSelected,
         fresh = radarStreamIsLive(radarState, tickNowMs),
-        limited = radarState.source == DataSource.V1,
+        limited = radarState.source == DataSource.V1 || radarState.source == DataSource.KROSS,
         connecting = RadarLinkStatus.isConnecting(radarLinkSnap, SystemClock.elapsedRealtime()),
+        diagnosticStage = radarLinkSnap.radarDiagnosticStage.takeIf { radioUp },
     )
     val dashcamLink = deviceLinkState(
         // The camera's pairing lives in prefs, which outlive the radio, so
@@ -214,6 +215,7 @@ private fun SettingsScreenBody(navController: NavController, prefs: Prefs) {
         btEnabled = btEnabled,
         missingPermission = missingPermission,
         radarLink = radarLink,
+        radarBonded = radarSelected,
         dashcamLink = dashcamLink,
         radarBattery = radarBattery,
         dashcamBattery = dashcamBattery,
@@ -265,6 +267,7 @@ internal fun SettingsMenuBody(
     permissionsRequiredMissing: Int,
     permissionsTotal: Int,
     radarGrants: List<RadarGrant>,
+    radarBonded: Boolean = radarLink != DeviceLinkState.NOT_PAIRED,
 ) {
     val radarAccessSummary = RadarAccessSummary.of(radarGrants)
     val br = LocalBrColors.current
@@ -344,7 +347,7 @@ internal fun SettingsMenuBody(
                     subtitle = connectionSubtitle(
                         ctx,
                         setUp = R.string.settings_home_conn_paired
-                            .takeIf { radarLink != DeviceLinkState.NOT_PAIRED },
+                            .takeIf { radarBonded && radarLink != DeviceLinkState.NOT_PAIRED },
                         status = radarLinkLabel(radarLink),
                     ),
                     onClick = { navController.navigate("settings/radar-device") },
@@ -613,9 +616,9 @@ private fun SystemHealthChip(
 
 /**
  * A Connections row answers two questions: is this device set up, and is it
- * working right now. [setUp] is the first half and null when it is not set up
- * yet, in which case that fact is the whole answer and there is no link to
- * describe. [status] is the second half, and it is the shared vocabulary, so
+ * working right now. [setUp] is the optional setup label. A Kross can
+ * connect without an Android bond, so [status] also stands on its own. It
+ * uses the shared vocabulary, so
  * the row, the quick-status chip above it and the device's own screen all use
  * one word.
  *

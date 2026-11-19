@@ -66,6 +66,29 @@ class SettingsRadarDevicePermissionTest {
     }
 
     @Test
+    fun detectedKrossIsSelectableInTheUnpairedRadarList() {
+        var selected = false
+        composeRule.setContent {
+            UiTheme {
+                SettingsRadarDeviceContent(
+                    onBack = {},
+                    bonded = emptyList(),
+                    chosenMac = null,
+                    activeName = null,
+                    link = DeviceLinkState.NOT_PAIRED,
+                    batteryPct = null,
+                    offerChooser = false,
+                    krossName = "Radar Test",
+                    onKrossAction = { selected = true },
+                )
+            }
+        }
+        composeRule.onNodeWithText("Already paired your radar?").performClick()
+        composeRule.onNodeWithText("Radar Test").assertIsDisplayed().performClick()
+        composeRule.runOnIdle { assertEquals(true, selected) }
+    }
+
+    @Test
     fun withoutNearbyDevicesItAsksForThePermission() {
         show()
         composeRule.onNodeWithText("Pair your radar").assertDoesNotExist()

@@ -5,6 +5,7 @@ package es.jjrh.bikeradar.ui
 import androidx.annotation.StringRes
 import es.jjrh.bikeradar.MissingPermission
 import es.jjrh.bikeradar.R
+import es.jjrh.bikeradar.RadarDiagnosticStage
 
 /**
  * Pure, Android-free derivation of the home-screen status card.
@@ -102,6 +103,7 @@ data class MainStatusInputs(
     /** [es.jjrh.bikeradar.RadarLinkStatus.isConnecting]: the same input the
      *  System row reads, so the two cannot disagree about one radar. */
     val radarConnecting: Boolean = false,
+    val radarDiagnosticStage: RadarDiagnosticStage? = null,
     /** The service's connecting stretch
      *  ([es.jjrh.bikeradar.RadarLinkState.connectingSinceMs]) has run
      *  [CONNECTING_ADVICE_AFTER_MS] or more, so a card shown while
@@ -220,7 +222,19 @@ object MainStatusDeriver {
                 subtitleRes = R.string.main_status_bt_off_sub,
             )
         }
-        if (!inputs.hasBond) {
+        val krossStreaming = inputs.radarDiagnosticStage == RadarDiagnosticStage.SUBSCRIBED && inputs.radarFresh
+        inputs.radarDiagnosticStage?.takeUnless { krossStreaming }?.let { stage ->
+            return MainStatusModel(
+                icon = MainStatusIcon.Sensors,
+                tone = MainStatusTone.Warn,
+                headlineRes = if (stage == RadarDiagnosticStage.CONNECTING) {
+                    R.string.main_status_connecting_title
+                } else {
+                    R.string.device_status_bluetooth_connected
+                },
+            )
+        }
+        if (!inputs.hasBond && !krossStreaming) {
             return MainStatusModel(
                 icon = MainStatusIcon.BluetoothDisabled,
                 tone = MainStatusTone.Error,
@@ -229,7 +243,7 @@ object MainStatusDeriver {
                 if (inputs.radarPickOffered) R.string.main_status_not_paired_pick_sub else R.string.main_status_not_paired_sub,
             )
         }
-        if (inputs.radarFresh && inputs.radarLimited) {
+        if (krossStreaming || (inputs.radarFresh && inputs.radarLimited)) {
             // Ahead of the dashcam warning on purpose: this one is about the
             // safety-critical device, and it is the reason the rider is not
             // getting the cue they think they are. The row beside it says

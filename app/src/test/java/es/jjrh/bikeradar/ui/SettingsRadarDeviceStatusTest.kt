@@ -5,8 +5,10 @@ package es.jjrh.bikeradar.ui
 import android.app.Application
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
@@ -14,6 +16,7 @@ import es.jjrh.bikeradar.BatteryEntry
 import es.jjrh.bikeradar.BatteryStateBus
 import es.jjrh.bikeradar.BikeRadarService
 import es.jjrh.bikeradar.DataSource
+import es.jjrh.bikeradar.RadarDiagnosticStage
 import es.jjrh.bikeradar.RadarLinkState
 import es.jjrh.bikeradar.RadarState
 import es.jjrh.bikeradar.RadarStateBus
@@ -92,6 +95,25 @@ class SettingsRadarDeviceStatusTest {
             SettingsRadarDevice(navController = nav, prefs = prefs)
         }
         composeRule.waitForIdle()
+    }
+
+    @Test
+    fun settingsMenuShowsUnbondedKrossInQuickStatusAndConnections() {
+        val adapter = (app.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
+        shadowOf(adapter).setBondedDevices(emptySet())
+        val linkFlow = MutableStateFlow(RadarLinkState(radarDiagnosticStage = RadarDiagnosticStage.CONNECTING))
+        BikeRadarService.radarLinkStateForUi = linkFlow
+
+        composeRule.setContent {
+            SettingsScreen(navController = rememberNavController(), prefs = prefs)
+        }
+        composeRule.onAllNodesWithText("Connecting…").assertCountEquals(2)
+
+        linkFlow.value = RadarLinkState(radarDiagnosticStage = RadarDiagnosticStage.SUBSCRIBED)
+        composeRule.onAllNodesWithText("Bluetooth connected").assertCountEquals(2)
+
+        RadarStateBus.publish(RadarState(timestamp = System.currentTimeMillis(), source = DataSource.KROSS))
+        composeRule.onAllNodesWithText("Limited").assertCountEquals(2)
     }
 
     @Test

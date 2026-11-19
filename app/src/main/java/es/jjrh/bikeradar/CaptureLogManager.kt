@@ -60,6 +60,8 @@ internal class CaptureLogManager(
 
     private var activeName: String? = null
 
+    val isRecording: Boolean get() = writer != null
+
     /** Open a fresh capture file for this connection. No-op when a file is
      *  already open: setup-transcript mode opens at connection start and spans
      *  the reconnect loop, so the post-handshake open() on the same connection

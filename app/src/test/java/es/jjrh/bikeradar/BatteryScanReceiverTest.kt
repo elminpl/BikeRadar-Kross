@@ -80,7 +80,7 @@ class BatteryScanReceiverTest {
      * reachable here because Robolectric runs against a jar that keeps it.
      */
     @Suppress("DEPRECATION")
-    private fun scanResultAdvertising(mac: String, name: String, bondState: Int): ScanResult {
+    private fun scanResultAdvertising(mac: String, name: String, bondState: Int, services: ByteArray = byteArrayOf()): ScanResult {
         val device = adapter.getRemoteDevice(mac)
         shadowOf(device).setName("wrong - the advert name must win")
         shadowOf(device).setBondState(bondState)
@@ -89,7 +89,7 @@ class BatteryScanReceiverTest {
         val ad = byteArrayOf((nameBytes.size + 1).toByte(), 0x09) + nameBytes
         val record = ScanRecord::class.java
             .getMethod("parseFromBytes", ByteArray::class.java)
-            .invoke(null, ad) as ScanRecord
+            .invoke(null, ad + services) as ScanRecord
         return ScanResult(device, record, -50, 0L)
     }
 
@@ -221,6 +221,23 @@ class BatteryScanReceiverTest {
         val started = shadowOf(app).peekNextStartedService()
         assertNotNull("expected the advertised name to match", started)
         assertEquals("RearVue8", started.getStringExtra(BikeRadarService.EXTRA_NAME))
+    }
+
+    @Test
+    fun aRadarAdvertisementCanStartUnbondedDiagnostics() {
+        val r = scanResultAdvertising("AA:BB:CC:DD:EE:FF", "Radar123", BluetoothDevice.BOND_NONE, byteArrayOf(3, 3, 0x16, 0x18))
+        receiver.onReceive(app, batchIntent(ScanSettings.CALLBACK_TYPE_FIRST_MATCH, r))
+        val started = shadowOf(app).peekNextStartedService()
+        assertNotNull(started)
+        assertEquals("Radar123", started.getStringExtra(BikeRadarService.EXTRA_NAME))
+        assertEquals(true, started.getBooleanExtra(BikeRadarService.EXTRA_KROSS_DIAGNOSTIC, false))
+    }
+
+    @Test
+    fun batteryOnlyAccessoriesDoNotQualifyForRadarDiagnostics() {
+        val r = scanResultAdvertising("AA:BB:CC:DD:EE:FF", "Garmin Watch", BluetoothDevice.BOND_BONDED, byteArrayOf(3, 3, 0x0f, 0x18))
+        receiver.onReceive(app, batchIntent(ScanSettings.CALLBACK_TYPE_FIRST_MATCH, r))
+        assertNull(shadowOf(app).peekNextStartedService())
     }
 
     @Test
