@@ -84,6 +84,7 @@ internal fun SettingsExperimentalContent(
     onRadarDropTrackWindowFinished: () -> Unit,
 ) {
     val br = LocalBrColors.current
+    val krossStreaming = isKrossStreaming()
     Box(modifier = Modifier.fillMaxSize().background(br.bg).systemBarsPadding()) {
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
@@ -103,7 +104,10 @@ internal fun SettingsExperimentalContent(
                     leadingIcon = Icons.Default.HourglassTop,
                     leadingTint = br.brand,
                     title = stringResource(R.string.settings_exp_urgent_hold_title),
-                    subtitle = stringResource(R.string.settings_exp_urgent_hold_subtitle),
+                    enabled = !krossStreaming,
+                    subtitle = stringResource(
+                        if (krossStreaming) R.string.settings_kross_unavailable else R.string.settings_exp_urgent_hold_subtitle,
+                    ),
                     checked = urgentWaitEnabled,
                     onCheckedChange = onUrgentWaitChange,
                     isLast = false,

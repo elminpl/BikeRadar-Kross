@@ -22,10 +22,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -104,16 +104,17 @@ fun DebugScreen(navController: NavController, prefs: Prefs) {
 private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
     val ctx = LocalContext.current
     val br = LocalBrColors.current
+    val krossStreaming = isKrossStreaming()
     val scope = rememberCoroutineScope()
     val prefsSnap by prefs.flow.collectAsState(initial = prefs.snapshot())
 
     val stateLog = remember { mutableStateListOf<String>() }
-    val logScroll = rememberLazyListState()
     // Mutable so the list re-renders after a delete. Re-enumerated from disk
     // (not mutated in place) so it always reflects the true on-disk state.
     var logFiles by remember { mutableStateOf(enumerateCaptureLogs(ctx)) }
     var crashFiles by remember { mutableStateOf(enumerateCrashLogs(ctx)) }
     var journalTail by remember { mutableStateOf(readLinkJournal(ctx)) }
+    var cueExpanded by remember { mutableStateOf(false) }
     var journalExpanded by remember { mutableStateOf(false) }
     var pendingDeleteAll by remember { mutableStateOf(false) }
 
@@ -175,23 +176,25 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             RadarStateBus.state.collect { s ->
                 val ts = SimpleDateFormat("HH:mm:ss.SSS", Locale.ROOT).format(Date())
-                val ageMs = if (s.timestamp > 0L) System.currentTimeMillis() - s.timestamp else -1L
-                val src = when (s.source) {
-                    DataSource.V2 -> "v=2"
-                    DataSource.V1 -> "v=1"
+                val source = when (s.source) {
+                    DataSource.V2 -> "Garmin V2"
+                    DataSource.V1 -> "Garmin V1"
                     DataSource.KROSS -> "Kross"
-                    DataSource.NONE -> "v=?"
+                    DataSource.NONE -> return@collect
                 }
-                val n = s.vehicles.size
-                val entry = "$ts  $src  n=$n  age=${ageMs}ms"
+                val targets = s.vehicles.take(8).joinToString(" · ") { target ->
+                    val range = "${target.distanceM} m"
+                    when (s.source) {
+                        DataSource.KROSS -> target.reportedThreatLevel?.let { "$range / $it" } ?: range
+                        DataSource.V2 -> "$range / ${target.speedMs} m/s"
+                        else -> range
+                    }
+                }
+                val entry = "$ts  $source  [${s.vehicles.size}]  $targets"
                 if (stateLog.size >= 200) stateLog.removeAt(0)
                 stateLog.add(entry)
             }
         }
-    }
-
-    LaunchedEffect(stateLog.size) {
-        if (stateLog.isNotEmpty()) logScroll.animateScrollToItem(stateLog.lastIndex)
     }
 
     Box(modifier = Modifier.fillMaxSize().background(br.bg).systemBarsPadding()) {
@@ -259,16 +262,45 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
                 )
             }
 
-            DebugCuePreview(
-                onPreview = { cue ->
-                    ctx.startService(
-                        Intent(ctx, BikeRadarService::class.java).apply {
-                            action = BikeRadarService.ACTION_PREVIEW_CUE
-                            putExtra(BikeRadarService.EXTRA_CUE, cue)
-                        },
-                    )
-                },
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .clickable { cueExpanded = !cueExpanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.debug_section_cue_preview),
+                    color = br.fgDim,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 10.sp,
+                    letterSpacing = 1.4.sp,
+                )
+                Icon(
+                    imageVector = if (cueExpanded) {
+                        Icons.Default.KeyboardArrowUp
+                    } else {
+                        Icons.Default.KeyboardArrowDown
+                    },
+                    contentDescription = null,
+                    tint = br.fgDim,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            if (cueExpanded) {
+                DebugCuePreview(
+                    onPreview = { cue ->
+                        ctx.startService(
+                            Intent(ctx, BikeRadarService::class.java).apply {
+                                action = BikeRadarService.ACTION_PREVIEW_CUE
+                                putExtra(BikeRadarService.EXTRA_CUE, cue)
+                            },
+                        )
+                    },
+                )
+            }
 
             // Capture logging master switch (opt-in, off by default). Placed
             // high - above the niche dev tools below - because it (and the logs
@@ -458,7 +490,10 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
                 )
                 SettingsToggleRow(
                     title = stringResource(R.string.debug_probe_radar_settings_title),
-                    subtitle = stringResource(R.string.debug_probe_radar_settings_subtitle),
+                    enabled = !krossStreaming,
+                    subtitle = stringResource(
+                        if (krossStreaming) R.string.settings_kross_unavailable else R.string.debug_probe_radar_settings_subtitle,
+                    ),
                     checked = prefsSnap.radarSettingsProbeEnabled,
                     onCheckedChange = { prefs.radarSettingsProbeEnabled = it },
                 )
@@ -468,7 +503,7 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
             // startService rather than a broadcast, which is not a supported
             // route to the non-exported receiver). Tap, watch the tail light,
             // read the radar_probe_write + radar_2f14 echo in the capture log.
-            if (prefsSnap.radarSettingsProbeEnabled) {
+            if (prefsSnap.radarSettingsProbeEnabled && !krossStreaming) {
                 val sendRadarHex: (String) -> Unit = { hex ->
                     ctx.startService(
                         Intent(ctx, BikeRadarService::class.java).apply {
@@ -575,6 +610,12 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
             }
             Spacer(modifier = Modifier.height(6.dp))
             if (stateLogExpanded) {
+                Text(
+                    text = stringResource(R.string.debug_state_log_hint),
+                    color = br.fgDim,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                )
                 if (stateLog.isEmpty()) {
                     Text(
                         text = stringResource(R.string.debug_no_states_received),
@@ -755,6 +796,12 @@ internal fun DebugCrashLogList(
         fontSize = 11.sp,
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
     )
+    Text(
+        text = stringResource(R.string.debug_dirty_restart_hint),
+        color = br.fgDim,
+        fontSize = 12.sp,
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+    )
     if (crashFiles.isEmpty()) {
         Text(
             text = stringResource(R.string.debug_no_crashes),
@@ -808,13 +855,14 @@ internal fun DebugCaptureLogList(
         ) {
             Text(
                 text = stringResource(R.string.debug_capture_logs_header),
+                modifier = Modifier.weight(1f).padding(end = 8.dp),
                 color = br.fgDim,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 10.sp,
                 letterSpacing = 1.4.sp,
             )
-            DbgGhostButton(text = stringResource(R.string.debug_delete_all), onClick = onDeleteAll)
+            DbgGhostButton(text = stringResource(R.string.debug_delete_all), roomy = true, onClick = onDeleteAll)
         }
         Column(
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -869,7 +917,6 @@ private fun DbgPrimaryButton(
 @Composable
 internal fun DebugCuePreview(onPreview: (String) -> Unit) {
     val br = LocalBrColors.current
-    SettingsSectionLabel(stringResource(R.string.debug_section_cue_preview))
     Column(
         modifier = Modifier.padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -903,15 +950,17 @@ internal fun DebugCuePreview(onPreview: (String) -> Unit) {
 private fun DbgGhostButton(
     text: String,
     modifier: Modifier = Modifier,
+    roomy: Boolean = false,
     onClick: () -> Unit,
 ) {
     val br = LocalBrColors.current
     Box(
         modifier = modifier
-            .height(46.dp)
+            .then(if (roomy) Modifier.heightIn(min = 48.dp) else Modifier.height(46.dp))
             .clip(RoundedCornerShape(10.dp))
             .border(1.dp, br.hairline2, RoundedCornerShape(10.dp))
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .then(if (roomy) Modifier.padding(horizontal = 14.dp, vertical = 8.dp) else Modifier),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -931,17 +980,16 @@ private fun CaptureLogCard(
     isRecording: Boolean = false,
 ) {
     val br = LocalBrColors.current
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(br.bgElev1)
             .border(1.dp, br.hairline, RoundedCornerShape(10.dp))
             .padding(start = 12.dp, end = 6.dp, top = 10.dp, bottom = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column {
             Text(
                 text = file.name,
                 color = br.fg,
@@ -970,20 +1018,26 @@ private fun CaptureLogCard(
                 )
             }
         }
-        DbgGhostButton(text = stringResource(R.string.debug_share), onClick = onShare)
-        // No delete while it is being written: the writer holds the file open,
-        // so a delete here removes the entry under a live PrintWriter and the
-        // rider loses the session they are in the middle of recording.
-        if (!isRecording) {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.debug_delete_log_cd, file.name),
-                    // Match the "Share" label's weight, not the dim caption grey -
-                    // a no-undo destructive control shouldn't be the faintest thing
-                    // in the row.
-                    tint = br.fg,
-                )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DbgGhostButton(text = stringResource(R.string.debug_share), roomy = true, onClick = onShare)
+            // No delete while it is being written: the writer holds the file open,
+            // so a delete here removes the entry under a live PrintWriter and the
+            // rider loses the session they are in the middle of recording.
+            if (!isRecording) {
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.debug_delete_log_cd, file.name),
+                        // Match the "Share" label's weight, not the dim caption grey -
+                        // a no-undo destructive control shouldn't be the faintest thing
+                        // in the row.
+                        tint = br.fg,
+                    )
+                }
             }
         }
     }

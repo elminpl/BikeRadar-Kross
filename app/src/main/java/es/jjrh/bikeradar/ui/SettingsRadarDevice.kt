@@ -256,6 +256,7 @@ internal fun SettingsRadarDeviceContent(
     onKrossAction: () -> Unit = {},
 ) {
     val br = LocalBrColors.current
+    val krossStreaming = isKrossStreaming()
     var othersExpanded by rememberSaveable { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxSize().background(br.bg).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
@@ -468,6 +469,7 @@ internal fun SettingsRadarDeviceContent(
             val maxCm = Prefs.RADAR_LATERAL_OFFSET_MAX_CM
             SettingsSliderRow(
                 title = stringResource(R.string.settings_radardev_position_title),
+                enabled = !krossStreaming,
                 valueDisplay = offsetDisplay,
                 // A range-only radar's decoder never reads the offset, so the
                 // slider says so rather than promising an effect

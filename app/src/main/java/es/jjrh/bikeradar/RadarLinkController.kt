@@ -134,7 +134,11 @@ internal class RadarLinkController(
      *  one. */
     private val onBonded: (mac: String, name: String?) -> Unit = { _, _ -> },
 ) {
-    // The connection coroutine; single-slot, guarded by start()'s @Synchronized.
+    private val captureSessionLock = Any()
+    private var captureRadarMac: String? = null
+    private var captureCloseJob: Job? = null
+
+    // The connection coroutine; single-slot, guarded by start().
     @Volatile private var radarJob: Job? = null
 
     // Held by a connection loop from its first line to the end of its finally,
@@ -511,6 +515,14 @@ internal class RadarLinkController(
             null
         } ?: return
 
+        synchronized(captureSessionLock) {
+            if (captureRadarMac != null && captureRadarMac != device.address) {
+                captureCloseJob?.cancel()
+                captureCloseJob = null
+                captureRadarMac = null
+                captureLog.close()
+            }
+        }
         currentRadarMac = mac
         legacyTableVerified = false
         var backoffMs = RADAR_RECONNECT_BACKOFF_INITIAL_MS
@@ -570,9 +582,38 @@ internal class RadarLinkController(
             }
         } finally {
             currentRadarMac = null
-            // Transcript mode leaves the file open across attempts; the loop's
-            // exit is where it finally closes. Safe no-op otherwise.
-            captureLog.close()
+            finishRadarCapture(device.address)
+        }
+    }
+
+    private fun openRadarCapture(mac: String) = synchronized(captureSessionLock) {
+        val resuming = captureCloseJob != null && captureRadarMac == mac && captureLog.isRecording
+        captureCloseJob?.cancel()
+        captureCloseJob = null
+        if (captureRadarMac != mac) captureLog.close()
+        captureLog.open()
+        if (resuming && captureLog.isRecording) captureLog.clog("# radar link resumed")
+        captureRadarMac = mac.takeIf { captureLog.isRecording }
+    }
+
+    private fun finishRadarCapture(mac: String) {
+        synchronized(captureSessionLock) {
+            if (captureRadarMac != mac || captureCloseJob != null) return
+            if (captureLog.isRecording) {
+                captureLog.clog("# radar link ended")
+                captureLog.flushNow()
+            }
+            captureCloseJob = scope.launch {
+                delay(CAPTURE_RECONNECT_GRACE_MS)
+                val job = currentCoroutineContext()[Job]
+                synchronized(captureSessionLock) {
+                    if (captureCloseJob == job) {
+                        captureLog.close()
+                        captureCloseJob = null
+                        captureRadarMac = null
+                    }
+                }
+            }
         }
     }
 
@@ -763,12 +804,9 @@ internal class RadarLinkController(
         // Setup-transcript mode: open the capture file BEFORE the connect, so
         // the connection states, the discovered services and the handshake
         // script lines - dropped on the null writer otherwise - land in it.
-        // open() is a no-op when a file is already open, so the aborting
-        // attempts of a reconnect loop accumulate into one file rather than
-        // spraying one per retry; the per-attempt close below is skipped to
-        // match, and the loop's exit closes.
+        // Nearby reconnect attempts to the same device share that file.
         val setupTranscript = prefs.setupTranscriptEnabled
-        if (setupTranscript) captureLog.open()
+        if (setupTranscript) openRadarCapture(device.address)
 
         if (krossSelected) {
             linkState.markRadarDiagnosticStage(RadarDiagnosticStage.CONNECTING)
@@ -784,6 +822,7 @@ internal class RadarLinkController(
             // bundle then names a stopping point this attempt never reached.
             recordPreDiscoveryExit(NO_GATT)
             if (krossSelected) linkState.markRadarDiagnosticStage(null)
+            finishRadarCapture(device.address)
             return false
         }
 
@@ -820,7 +859,7 @@ internal class RadarLinkController(
                     if (linkDown) return false
                     linkState.markRadarDiagnosticStage(RadarDiagnosticStage.GATT_CONNECTED)
                 }
-                if (!setupTranscript) captureLog.open()
+                if (!setupTranscript) openRadarCapture(device.address)
                 val captureEnabled = prefs.captureLoggingEnabled
                 if (captureEnabled && !captureLog.isRecording) {
                     journal("Kross capture file could not be opened")
@@ -998,7 +1037,7 @@ internal class RadarLinkController(
                     // session's capture never says which stream it is or what
                     // the handshake aborted at - and that capture is the whole
                     // artefact a reporter sends back.
-                    captureLog.open()
+                    openRadarCapture(device.address)
                     captureLog.clog("# handshake aborted at $handshakeAbort; no V2 char, trying the legacy stream")
                     captureLog.clog("# radar_fw rev=${firmwareRev ?: prefs.radarFirmwareRev ?: "unknown"}")
                     captureLog.clog(OverlayPipeline.alertSettingsLine(prefs.snapshot()))
@@ -1021,7 +1060,7 @@ internal class RadarLinkController(
             // Gets a live area only with an app screen open; off screen Android
             // refuses the read and the saved area stands (LocationCache).
             LocationCache.refreshIfStale(context)
-            captureLog.open()
+            openRadarCapture(device.address)
             // Overlay + alert coroutine, extracted into OverlayPipeline.
             overlayJob = overlayPipeline.attach(scope, name)
 
@@ -1458,7 +1497,7 @@ internal class RadarLinkController(
                 journal("radar V2 stream ended with no bike speed")
             }
             closeOnce()
-            if (!setupTranscript) captureLog.close()
+            finishRadarCapture(device.address)
         }
     }
 
@@ -1871,6 +1910,7 @@ internal class RadarLinkController(
             false
         }
         private const val TAG = "BikeRadar.Radar"
+        private const val CAPTURE_RECONNECT_GRACE_MS = 15_000L
 
         // V2 data-flow watchdog: if no V2 notification arrives for
         // V2_FRAME_STALL_MS, the link is considered stuck and the GATT is torn

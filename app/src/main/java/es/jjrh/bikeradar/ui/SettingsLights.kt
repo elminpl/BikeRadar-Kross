@@ -213,6 +213,7 @@ internal fun SettingsLightsContent(
     locationCard: @Composable () -> Unit = {},
 ) {
     val br = LocalBrColors.current
+    val krossStreaming = isKrossStreaming()
     val dashcamOwned = dashcamOwnership == DashcamOwnership.YES
     Box(modifier = Modifier.fillMaxSize().background(br.bg).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
@@ -222,7 +223,10 @@ internal fun SettingsLightsContent(
             SettingsRowGroup {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_lights_auto_switch),
-                    subtitle = stringResource(R.string.settings_lights_radar_auto_sub),
+                    enabled = !krossStreaming,
+                    subtitle = stringResource(
+                        if (krossStreaming) R.string.settings_kross_unavailable else R.string.settings_lights_radar_auto_sub,
+                    ),
                     checked = rearAuto,
                     onCheckedChange = onRearAutoChanged,
                     leadingIcon = Icons.Default.WbSunny,
@@ -231,24 +235,24 @@ internal fun SettingsLightsContent(
                 )
                 SettingsRow(
                     icon = Icons.Default.LightMode,
-                    iconTint = if (rearAuto) br.brand else br.fgMuted,
+                    iconTint = if (rearAuto && !krossStreaming) br.brand else br.fgMuted,
                     title = stringResource(R.string.settings_lights_daytime_mode),
                     subtitle = radarDay.displayName(),
                     onClick = onRadarDayClick,
                     chevron = false,
-                    clickable = rearAuto,
-                    enabled = rearAuto,
+                    clickable = rearAuto && !krossStreaming,
+                    enabled = rearAuto && !krossStreaming,
                     isLast = false,
                 )
                 SettingsRow(
                     icon = Icons.Default.DarkMode,
-                    iconTint = if (rearAuto) br.brand else br.fgMuted,
+                    iconTint = if (rearAuto && !krossStreaming) br.brand else br.fgMuted,
                     title = stringResource(R.string.settings_lights_night_mode),
                     subtitle = stringResource(R.string.settings_lights_night_sub, radarNight.displayName()),
                     onClick = onRadarNightClick,
                     chevron = false,
-                    clickable = rearAuto,
-                    enabled = rearAuto,
+                    clickable = rearAuto && !krossStreaming,
+                    enabled = rearAuto && !krossStreaming,
                     isLast = true,
                 )
             }

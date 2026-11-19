@@ -48,10 +48,10 @@ class SettingsAboutLinkRowsTest {
     }
 
     @Test
-    fun theWhatsNewRowOpensTheReleaseNotes() {
+    fun theOriginalReleasesRowOpensTheUpstreamReleaseNotes() {
         assertEquals(
             "https://github.com/partymola/android-bike-radar-overlay/releases",
-            urlOpenedByTapping("What's new"),
+            urlOpenedByTapping("Original releases (partymola)"),
         )
     }
 
@@ -60,6 +60,22 @@ class SettingsAboutLinkRowsTest {
         assertEquals(
             "https://github.com/partymola/android-bike-radar-overlay",
             urlOpenedByTapping("github.com/partymola/android-bike-radar-overlay"),
+        )
+    }
+
+    @Test
+    fun theKrossRepoChipOpensTheFork() {
+        assertEquals(
+            "https://github.com/elminpl/BikeRadar-Kross",
+            urlOpenedByTapping("github.com/elminpl/BikeRadar-Kross"),
+        )
+    }
+
+    @Test
+    fun theKrossReleaseNotesRowOpensTheForkChangelog() {
+        assertEquals(
+            "https://github.com/elminpl/BikeRadar-Kross/blob/feature/kross-echo-pro/CHANGELOG-KROSS.md",
+            urlOpenedByTapping("BikeRadar-Kross release notes (elminpl)"),
         )
     }
 }

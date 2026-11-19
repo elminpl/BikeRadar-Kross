@@ -21,6 +21,15 @@ Archiwum obejmuje 19 plików APK i 8 etapów funkcjonalnych, z czego 7 przypada 
 
 Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktualizowania GitHuba po kompilacji. Kolejna wersja aplikacji na bazie 1.12.2 otrzymała numer `k2`.
 
+## 1.12.2.k3
+
+- Informacje rozróżniają źródło i wydania partymola od repozytorium i listy zmian BikeRadar-Kross.
+- Diagnostyka ma zwijany podgląd sygnałów i szersze przyciski dzienników. Dziennik stanu pokazuje odległość i zagrożenie dla Krossa, odległość dla Garmina V1 oraz odległość i prędkość względną dla Garmina V2. Licznik nieprawidłowych restartów usługi ma osobne objaśnienie.
+- Dziennik przechwytywania pozostaje otwarty przez 15 sekund po zerwaniu łącza. Szybki powrót tego samego radaru dopisuje do pliku kolejną próbę.
+- Podczas odbioru danych z Krossa niedostępne są automatyczne tryby tylnej lampy, korekta montażu, próba ustawień Garmina, liczenie bliskich minięć i opcje alertów zależne od algorytmu Garmina. Zapisane preferencje są dostępne po powrocie do Garmina.
+- Siedem nagrań z 19 listopada potwierdziło odczyt baterii i firmware. W 2995 ramkach FFE2 brak aktywnych celów. Prędkość i strona mijania pozostają do potwierdzenia na sprzęcie.
+- Przeszło 311 wybranych testów, w tym 90 testów zrzutów w UTC. Kompilacja Debug i ktlint przeszły. Kod APK to **47**.
+
 ## 1.12.2.k2
 
 - Kross Echo Pro pokazuje procent baterii z istniejącą ikoną i wersję oprogramowania w karcie System, Szybkim stanie oraz szczegółach radaru.

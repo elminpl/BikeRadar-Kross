@@ -40,6 +40,8 @@ import es.jjrh.bikeradar.R
 
 internal const val REPO_URL = "https://github.com/partymola/android-bike-radar-overlay"
 internal const val RELEASES_URL = "$REPO_URL/releases"
+private const val KROSS_REPO_URL = "https://github.com/elminpl/BikeRadar-Kross"
+private const val KROSS_RELEASES_URL = "$KROSS_REPO_URL/blob/feature/kross-echo-pro/CHANGELOG-KROSS.md"
 
 /** The licence text itself, which is the thing a reader of "GPL-3.0" wants. */
 internal const val GPL_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
@@ -104,21 +106,32 @@ internal fun SettingsAboutBody(
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 )
                 Spacer(modifier = Modifier.height(20.dp))
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(999.dp))
-                        .background(br.bgElev1)
-                        .border(1.dp, br.hairline, RoundedCornerShape(999.dp))
-                        .clickable { onOpenUrl(REPO_URL) }
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
-                ) {
+                for ((label, url) in listOf(
+                    R.string.settings_about_upstream_source to REPO_URL,
+                    R.string.settings_about_kross_source to KROSS_REPO_URL,
+                )) {
                     Text(
-                        text = REPO_URL.removePrefix("https://"),
+                        text = stringResource(label),
                         color = br.fgMuted,
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                     )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(br.bgElev1)
+                            .border(1.dp, br.hairline, RoundedCornerShape(999.dp))
+                            .clickable { onOpenUrl(url) }
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                    ) {
+                        Text(
+                            text = url.removePrefix("https://"),
+                            color = br.fgMuted,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 11.sp,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
 
@@ -145,6 +158,15 @@ internal fun SettingsAboutBody(
                     title = stringResource(R.string.settings_about_changelog_title),
                     subtitle = stringResource(R.string.settings_about_changelog_subtitle),
                     onClick = { onOpenUrl(RELEASES_URL) },
+                    chevron = false,
+                    rightContent = { LeavesAppGlyph() },
+                )
+                SettingsRow(
+                    icon = Icons.AutoMirrored.Filled.Article,
+                    iconTint = br.fgMuted,
+                    title = stringResource(R.string.settings_about_kross_release),
+                    subtitle = null,
+                    onClick = { onOpenUrl(KROSS_RELEASES_URL) },
                     chevron = false,
                     rightContent = { LeavesAppGlyph() },
                     isLast = true,

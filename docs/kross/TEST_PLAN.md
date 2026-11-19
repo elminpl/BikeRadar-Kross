@@ -10,6 +10,7 @@
 | 1.12.2.k1 packaging | Release build and DEX keep verification passed. Package `es.jjrh.bikeradar.kross`, version code 45 and the existing test certificate were verified. The previous selected tests cover its app behavior. |
 | Hardware-response and roadside replay follow-up | 177 selected tests passed, including 9 Debug screenshots. The BLE harness uses the captured 53-byte FFF1 reply. The decoder replays 22 FFE2 frames with relative timestamps from the two roadside sessions, including transitions to empty frames. |
 | 1.12.2.k2 | 299 selected tests passed, including 113 screenshot tests. Test coverage includes Kross battery and firmware in System and Quick Status, and session cleanup on disconnect. |
+| 1.12.2.k3 | 311 selected tests passed, including 90 screenshots in UTC. Tests cover capture reuse, expiry and link targets in About. Six references changed for the requested UI updates. Debug APK and ktlint passed. |
 
 An earlier broad test run reported four Roborazzi discrepancies. The selected runs above used a UTC JVM and kept the existing reference images. The table describes the recorded checkpoints. A full clean test suite on k1 has yet to be recorded.
 
@@ -20,5 +21,7 @@ An earlier broad test run reported four Roborazzi discrepancies. The selected ru
 3. **Targets on the overlay.** Compare displayed range, threat color, audible alerts and clearing of targets against observed traffic. Record independent timestamps in a controlled setting. The existing stationary captures cover passes on both sides and support range and threat decoding.
 4. **Unknown fields.** Collect a capture containing type 0x31, a controlled speed reference and a side code that varies with the setup. Record which firmware produced each capture.
 5. **Garmin regression.** With a Garmin V1 or V2 unit, verify selecting the radar, reconnect, telemetry and audible alerts. Rerun relevant JVM and Roborazzi tests with `-Duser.timezone=UTC` on BLE or UI changes.
+
+For k3, exercise the Polish diagnostics screen at a narrow width and large font. Check that the sound preview expands, capture sharing and bulk deletion remain usable, and the radar-state log shows fields for the active model. Reconnect the same radar before and after 15 seconds, then switch to a second device. Confirm the capture is reused only across the short gap for the same radar. Check that Garmin options become available again after the Kross stream ends.
 
 Keep the original reference images for environment-only differences. Track the test results and hardware limitations for each named APK in the [Kross changelog](../../CHANGELOG-KROSS.md).

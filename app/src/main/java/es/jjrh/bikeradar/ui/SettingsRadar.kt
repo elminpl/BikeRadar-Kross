@@ -354,6 +354,7 @@ internal fun SettingsRadarContent(
     onStopScanningClick: () -> Unit,
 ) {
     val br = LocalBrColors.current
+    val krossStreaming = isKrossStreaming()
     val ctx = LocalContext.current
     // Read through the configuration, not Locale.getDefault(): the decimal
     // separator differs by locale (1.5 m vs 1,5 m) and a composable that
@@ -368,6 +369,14 @@ internal fun SettingsRadarContent(
             // Alerts group — sliders sit directly on the screen background
             // matching the JSX which puts them outside any card.
             SettingsSectionLabel(stringResource(R.string.settings_radar_section_alerts))
+            if (krossStreaming) {
+                Text(
+                    text = stringResource(R.string.settings_kross_unavailable),
+                    color = br.fgDim,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                )
+            }
             AlertVolumeSliderRow(volume = alertVol, onChange = onAlertVolChange, onFinished = onAlertVolFinished)
             SettingsSliderRow(
                 title = stringResource(R.string.settings_radar_alert_distance_title),
@@ -380,6 +389,7 @@ internal fun SettingsRadarContent(
             )
             SettingsSliderRow(
                 title = stringResource(R.string.settings_radar_urgent_clearance_title),
+                enabled = !krossStreaming,
                 valueDisplay = stringResource(
                     R.string.settings_radar_meters_decimal_value,
                     String.format(locale, "%.1f", urgentMargin),
@@ -399,6 +409,7 @@ internal fun SettingsRadarContent(
             val ceilingStop = closingCeilingStopIndex(closingCeiling)
             SettingsSliderRow(
                 title = stringResource(R.string.settings_radar_closing_ceiling_title),
+                enabled = !krossStreaming,
                 valueDisplay = closingCeilingStops[ceilingStop]?.let {
                     stringResource(R.string.settings_radar_kmh_value, (it * 3.6).roundToInt())
                 } ?: stringResource(R.string.settings_radar_closing_ceiling_none),
@@ -414,6 +425,7 @@ internal fun SettingsRadarContent(
                     leadingIcon = Icons.Default.NotificationsActive,
                     leadingTint = br.danger,
                     title = stringResource(R.string.settings_radar_urgent_low_speed_title),
+                    enabled = !krossStreaming,
                     subtitle = stringResource(R.string.settings_radar_urgent_low_speed_subtitle),
                     checked = urgentLowSpeed,
                     onCheckedChange = onUrgentLowSpeedChange,
@@ -422,6 +434,7 @@ internal fun SettingsRadarContent(
                     leadingIcon = Icons.Default.TurnSlightRight,
                     leadingTint = br.brand,
                     title = stringResource(R.string.settings_radar_turn_title),
+                    enabled = !krossStreaming,
                     subtitle = stringResource(R.string.settings_radar_turn_subtitle),
                     checked = turnAware,
                     onCheckedChange = onTurnAwareChange,
@@ -465,6 +478,7 @@ internal fun SettingsRadarContent(
                     leadingIcon = Icons.Default.Speed,
                     leadingTint = br.brand,
                     title = stringResource(R.string.settings_radar_adaptive_title),
+                    enabled = !krossStreaming,
                     subtitle = stringResource(R.string.settings_radar_adaptive_subtitle),
                     checked = adaptive,
                     onCheckedChange = onAdaptiveChange,
@@ -566,6 +580,7 @@ internal fun SettingsRadarContent(
                     leadingIcon = Icons.Default.Sensors,
                     leadingTint = br.safe,
                     title = stringResource(R.string.settings_radar_close_pass_title),
+                    enabled = !krossStreaming,
                     subtitle = if (haConfigured) {
                         stringResource(R.string.settings_radar_close_pass_subtitle_ha)
                     } else {
@@ -582,6 +597,7 @@ internal fun SettingsRadarContent(
                     Column {
                         SettingsSliderRow(
                             title = stringResource(R.string.settings_radar_lateral_clearance_title),
+                            enabled = !krossStreaming,
                             valueDisplay = stringResource(
                                 R.string.settings_radar_meters_decimal_value,
                                 String.format(locale, "%.1f", closePassEmitMinX),
@@ -597,6 +613,7 @@ internal fun SettingsRadarContent(
                         )
                         SettingsSliderRow(
                             title = stringResource(R.string.settings_radar_min_rider_speed_title),
+                            enabled = !krossStreaming,
                             valueDisplay = stringResource(R.string.settings_radar_kmh_value, closePassRiderFloor),
                             helper = stringResource(R.string.settings_radar_min_rider_speed_helper),
                             value = closePassRiderFloor.toFloat(),
@@ -609,6 +626,7 @@ internal fun SettingsRadarContent(
                         )
                         SettingsSliderRow(
                             title = stringResource(R.string.settings_radar_min_closing_speed_title),
+                            enabled = !krossStreaming,
                             valueDisplay = stringResource(R.string.settings_radar_ms_value, closePassClosingFloor),
                             helper = stringResource(
                                 R.string.settings_radar_min_closing_speed_helper,

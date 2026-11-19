@@ -473,7 +473,7 @@
     <string name="settings_about_section_release">Wydania</string>
     <string name="settings_about_licence_title">Licencja aplikacji</string>
     <string name="settings_about_licence_subtitle">GPL-3.0-or-later</string>
-    <string name="settings_about_changelog_title">Co nowego</string>
+    <string name="settings_about_changelog_title">Wydania oryginału (partymola)</string>
     <string name="settings_about_changelog_subtitle">Zmiany w poszczególnych wersjach</string>
     <string name="settings_about_safety_title">Przed jazdą</string>
     <string name="settings_about_safety_subtitle">Możliwości i ograniczenia radaru</string>
@@ -872,9 +872,9 @@
     <string name="debug_cue_preview_hint">Sygnał jest odtwarzany przez działającą usługę. Jeśli nic nie słychać, najpierw uruchom usługę.</string>
     <string name="debug_section_capture_logging">Dzienniki przechwytywania</string>
     <string name="debug_write_capture_logs_title">Zapisuj dzienniki przechwytywania</string>
-    <string name="debug_write_capture_logs_subtitle">Domyślnie wyłączone. Zapisuje każdy pakiet radaru, powiadomienie BLE i stan eBike z dokładnym czasem, a także baterię telefonu i kierunek skrętu. Przydaje się do zgłaszania błędów, ale tworzy na telefonie dane pozwalające prześledzić jazdę. Zmiana zaczyna działać przy następnym połączeniu radaru; bieżący dziennik zakończy się niezależnie od ustawienia.</string>
+    <string name="debug_write_capture_logs_subtitle">Zapisuje na telefonie dane radaru, BLE i jazdy od następnego połączenia. Powrót w ciągu 15 s zachowuje ten sam plik.</string>
     <string name="debug_setup_transcript_title">Zapisuj przebieg nawiązywania połączenia</string>
-    <string name="debug_setup_transcript_subtitle">Pomaga ustalić, dlaczego radar nie może nawiązać połączenia.\n• Wymaga włączenia zapisu dzienników przechwytywania\n• Rozpoczyna dziennik po znalezieniu radaru, obejmując wszystkie kroki połączenia\n• Może zawierać model, wersję oprogramowania i numer seryjny radaru\n• Jeden dziennik obejmuje wszystkie próby, także późniejsze przejazdy\n• Możesz go w każdej chwili udostępnić z poniższej listy, nawet podczas nagrywania\n• Po zakończeniu wyłącz tę funkcję, bo zapis trwa również podczas kolejnych przejazdów</string>
+    <string name="debug_setup_transcript_subtitle">Zapisuje też przebieg łączenia i może zawierać numer seryjny radaru. Wymaga włączenia zapisu dzienników.</string>
     <string name="debug_section_capture_logs">Dzienniki przechwytywania</string>
     <string name="debug_no_capture_logs">Brak dzienników przechwytywania.</string>
     <string name="debug_section_crashes">Awarie</string>
@@ -1142,4 +1142,10 @@
     <string name="device_status_bluetooth_connected">Połączono przez Bluetooth</string>
     <string name="settings_radardev_kross_connected">Połączono przez Bluetooth · Dotknij, aby rozłączyć</string>
     <string name="settings_radardev_kross_disconnected">Rozłączono · Dotknij, aby połączyć</string>
+    <string name="settings_about_upstream_source">Źródło oryginału (partymola)</string>
+    <string name="settings_about_kross_source">Repozytorium BikeRadar-Kross (elminpl)</string>
+    <string name="settings_about_kross_release">Zmiany w wydaniach BikeRadar-Kross (elminpl)</string>
+    <string name="debug_state_log_hint">Każdy wpis pokazuje czas, radar i liczbę celów. Przy celach widać odległość oraz poziom zagrożenia z Krossa lub prędkość względną z Garmina V2. Ujemna prędkość oznacza zbliżanie.</string>
+    <string name="debug_dirty_restart_hint">Licznik uruchomień po zakończeniu poprzedniej usługi bez normalnego zamknięcia. Raporty awarii są na osobnej liście.</string>
+    <string name="settings_kross_unavailable">Część ustawień jest wyszarzona, ponieważ obecna obsługa Krossa nie korzysta z tych funkcji.</string>
 </resources>

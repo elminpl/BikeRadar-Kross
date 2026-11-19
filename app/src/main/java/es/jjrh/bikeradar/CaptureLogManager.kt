@@ -13,7 +13,7 @@ import java.util.Locale
 import java.util.UUID
 
 /**
- * Owns the per-ride capture log: open/close (one file per radar connection),
+ * Owns the per-ride capture log: open/close (one file per radar session),
  * the buffered append + periodic flush, packet/line tagging, and retention
  * (prune + opportunistic gzip). Extracted from [BikeRadarService] so the file
  * lifecycle is unit-testable and the service is smaller; behaviour is unchanged.
@@ -63,9 +63,8 @@ internal class CaptureLogManager(
     val isRecording: Boolean get() = writer != null
 
     /** Open a fresh capture file for this connection. No-op when a file is
-     *  already open: setup-transcript mode opens at connection start and spans
-     *  the reconnect loop, so the post-handshake open() on the same connection
-     *  must keep the file rather than rotate it.
+     *  already open: the post-handshake open() must keep an existing
+     *  transcript or a capture resumed after a brief disconnect.
      *
      *  When logging is off this CLOSES an open file rather than just returning.
      *  A setup transcript spans the reconnect loop, so a rider switching the
@@ -82,7 +81,11 @@ internal class CaptureLogManager(
         val root = externalFilesDir() ?: return
         val dir = File(root, CAPTURE_DIR).apply { mkdirs() }
         val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.ROOT).format(Date())
-        val file = File(dir, "bike-radar-capture-$stamp.log")
+        var file = File(dir, "bike-radar-capture-$stamp.log")
+        var suffix = 1
+        while (file.exists() || File(dir, "${file.name}.gz").exists()) {
+            file = File(dir, "bike-radar-capture-$stamp-${suffix++}.log")
+        }
         // Resolved before the writer exists: a throwing injected stamp would
         // otherwise land in the catch below, which would log "failed to open"
         // while the writer was live and skip the retention pass. runCatching

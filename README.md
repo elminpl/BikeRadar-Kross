@@ -4,7 +4,7 @@
 
 Projekt jest prywatną, niezależną modyfikacją [Bike Radar Overlay autorstwa partymola](https://github.com/partymola/android-bike-radar-overlay). Celem jest dodanie obsługi Kross Echo Pro bez pogorszenia kompatybilności z radarami Garmin. Nie jest to oficjalna aplikacja Kross ani wydanie oryginalnego autora.
 
-> **Stan projektu.** Wersja testowa `1.12.2.k2` odbiera dane Kross Echo Pro i pokazuje odległość oraz poziom zagrożenia. Karta System i Szybki stan pokazują także baterię oraz wersję oprogramowania radaru. Dwa nagrania z S24+ potwierdzają dekodowanie odległości i zagrożenia. Na postoju potwierdzono też odczyt ustawień i firmware. Prędkość, strona mijania i działanie alertów podczas jazdy wymagają dalszych prób na sprzęcie.
+> **Stan projektu.** Wersja testowa `1.12.2.k3` odbiera dane Kross Echo Pro i pokazuje odległość oraz poziom zagrożenia. Karta System i Szybki stan pokazują także baterię oraz wersję oprogramowania radaru. Dwa nagrania z S24+ potwierdzają dekodowanie odległości i zagrożenia. Na postoju potwierdzono też odczyt ustawień i firmware. Prędkość, strona mijania i działanie alertów podczas jazdy wymagają dalszych prób na sprzęcie.
 
 ## Cele
 
@@ -17,7 +17,7 @@ Projekt jest prywatną, niezależną modyfikacją [Bike Radar Overlay autorstwa 
 
 ## Co już ustalono
 
-Aplikacja wykrywa Kross Echo Pro, pokazuje stan połączenia i dekoduje odległość oraz zagrożenie z potwierdzonych ramek. Menu Diagnostyka zawiera próbny odczyt danych urządzenia. Szczegóły opisuje [dokumentacja BLE](docs/kross/BLE_PROTOCOL.md).
+Aplikacja wykrywa Kross Echo Pro, pokazuje stan połączenia i dekoduje odległość oraz zagrożenie z potwierdzonych ramek. Menu Diagnostyka zawiera próbny odczyt danych urządzenia. Dziennik przechwytywania łączy szybkie ponowne połączenia tego samego radaru w jeden plik. Szczegóły opisuje [dokumentacja BLE](docs/kross/BLE_PROTOCOL.md).
 
 ## Dokumentacja
 

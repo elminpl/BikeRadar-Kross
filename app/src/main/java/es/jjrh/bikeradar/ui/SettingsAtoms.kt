@@ -24,6 +24,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,8 +44,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import es.jjrh.bikeradar.CameraLightMode
+import es.jjrh.bikeradar.DataSource
 import es.jjrh.bikeradar.R
 import es.jjrh.bikeradar.RadarLightMode
+import es.jjrh.bikeradar.RadarStateBus
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 /**
  * Shared atoms for the redesigned Settings flow. Mirrors the JSX
@@ -321,6 +328,7 @@ fun SettingsSliderRow(
     steps: Int = 0,
     paddingHorizontal: Dp = 20.dp,
     paddingBottom: Dp = 18.dp,
+    enabled: Boolean = true,
 ) {
     val br = LocalBrColors.current
     Column(
@@ -334,10 +342,10 @@ fun SettingsSliderRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom,
         ) {
-            Text(text = title, color = br.fg, fontSize = 14.sp)
+            Text(text = title, color = if (enabled) br.fg else br.fgMuted, fontSize = 14.sp)
             Text(
                 text = valueDisplay,
-                color = br.brand,
+                color = if (enabled) br.brand else br.fgMuted,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Medium,
                 fontSize = 13.sp,
@@ -359,6 +367,7 @@ fun SettingsSliderRow(
             onValueChange = onValueChange,
             onValueChangeFinished = onValueChangeFinished,
             steps = steps,
+            enabled = enabled,
             // Name the control and say the value the row is already showing.
             // Left alone the node carries only the slider's position in its
             // range, which is the value while a scale is linear and is not once
@@ -613,4 +622,12 @@ internal fun RadarLightMode.displayName(): String = when (this) {
     RadarLightMode.SOLID -> stringResource(R.string.settings_lightmode_solid)
     RadarLightMode.PELOTON -> stringResource(R.string.settings_lightmode_peloton)
     RadarLightMode.OFF -> stringResource(R.string.settings_lightmode_off)
+}
+
+@Composable
+internal fun isKrossStreaming(): Boolean {
+    val active by remember {
+        RadarStateBus.state.map { it.source == DataSource.KROSS }.distinctUntilChanged()
+    }.collectAsState(initial = RadarStateBus.state.value.source == DataSource.KROSS)
+    return active
 }

@@ -371,6 +371,7 @@ fun BrSlider(
     onValueChangeFinished: (() -> Unit)? = null,
     steps: Int = 0,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val br = LocalBrColors.current
     androidx.compose.material3.Slider(
@@ -379,6 +380,7 @@ fun BrSlider(
         onValueChangeFinished = onValueChangeFinished,
         valueRange = valueRange,
         steps = steps,
+        enabled = enabled,
         colors = androidx.compose.material3.SliderDefaults.colors(
             thumbColor = Color.White,
             activeTrackColor = br.brand,

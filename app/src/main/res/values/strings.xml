@@ -457,7 +457,7 @@
     <string name="settings_about_section_release">Releases</string>
     <string name="settings_about_licence_title">This app\'s licence</string>
     <string name="settings_about_licence_subtitle">GPL-3.0-or-later</string>
-    <string name="settings_about_changelog_title">What\'s new</string>
+    <string name="settings_about_changelog_title">Original releases (partymola)</string>
     <string name="settings_about_changelog_subtitle">What changed in each version</string>
     <string name="settings_about_safety_title">Before you ride</string>
     <string name="settings_about_safety_subtitle">What the radar can and cannot do</string>
@@ -846,9 +846,9 @@
     <string name="debug_cue_preview_hint">Plays through the running service. If silent, start the service first.</string>
     <string name="debug_section_capture_logging">Capture logging</string>
     <string name="debug_write_capture_logs_title">Write capture logs</string>
-    <string name="debug_write_capture_logs_subtitle">Off by default. Records every radar packet, BLE notify and eBike snapshot with exact timing, plus phone battery and which way you turn - useful for bug reports, but ride-tracking-grade data kept on the phone. Takes effect on the next radar connection (the current ride\'s log finishes either way).</string>
+    <string name="debug_write_capture_logs_subtitle">Records radar, BLE and ride data locally from the next radar connection. Reconnects within 15 seconds share a file.</string>
     <string name="debug_setup_transcript_title">Record connection setup</string>
-    <string name="debug_setup_transcript_subtitle">Shows why a radar that never connects is failing.\n• Needs Write capture logs on\n• Starts the log when the radar is found, so it covers every connection step\n• Can include your radar\'s model, firmware and serial number\n• One log spans every attempt, later rides included\n• Share it from the list below at any time, even while it is still recording\n• Turn this off when you\'re done: it keeps recording across later rides</string>
+    <string name="debug_setup_transcript_subtitle">Starts logging before connection setup and may include the radar serial number. Requires capture logging.</string>
     <string name="debug_section_capture_logs">Capture logs</string>
     <string name="debug_no_capture_logs">No capture logs yet.</string>
     <string name="debug_section_crashes">Crashes</string>
@@ -1088,4 +1088,10 @@
     <string name="alert_sound_back_title">One low pulse</string>
     <string name="alert_sound_back_meaning">The radar is back</string>
 
+    <string name="settings_about_upstream_source">Original source (partymola)</string>
+    <string name="settings_about_kross_source">BikeRadar-Kross repository (elminpl)</string>
+    <string name="settings_about_kross_release">BikeRadar-Kross release notes (elminpl)</string>
+    <string name="debug_state_log_hint">Each row shows time, radar and target count. Targets show distance, plus the reported threat level for Kross or relative speed for Garmin V2. Negative speed means approaching.</string>
+    <string name="debug_dirty_restart_hint">Counts service starts after the previous instance ended without clean shutdown. Crash reports are listed separately.</string>
+    <string name="settings_kross_unavailable">Some controls are disabled because the current Kross integration cannot use them.</string>
 </resources>

@@ -46,7 +46,12 @@ Daty oznaczają zapis na Dysku Google w strefie Europe/Warsaw. W katalogu projek
 
 Wczesne pliki Smali miały pakiet `es.jjrh.bikeradar`. Sprawdzone kompilacje Kotlin używały osobnego pakietu `es.jjrh.bikeradar.kross`. Trzy pierwsze testowe APK na S24+ zgłaszały tę samą wersję aplikacji, ale miały różne sumy SHA-256.
 
-Najnowszy znaleziony plik testowy to `1.12.2.k1`, zbudowany z commita `7435a067` i oznaczony tagiem `kross-1.12.2.k1`. Późniejsze zmiany na gałęzi rozwojowej dotyczyły automatyzacji GitHub Actions, konfiguracji numeracji i instrukcji projektu. Po tym tagu nie znaleziono nowszego udostępnionego APK w sprawdzonym katalogu ani następnego tagu Krossa w repozytorium.
+## Kolejne wydania numerowane
+
+| Wersja | Kod APK | Zmiany |
+|---|---:|---|
+| [1.12.2.k2](../../CHANGELOG-KROSS.md#1122k2) | 46 | Bateria i firmware Krossa w istniejących ekranach stanu. |
+| [1.12.2.k3](../../CHANGELOG-KROSS.md#1122k3) | 47 | Diagnostyka i łączenie krótkich sesji zapisu oraz ustawienia zależne od radaru. |
 
 ## Wnioski z prób
 

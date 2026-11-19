@@ -3788,6 +3788,8 @@ class RadarLinkControllerHarnessTest {
         val files = File(root, CaptureLogManager.CAPTURE_DIR).listFiles()!!
         assertEquals("retries accumulate into one file, not one per attempt", 1, files.size)
         val lines = files.single().readLines()
+        assertTrue(lines.any { it == "# radar link ended" })
+        assertTrue(lines.any { it == "# radar link resumed" })
         assertTrue(
             "the abort reason must be in the transcript: $lines",
             lines.any { it.contains("# script: ABORT: handshake TX characteristic not found") },
@@ -3982,9 +3984,9 @@ class RadarLinkControllerHarnessTest {
         controller.forceReconnect()
     }
 
-    /** Transcript off, working radar: the per-attempt lifecycle is untouched -
-     *  the file opens after the handshake and closes (gzipped) on teardown. */
-    @Test fun captureClosesPerAttemptWithTranscriptOff() = runTest {
+    /** An ordinary capture survives a short gap, then closes even if the
+     *  reconnect loop is still trying. */
+    @Test fun captureClosesAfterTheReconnectGracePeriod() = runTest {
         val link = Link()
         val root = Files.createTempDirectory("radar-transcript-off-ok").toFile()
         val p = prefs()
@@ -4002,15 +4004,20 @@ class RadarLinkControllerHarnessTest {
         feedHandshakeReplies(link)
         assertTrue(pumpUntil { journalHas("radar handshake complete") })
 
-        // Radar drops; the reconnect loop stays alive. The attempt's file must
-        // gzip NOW, not when the loop eventually exits.
+        val dir = File(root, CaptureLogManager.CAPTURE_DIR)
+        assertTrue(pumpUntil { dir.listFiles()?.any { it.name.endsWith(".log") } == true })
+        // Radar drops; the reconnect loop stays alive.
         requireNotNull(link.cb).onConnectionStateChange(
             requireNotNull(link.gatt),
             BluetoothGatt.GATT_SUCCESS,
             BluetoothProfile.STATE_DISCONNECTED,
         )
+        assertFalse(
+            "keep the file open for a quick reconnect",
+            pumpUntil(10_000L) { dir.listFiles()?.any { it.name.endsWith(".log.gz") } == true },
+        )
         assertTrue(
-            "the attempt's file must gzip on teardown while the loop is still running",
+            "gzip after the grace period while the reconnect loop is still running",
             pumpUntil {
                 File(root, CaptureLogManager.CAPTURE_DIR)
                     .listFiles()?.any { it.name.endsWith(".log.gz") } ?: false
