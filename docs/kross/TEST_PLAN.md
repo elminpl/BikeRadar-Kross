@@ -12,6 +12,7 @@
 | 1.12.2.k2 | 299 selected tests passed, including 113 screenshot tests. Test coverage includes Kross battery and firmware in System and Quick Status, and session cleanup on disconnect. |
 | 1.12.2.k3 | 311 selected tests passed, including 90 screenshots in UTC. Tests cover capture reuse, expiry and link targets in About. Six references changed for the requested UI updates. Debug APK, ktlint, release build and DEX keep verification passed. The signed APK has package `es.jjrh.bikeradar.kross`, version code 47 and the same certificate as k2. |
 | 1.12.2.k4 | 237 selected tests passed, including 16 screenshots in UTC. The BLE harness verifies the bounded retry sequence after decoded telemetry. A renderer test confirms that a decoded Kross target is drawn and cleared by the idle frame. Debug, ktlint, Release and DEX keep verification passed. Signed package `es.jjrh.bikeradar.kross` has version code 48 and the k3 certificate. |
+| 1.12.2.k5 | 418 selected tests passed, including 92 screenshot tests in UTC. Ten Settings references changed for the new menu item. Tests cover capture reuse and expiry, confirmed-pass tracking, history, and the HA payload. Debug, ktlint, Release and DEX checks passed. Version code 49 and the k4 certificate were verified. |
 
 An earlier broad test run reported four Roborazzi discrepancies. The selected runs above used a UTC JVM and kept the existing reference images. The table describes the recorded checkpoints. A full clean test suite on k1 has yet to be recorded.
 
@@ -26,3 +27,5 @@ An earlier broad test run reported four Roborazzi discrepancies. The selected ru
 For k3, exercise the Polish diagnostics screen at a narrow width and large font. Check that the sound preview expands, capture sharing and bulk deletion remain usable, and the radar-state log shows fields for the active model. Reconnect the same radar before and after 15 seconds, then switch to a second device. Confirm the capture is reused only across the short gap for the same radar. Check that Garmin options become available again after the Kross stream ends.
 
 Keep the original reference images for environment-only differences. Track the test results and hardware limitations for each named APK in the [Kross changelog](../../CHANGELOG-KROSS.md).
+
+The standalone privacy shell check reports the unresolved manifest placeholder `${radarPermission}` on both k4 and k5. The MQTT disclosure contract test passes in k5.

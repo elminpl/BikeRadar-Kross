@@ -27,7 +27,7 @@ Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktu
 - Dziennik stanu w Diagnostyce trzyma 100 najnowszych wpisów w pamięci ekranu.
 - Ustawienia jazdy mają podmenu nakładki z podglądem szerokości, wysokości, przezroczystości i zasięgu.
 - Opcjonalny licznik potwierdzonych wyprzedzeń Garmina V2 trafia do historii jazd, podsumowania i zdarzeń MQTT. Kross zgłasza odległość i zagrożenie. Jego ramki nie potwierdzają przejścia pojazdu przed rower.
-- Kod APK to **49**.
+- Przeszło 418 wybranych testów, w tym 92 testów zrzutów w UTC. Weryfikacja podpisu przeszła. Kod APK to **49**.
 
 ## 1.12.2.k4
 
