@@ -3838,7 +3838,7 @@ class RadarLinkControllerHarnessTest {
         controller.forceReconnect()
         assertTrue(
             "the transcript must close and gzip when the reconnect loop exits",
-            pumpUntil {
+            pumpUntil(330_000L) {
                 File(root, CaptureLogManager.CAPTURE_DIR)
                     .listFiles()?.any { it.name.endsWith(".log.gz") } ?: false
             },
@@ -3876,7 +3876,7 @@ class RadarLinkControllerHarnessTest {
 
         assertTrue(
             "the transcript must close and gzip once the toggle goes off, with the loop still running",
-            pumpUntil {
+            pumpUntil(330_000L) {
                 File(root, CaptureLogManager.CAPTURE_DIR)
                     .listFiles()?.any { it.name.endsWith(".log.gz") } ?: false
             },
@@ -4051,7 +4051,7 @@ class RadarLinkControllerHarnessTest {
         )
         assertTrue(
             "gzip after the grace period while the reconnect loop is still running",
-            pumpUntil {
+            pumpUntil(330_000L) {
                 File(root, CaptureLogManager.CAPTURE_DIR)
                     .listFiles()?.any { it.name.endsWith(".log.gz") } ?: false
             },

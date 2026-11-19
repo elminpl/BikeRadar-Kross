@@ -133,7 +133,8 @@ private fun RideHistoryRow(rec: RideHistoryRecord) {
     val tightest = rec.tightestPassClearanceM?.let {
         stringResource(R.string.ride_history_tightest, String.format(locale, "%.1f", it))
     }
-    val statsLine = listOfNotNull(overtakes, passes, tightest).joinToString(" • ")
+    val passing = rec.passingCount?.let { stringResource(R.string.passing_ride_count, it) }
+    val statsLine = listOfNotNull(overtakes, passes, passing, tightest).joinToString(" • ")
 
     BrCard(modifier = Modifier.fillMaxWidth()) {
         Row(

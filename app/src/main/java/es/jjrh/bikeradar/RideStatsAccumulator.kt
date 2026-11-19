@@ -61,12 +61,18 @@ class RideStatsAccumulator(
     private class OpenTrack(val bornAtMs: Long) {
         /** The fastest closing (m/s) seen behind the rider. */
         var peakClosingMs = 0f
+        var passingApproach = false
 
         /** Clearances (m) that qualified for the ride's figure. */
         val alongside = ArrayList<Float>()
     }
 
     // Per-event state.
+    private var trackingPassing = false
+    private val passedTracks = mutableSetOf<Pair<Int, Long>>()
+    internal var passingCount: Int? = null
+        private set
+
     private var closePassCount: Int = 0
     private var grazingCount: Int = 0
     private var hgvClosePassCount: Int = 0
@@ -96,7 +102,14 @@ class RideStatsAccumulator(
      * [counting] says close-pass counting runs on this frame, which puts its
      * in-range cars in the conversion rate's denominator.
      */
-    fun observeFrame(state: RadarState, closingFloorMs: Float, counting: Boolean) {
+    fun observeFrame(state: RadarState, closingFloorMs: Float, counting: Boolean, countPassing: Boolean = false) {
+        val trackPassing = countPassing && state.source == DataSource.V2
+        if (trackingPassing && !trackPassing) openTracks.values.forEach { it.passingApproach = false }
+        trackingPassing = trackPassing
+        if (trackPassing && passingCount == null) {
+            passingCount = 0
+            generation++
+        }
         val nowMs = monoMsProvider()
         val prev = lastFrameMs
         lastFrameMs = nowMs
@@ -156,7 +169,15 @@ class RideStatsAccumulator(
         // Per-frame extrema and overtake dedup.
         for (v in state.vehicles) {
             if (v.isBehind) {
-                openTracks.remove(v.id)?.let(::endTrack)
+                val track = openTracks.remove(v.id)
+                if (track != null) {
+                    val passed = trackPassing && track.bornAtMs == v.bornAtMs && track.passingApproach
+                    if (passed && passedTracks.add(v.id to v.bornAtMs)) {
+                        passingCount = passedTracks.size
+                        generation++
+                    }
+                    endTrack(track)
+                }
                 continue
             }
             val open = openTracks[v.id]
@@ -172,6 +193,7 @@ class RideStatsAccumulator(
             // (`aReadingAboveTheBoundIsNotAnApproach`).
             if (-v.speedMs <= ClosePassDetector.PEAK_CLOSING_MAX_MS) {
                 track.peakClosingMs = maxOf(track.peakClosingMs, -v.speedMs)
+                if (trackPassing && v.speedMs < 0f) track.passingApproach = true
             }
             if (v.distanceM !in 0..MAX_TRACK_DISTANCE_M) continue
 
@@ -345,6 +367,7 @@ class RideStatsAccumulator(
             alertsPerKm = alertsPerKm,
             alertsPerHourOfRide = alertsPerHour,
             closePassesCounted = closePassesCounted,
+            passingCount = passingCount,
         )
     }
 
@@ -410,6 +433,7 @@ data class RideStatsSnapshot(
      *  range-only radar, or no rider speed), so [closePassCount] is not a
      *  measurement. */
     val closePassesCounted: Boolean = false,
+    val passingCount: Int? = null,
 )
 
 data class TightestPass(

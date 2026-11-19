@@ -405,6 +405,7 @@ private fun MainScreenBody(navController: NavController, prefs: Prefs) {
             onDashcamYes = onDashcamYes,
             onDashcamNo = onDashcamNo,
             onClosePassCardClick = onClosePassCardClick,
+            passingCountEnabled = prefsSnap.passingCountEnabled,
         )
     }
 }
@@ -458,6 +459,7 @@ internal fun MainScreenContent(
     onDashcamYes: () -> Unit,
     onDashcamNo: () -> Unit,
     onClosePassCardClick: () -> Unit = {},
+    passingCountEnabled: Boolean = false,
 ) {
     if (isLandscape) {
         MainScreenLandscape(
@@ -495,6 +497,7 @@ internal fun MainScreenContent(
             onDashcamYes = onDashcamYes,
             onDashcamNo = onDashcamNo,
             onClosePassCardClick = onClosePassCardClick,
+            passingCountEnabled = passingCountEnabled,
         )
     } else {
         MainScreenPortrait(
@@ -532,6 +535,7 @@ internal fun MainScreenContent(
             onDashcamYes = onDashcamYes,
             onDashcamNo = onDashcamNo,
             onClosePassCardClick = onClosePassCardClick,
+            passingCountEnabled = passingCountEnabled,
         )
     }
 }
@@ -604,6 +608,7 @@ private fun MainScreenPortrait(
     onDashcamYes: () -> Unit,
     onDashcamNo: () -> Unit,
     onClosePassCardClick: () -> Unit,
+    passingCountEnabled: Boolean,
 ) {
     Column(
         modifier = Modifier
@@ -654,6 +659,10 @@ private fun MainScreenPortrait(
                 rangeOnly = closePassRangeOnly,
                 onClick = onClosePassCardClick,
             )
+            if (passingCountEnabled) {
+                Spacer(modifier = Modifier.height(12.dp))
+                PassingStatsCard(onClick = onClosePassCardClick)
+            }
             if (showDashcamPrompt) {
                 Spacer(modifier = Modifier.height(14.dp))
                 DashcamPromptCard(onYes = onDashcamYes, onNo = onDashcamNo)
@@ -709,6 +718,7 @@ private fun MainScreenLandscape(
     onDashcamYes: () -> Unit,
     onDashcamNo: () -> Unit,
     onClosePassCardClick: () -> Unit,
+    passingCountEnabled: Boolean,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -739,6 +749,10 @@ private fun MainScreenLandscape(
                     rangeOnly = closePassRangeOnly,
                     onClick = onClosePassCardClick,
                 )
+                if (passingCountEnabled) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    PassingStatsCard(onClick = onClosePassCardClick)
+                }
                 if (showBtOffBanner) {
                     Spacer(modifier = Modifier.height(12.dp))
                     BluetoothOffBanner(onTap = onBtBannerTap)

@@ -75,7 +75,7 @@ class RideSummaryUncountedPayloadTest {
     /** A sensor reads Unknown only because its template names a key the payload left out. */
     @Test fun everySensorTemplateReadsAKeyTheStatePayloadWrites() {
         val client = HaClient("", "")
-        val state = client.buildRideSummaryState(snapshot(counted = true))
+        val state = client.buildRideSummaryState(snapshot(counted = true).copy(passingCount = 2))
         val field = Regex("""value_json\.(\w+) """)
         for ((_, discovery) in client.buildRideSummaryDiscoveryPayloads("radar", "Radar")) {
             val key = field.find(discovery.getString("value_template"))!!.groupValues[1]

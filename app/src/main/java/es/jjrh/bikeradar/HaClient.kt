@@ -305,6 +305,7 @@ open class HaClient(private val baseUrl: String, private val token: String) {
                 add("$DISCOVERY_PREFIX/sensor/${LEGACY_NS}_${s}_front_mode/config")
                 add("$DISCOVERY_PREFIX/event/${LEGACY_NS}_${s}_close_pass/config")
                 for (f in RIDE_SUMMARY_SENSORS) {
+                    if (f.field == "passing_count") continue
                     add("$DISCOVERY_PREFIX/sensor/${LEGACY_NS}_${s}_${f.field}/config")
                 }
             }
@@ -404,6 +405,31 @@ open class HaClient(private val baseUrl: String, private val token: String) {
             val j2 = async { publishMqtt("$topic/last", payload, retain = true) }
             j1.await() && j2.await()
         }
+    }
+
+    internal suspend fun publishPassingDiscovery(slug: String, deviceName: String): Boolean {
+        val topic = "$NS/$slug/passing_vehicle"
+        val payload = JSONObject()
+            .put("object_id", "${NS}_${slug}_passing_vehicle")
+            .put("unique_id", "${NS}_${slug}_passing_vehicle")
+            .put("name", "Passing vehicle")
+            .put("has_entity_name", true)
+            .put("state_topic", topic)
+            .put("event_types", JSONArray().put("passing_vehicle"))
+            .put("json_attributes_topic", topic)
+            .put("device", deviceJson(slug, deviceName))
+        return publishMqtt("$DISCOVERY_PREFIX/event/${NS}_${slug}_passing_vehicle/config", payload.toString(), retain = true)
+    }
+
+    internal suspend fun publishPassingEvent(slug: String, count: Int, now: Long) {
+        val topic = "$NS/$slug/passing_vehicle"
+        val payload = JSONObject()
+            .put("event_type", "passing_vehicle")
+            .put("passing_count", count)
+            .put("timestamp", java.time.Instant.ofEpochMilli(now).toString())
+            .toString()
+        publishMqtt(topic, payload, retain = false)
+        publishMqtt("$topic/last", payload, retain = true)
     }
 
     /**
@@ -506,6 +532,7 @@ open class HaClient(private val baseUrl: String, private val token: String) {
         // [buildRideSummaryDiscoveryPayloads] (`RideSummaryUncountedPayloadTest`).
         val payload = JSONObject()
             .put("overtakes_total", snapshot.overtakesTotal)
+            .putOpt("passing_count", snapshot.passingCount)
             .put("distance_ridden_km", snapshot.distanceRiddenKm.toDouble())
             .put("exposure_seconds", snapshot.exposureSeconds)
             .put("ride_started_at", java.time.Instant.ofEpochMilli(snapshot.rideStartedAtMs).toString())
@@ -570,6 +597,7 @@ open class HaClient(private val baseUrl: String, private val token: String) {
          */
         private val RIDE_SUMMARY_SENSORS = listOf(
             RideSummarySensor("overtakes_total", "Overtakes", "total_increasing", null, null, null),
+            RideSummarySensor("passing_count", "Confirmed passing vehicles", "total_increasing", null, null, null),
             RideSummarySensor("close_pass_count", "Close passes", "total_increasing", null, null, null),
             RideSummarySensor("grazing_count", "Grazing passes", "total_increasing", null, null, null),
             RideSummarySensor("hgv_close_pass_count", "HGV close passes", "total_increasing", null, null, null),
@@ -653,6 +681,7 @@ object DataDisclosure {
         // The bare word close-pass also matches the ride-summary bullet. No
         // quotes in comments here: the privacy check reads every third one.
         Flow("close_pass", "Close-pass events", "close-pass log"),
+        Flow("passing_vehicle", "Confirmed passing counts and events", "passing counts and events"),
         Flow("ride_edge", "Ride start/end events", "ride start/end"),
         Flow(
             "ride_summary",

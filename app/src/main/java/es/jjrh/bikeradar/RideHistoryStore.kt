@@ -124,12 +124,14 @@ internal data class RideHistoryRecord(
     /** Whether close-pass counting ran in this ride; null on records stored
      *  before the app kept it. */
     val closePassesCounted: Boolean? = null,
+    val passingCount: Int? = null,
 ) {
     fun toJsonLine(): String = JSONObject()
         .put("v", SCHEMA_VERSION)
         .put("start_ms", startedAtMs)
         .put("end_ms", endedAtMs)
         .put("overtakes", overtakes)
+        .putOpt("passing_count", passingCount)
         .put("close_passes", closePasses)
         .put("grazing", grazingPasses)
         .put("hgv_close_passes", hgvClosePasses)
@@ -163,6 +165,7 @@ internal data class RideHistoryRecord(
             startedAtMs = snap.rideStartedAtMs,
             endedAtMs = endedAtMs,
             overtakes = snap.overtakesTotal,
+            passingCount = snap.passingCount,
             closePasses = snap.closePassCount,
             grazingPasses = snap.grazingCount,
             hgvClosePasses = snap.hgvClosePassCount,
@@ -186,6 +189,7 @@ internal data class RideHistoryRecord(
                     startedAtMs = o.getLong("start_ms"),
                     endedAtMs = o.getLong("end_ms"),
                     overtakes = o.getInt("overtakes"),
+                    passingCount = o.optIntOrNull("passing_count"),
                     closePasses = o.getInt("close_passes"),
                     grazingPasses = o.optInt("grazing", 0),
                     hgvClosePasses = o.optInt("hgv_close_passes", 0),

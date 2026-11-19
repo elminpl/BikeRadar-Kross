@@ -10,6 +10,15 @@ object ClosePassStateBus {
     private val _sessionCount = MutableStateFlow(0)
     val sessionCount: StateFlow<Int> = _sessionCount
 
+    private val _passingCount = MutableStateFlow<Int?>(null)
+    val passingCount: StateFlow<Int?> = _passingCount
+
+    internal fun setPassingCount(count: Int?) {
+        _passingCount.value = count
+    }
+
+    internal fun resetPassing() = setPassingCount(null)
+
     /** Atomic increment. `value += n` would be a read-modify-write race when
      *  concurrent callers land on the same StateFlow; `update { }` is a CAS
      *  loop. Mirrors the pattern in [BatteryStateBus.update]. */

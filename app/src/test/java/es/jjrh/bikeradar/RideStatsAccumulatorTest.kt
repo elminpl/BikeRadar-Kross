@@ -1216,4 +1216,27 @@ class RideStatsAccumulatorTest {
         a.observeClosePass(closeEvent(closingKmh = 42))
         assertEquals(42, a.snapshot().closingSpeedP90Kmh)
     }
+
+    @Test
+    fun confirmedPassingCountRequiresApproachAndAForwardTransitionOfTheSameTrack() {
+        val stats = RideStatsAccumulator()
+        val approaching = Vehicle(id = 1, distanceM = 12, speedMs = -6f, bornAtMs = 10L)
+        fun frame(vararg vehicles: Vehicle, source: DataSource = DataSource.V2, enabled: Boolean = true) {
+            stats.observeFrame(RadarState(vehicles = vehicles.toList(), source = source, timestamp = 1L), 6f, false, enabled)
+        }
+
+        frame(approaching, source = DataSource.KROSS)
+        assertEquals(null, stats.passingCount)
+        frame(approaching)
+        frame(approaching.copy(isBehind = true, bornAtMs = 20L))
+        assertEquals(0, stats.passingCount)
+        frame(approaching)
+        frame(approaching.copy(isBehind = true))
+        frame(approaching.copy(isBehind = true))
+        assertEquals(1, stats.snapshot().passingCount)
+        val second = approaching.copy(id = 2)
+        frame(second, enabled = false)
+        frame(second.copy(isBehind = true))
+        assertEquals(1, stats.passingCount)
+    }
 }

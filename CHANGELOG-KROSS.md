@@ -21,6 +21,14 @@ Archiwum obejmuje 19 plików APK i 8 etapów funkcjonalnych, z czego 7 przypada 
 
 Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktualizowania GitHuba po kompilacji. Kolejna wersja aplikacji na bazie 1.12.2 otrzymała numer `k2`.
 
+## 1.12.2.k5
+
+- Dziennik przechwytywania dopisuje powroty tego samego radaru w ciągu pięciu minut. Po godzinie kolejne połączenie zaczyna plik od nowa. Dłuższa ciągła sesja zachowuje jeden plik.
+- Dziennik stanu w Diagnostyce trzyma 100 najnowszych wpisów w pamięci ekranu.
+- Ustawienia jazdy mają podmenu nakładki z podglądem szerokości, wysokości, przezroczystości i zasięgu.
+- Opcjonalny licznik potwierdzonych wyprzedzeń Garmina V2 trafia do historii jazd, podsumowania i zdarzeń MQTT. Kross zgłasza odległość i zagrożenie. Jego ramki nie potwierdzają przejścia pojazdu przed rower.
+- Kod APK to **49**.
+
 ## 1.12.2.k4
 
 - Nagłówek podglądu sygnałów ma duże litery i odstęp zgodny z pozostałymi sekcjami Diagnostyki. Tekst nadal pochodzi z zasobów językowych.

@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -341,6 +342,13 @@ internal fun SettingsMenuBody(
                     title = stringResource(R.string.settings_home_lights_title),
                     subtitle = lightsSubtitle(ctx, prefsSnap),
                     onClick = { navController.navigate("settings/lights") },
+                )
+                SettingsRow(
+                    icon = Icons.Default.Visibility,
+                    iconTint = br.brand,
+                    title = stringResource(R.string.settings_radar_section_overlay),
+                    subtitle = stringResource(R.string.settings_overlay_subtitle),
+                    onClick = { navController.navigate("settings/overlay") },
                     isLast = true,
                 )
             }

@@ -191,7 +191,7 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
                     }
                 }
                 val entry = "$ts  $source  [${s.vehicles.size}]  $targets"
-                if (stateLog.size >= 200) stateLog.removeAt(0)
+                if (stateLog.size >= 100) stateLog.removeAt(0)
                 stateLog.add(entry)
             }
         }
@@ -633,7 +633,7 @@ private fun DebugScreenBody(navController: NavController, prefs: Prefs) {
                             .border(1.dp, br.hairline, RoundedCornerShape(10.dp))
                             .padding(horizontal = 12.dp, vertical = 10.dp),
                     ) {
-                        for (entry in stateLog.takeLast(50)) {
+                        for (entry in stateLog) {
                             Text(
                                 text = entry,
                                 color = br.fgMuted,

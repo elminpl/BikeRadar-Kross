@@ -136,6 +136,7 @@ internal class RadarLinkController(
 ) {
     private val captureSessionLock = Any()
     private var captureRadarMac: String? = null
+    private var captureStartedAt = 0L
     private var captureCloseJob: Job? = null
 
     // The connection coroutine; single-slot, guarded by start().
@@ -599,10 +600,12 @@ internal class RadarLinkController(
     }
 
     private fun openRadarCapture(mac: String) = synchronized(captureSessionLock) {
-        val resuming = captureCloseJob != null && captureRadarMac == mac && captureLog.isRecording
+        val expired = captureCloseJob != null && wallClock() - captureStartedAt >= 3_600_000L
+        val resuming = !expired && captureCloseJob != null && captureRadarMac == mac && captureLog.isRecording
         captureCloseJob?.cancel()
         captureCloseJob = null
-        if (captureRadarMac != mac) captureLog.close()
+        if (expired || captureRadarMac != mac) captureLog.close()
+        if (!captureLog.isRecording) captureStartedAt = wallClock()
         captureLog.open()
         if (resuming && captureLog.isRecording) captureLog.clog("# radar link resumed")
         captureRadarMac = mac.takeIf { captureLog.isRecording }
@@ -1926,7 +1929,7 @@ internal class RadarLinkController(
         }
         private const val TAG = "BikeRadar.Radar"
         private val KROSS_RECONNECT_DELAYS_MS = longArrayOf(1_000L, 3_000L)
-        private const val CAPTURE_RECONNECT_GRACE_MS = 15_000L
+        private const val CAPTURE_RECONNECT_GRACE_MS = 300_000L
 
         // V2 data-flow watchdog: if no V2 notification arrives for
         // V2_FRAME_STALL_MS, the link is considered stuck and the GATT is torn

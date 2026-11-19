@@ -41,6 +41,9 @@ data class PrefsSnapshot(
     val closingSpeedCeilingMs: Int?,
     val visualMaxDistanceM: Int,
     val overlayOpacity: Float,
+    val overlayWidthDp: Int = 130,
+    val overlayHeightPct: Int = 100,
+    val passingCountEnabled: Boolean = false,
     val radarLongOfflineThresholdMinutes: Int,
     val radarLongOfflineCapSec: Int,
     val pausedUntilEpochMs: Long,
@@ -222,6 +225,24 @@ class Prefs(context: Context) {
      *  overlay at its pre-feature look and lower values dim it on top of
      *  that. Floor of 0.5 keeps close-pass alerts legible against bright
      *  underlying maps. */
+    var overlayWidthDp: Int
+        get() = sp.getInt("overlay_width_dp", 130).coerceIn(80, 220)
+        set(v) {
+            sp.edit().putInt("overlay_width_dp", v.coerceIn(80, 220)).apply()
+        }
+
+    var overlayHeightPct: Int
+        get() = sp.getInt("overlay_height_pct", 100).coerceIn(40, 100)
+        set(v) {
+            sp.edit().putInt("overlay_height_pct", v.coerceIn(40, 100)).apply()
+        }
+
+    var passingCountEnabled: Boolean
+        get() = sp.getBoolean("passing_count_enabled", false)
+        set(v) {
+            sp.edit().putBoolean("passing_count_enabled", v).apply()
+        }
+
     var overlayOpacity: Float
         get() = sp.getFloat(KEY_OVERLAY_OPACITY, 1.0f).coerceIn(0.5f, 1.0f)
         set(v) {
@@ -1128,6 +1149,9 @@ class Prefs(context: Context) {
         closingSpeedCeilingMs = closingSpeedCeilingMs,
         visualMaxDistanceM = visualMaxDistanceM,
         overlayOpacity = overlayOpacity,
+        overlayWidthDp = overlayWidthDp,
+        overlayHeightPct = overlayHeightPct,
+        passingCountEnabled = passingCountEnabled,
         radarLongOfflineThresholdMinutes = radarLongOfflineThresholdMinutes,
         radarLongOfflineCapSec = radarLongOfflineCapSec,
         pausedUntilEpochMs = pausedUntilEpochMs,

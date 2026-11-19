@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
 import java.util.Locale
 
@@ -141,6 +142,8 @@ internal class OverlayPipeline(
             var lastAttachFailure: String? = null
             var lastFrame: RadarState? = null
             var lastKrossThreat = 0
+            var passingDiscoverySlug: String? = null
+            val passingPublicationLock = kotlinx.coroutines.sync.Mutex()
             val ticker = flow {
                 while (true) {
                     emit(Unit)
@@ -214,7 +217,27 @@ internal class OverlayPipeline(
                             // Only frames the detector can count from: none on a
                             // range-only stream (`aRangeOnlyRideIsNotCounted`).
                             val counting = countingEnabled && state.source.hasLateral && state.bikeSpeedMs != null
-                            rideStats().observeFrame(state, closingFloorMs, counting)
+                            val stats = rideStats()
+                            val before = stats.passingCount ?: 0
+                            stats.observeFrame(state, closingFloorMs, counting, countPassing = prefs.passingCountEnabled)
+                            val after = stats.passingCount
+                            ClosePassStateBus.setPassingCount(after)
+                            if (after != null && after > before && ha().isConfigured()) {
+                                val mac = currentRadarMac()
+                                val devices = macToSlug()
+                                val slug = mac?.let { devices[it] ?: devices[it.uppercase(Locale.ROOT)] }
+                                if (slug != null) {
+                                    launch(ioDispatcher) {
+                                        passingPublicationLock.withLock {
+                                            val client = ha()
+                                            if (passingDiscoverySlug != slug && client.publishPassingDiscovery(slug, deviceName)) {
+                                                passingDiscoverySlug = slug
+                                            }
+                                            for (count in before + 1..after) client.publishPassingEvent(slug, count, now)
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         // A granted app drawing its own map can ask for ours to

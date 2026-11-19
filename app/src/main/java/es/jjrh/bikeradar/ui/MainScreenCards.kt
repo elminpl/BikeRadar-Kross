@@ -629,6 +629,27 @@ internal fun ClosePassStatsCard(
     }
 }
 
+@Composable
+internal fun PassingStatsCard(onClick: () -> Unit) {
+    val count by ClosePassStateBus.passingCount.collectAsState()
+    val br = LocalBrColors.current
+    BrCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+        Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 14.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f)) { SectionLabel(stringResource(R.string.passing_title)) }
+                Text(stringResource(R.string.main_close_passes_history_link), color = br.fgDim, fontSize = 11.sp)
+            }
+            Spacer(Modifier.height(10.dp))
+            val value = count
+            if (value != null) {
+                Text(value.toString(), color = br.fg, fontWeight = FontWeight.Light, fontSize = 38.sp)
+            } else {
+                Text(stringResource(R.string.passing_settings_hint), color = br.fgDim, fontSize = 11.sp)
+            }
+        }
+    }
+}
+
 // ── Dashcam ownership prompt (kept for first-run flows) ─────────────
 
 @Composable

@@ -627,10 +627,10 @@ class HaClientHttpTest {
     }
 
     @Test
-    fun publishRideSummaryDiscoveryPostsTwelveRetainedSensors() = runTest {
+    fun publishRideSummaryDiscoveryPostsThirteenRetainedSensors() = runTest {
         respondAll(200)
         assertTrue(client().publishRideSummaryDiscovery("rearvue8", "RearVue8"))
-        assertEquals(12, requests.size)
+        assertEquals(13, requests.size)
         assertTrue(requests.all { JSONObject(it.body).getBoolean("retain") })
     }
 

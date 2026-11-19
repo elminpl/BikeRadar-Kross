@@ -53,6 +53,7 @@ Wczesne pliki Smali miały pakiet `es.jjrh.bikeradar`. Sprawdzone kompilacje Kot
 | [1.12.2.k2](../../CHANGELOG-KROSS.md#1122k2) | 46 | Bateria i firmware Krossa w istniejących ekranach stanu. |
 | [1.12.2.k3](../../CHANGELOG-KROSS.md#1122k3) | 47 | Diagnostyka i łączenie krótkich sesji zapisu oraz ustawienia zależne od radaru. |
 | [1.12.2.k4](../../CHANGELOG-KROSS.md#1122k4) | 48 | Ponowne połączenie Krossa, poprawki Diagnostyki i test nakładki. |
+| [1.12.2.k5](../../CHANGELOG-KROSS.md#1122k5) | 49 | Dłuższe dzienniki, ustawienia nakładki i licznik potwierdzonych wyprzedzeń Garmin V2. |
 
 ## Wnioski z prób
 

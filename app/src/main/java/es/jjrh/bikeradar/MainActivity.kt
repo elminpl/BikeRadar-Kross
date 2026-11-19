@@ -32,6 +32,7 @@ import es.jjrh.bikeradar.ui.SettingsExperimental
 import es.jjrh.bikeradar.ui.SettingsHa
 import es.jjrh.bikeradar.ui.SettingsLicenses
 import es.jjrh.bikeradar.ui.SettingsLights
+import es.jjrh.bikeradar.ui.SettingsOverlay
 import es.jjrh.bikeradar.ui.SettingsPermissions
 import es.jjrh.bikeradar.ui.SettingsPrivacy
 import es.jjrh.bikeradar.ui.SettingsRadar
@@ -108,6 +109,7 @@ class MainActivity : ComponentActivity() {
                     composable("settings/lights") {
                         SettingsLights(navController = navController, prefs = prefs)
                     }
+                    composable("settings/overlay") { SettingsOverlay(navController, prefs) }
                     composable("settings/radar") {
                         SettingsRadar(navController = navController, prefs = prefs)
                     }

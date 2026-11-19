@@ -158,6 +158,9 @@ internal fun SettingsRadarBody(navController: NavController, prefs: Prefs) {
             batteryShowLabels = it
             prefs.batteryShowLabels = it
         },
+        passingCountEnabled = prefsSnap.passingCountEnabled,
+        onPassingCountChange = { prefs.passingCountEnabled = it },
+        showOverlayControls = false,
         closePassLogging = closePassLogging,
         onClosePassLoggingChange = {
             closePassLogging = it
@@ -352,6 +355,9 @@ internal fun SettingsRadarContent(
     walkAwayCanBypassDnd: Boolean,
     onWalkAwayDndClick: () -> Unit,
     onStopScanningClick: () -> Unit,
+    showOverlayControls: Boolean = true,
+    passingCountEnabled: Boolean = false,
+    onPassingCountChange: ((Boolean) -> Unit)? = null,
 ) {
     val br = LocalBrColors.current
     val krossStreaming = isKrossStreaming()
@@ -451,26 +457,28 @@ internal fun SettingsRadarContent(
                     isLast = true,
                 )
             }
-            SettingsSectionLabel(stringResource(R.string.settings_radar_section_overlay))
-            SettingsSliderRow(
-                title = stringResource(R.string.settings_radar_visual_distance_title),
-                valueDisplay = stringResource(R.string.settings_radar_meters_value, visualDist),
-                helper = stringResource(R.string.settings_radar_visual_distance_helper),
-                value = visualDist.toFloat(),
-                valueRange = 10f..80f,
-                onValueChange = { onVisualDistChange(it.toInt()) },
-                onValueChangeFinished = onVisualDistFinished,
-            )
-            SettingsSliderRow(
-                title = stringResource(R.string.settings_radar_overlay_dimmer_title),
-                valueDisplay = overlayDimLabel(ctx, overlayOpacity),
-                helper = stringResource(R.string.settings_radar_overlay_dimmer_helper),
-                value = overlayOpacity,
-                valueRange = 0.5f..1.0f,
-                steps = 2,
-                onValueChange = onOverlayOpacityChange,
-                onValueChangeFinished = onOverlayOpacityFinished,
-            )
+            if (showOverlayControls) {
+                SettingsSectionLabel(stringResource(R.string.settings_radar_section_overlay))
+                SettingsSliderRow(
+                    title = stringResource(R.string.settings_radar_visual_distance_title),
+                    valueDisplay = stringResource(R.string.settings_radar_meters_value, visualDist),
+                    helper = stringResource(R.string.settings_radar_visual_distance_helper),
+                    value = visualDist.toFloat(),
+                    valueRange = 10f..80f,
+                    onValueChange = { onVisualDistChange(it.toInt()) },
+                    onValueChangeFinished = onVisualDistFinished,
+                )
+                SettingsSliderRow(
+                    title = stringResource(R.string.settings_radar_overlay_dimmer_title),
+                    valueDisplay = overlayDimLabel(ctx, overlayOpacity),
+                    helper = stringResource(R.string.settings_radar_overlay_dimmer_helper),
+                    value = overlayOpacity,
+                    valueRange = 0.5f..1.0f,
+                    steps = 2,
+                    onValueChange = onOverlayOpacityChange,
+                    onValueChangeFinished = onOverlayOpacityFinished,
+                )
+            }
 
             SettingsSectionLabel(stringResource(R.string.settings_radar_section_adaptive))
             SettingsRowGroup {
@@ -641,6 +649,19 @@ internal fun SettingsRadarContent(
                             paddingBottom = 0.dp,
                         )
                     }
+                }
+            }
+
+            if (onPassingCountChange != null) {
+                Spacer(modifier = Modifier.height(6.dp))
+                SettingsRowGroup {
+                    SettingsToggleRow(
+                        title = stringResource(R.string.passing_title),
+                        subtitle = stringResource(R.string.passing_settings_hint),
+                        checked = passingCountEnabled,
+                        enabled = !krossStreaming,
+                        onCheckedChange = onPassingCountChange,
+                    )
                 }
             }
 

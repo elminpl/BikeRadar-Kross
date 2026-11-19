@@ -1,6 +1,6 @@
 # Kross Echo Pro — known issues
 
-Status refers to test APK [1.12.2.k4](../../CHANGELOG-KROSS.md#1122k4).
+Status refers to test APK [1.12.2.k5](../../CHANGELOG-KROSS.md#1122k5).
 
 | Area | Evidence and current status |
 |---|---|
@@ -17,3 +17,8 @@ Earlier Smali builds reported a verifier failure near `RadarLinkCoordinator.mark
 ## Capture follow-up
 
 Seven captures from 19 November 2026, five from k2 and two from k1, contain 2,995 identical idle FFE2 frames and one FFF1 settings reply per file. The recorded battery was 100% and the firmware response was 1.0.2. The interval from first to last notification ranged from 27 seconds to about 159 seconds. Every file ended after the telemetry watchdog stopped receiving frames. The captures do not establish why the frames stopped or confirm behavior with moving targets.
+
+
+## k4 hardware reconnect journal
+
+The S24+ log from 19 November shows 390 FFE2 notifications before a reconnect scheduled after one second. That attempt reached GATT and began discovery before status 8, followed by the scheduled second retry and status 147 before discovery. The trace confirms the two retries and leaves the cause of the BLE disconnect unresolved.

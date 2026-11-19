@@ -326,6 +326,7 @@ class BikeRadarService : Service() {
         super.onCreate()
         ClosePassStateBus.reset()
         rideStats = RideStatsAccumulator()
+        ClosePassStateBus.resetPassing()
         prefs = Prefs(this)
         krossCandidate.value = prefs.lastKrossSighting?.split('|', limit = 2)
             ?.takeIf { it.size == 2 && android.bluetooth.BluetoothAdapter.checkBluetoothAddress(it[0].uppercase(Locale.ROOT)) }
@@ -453,6 +454,12 @@ class BikeRadarService : Service() {
 
         overlayHost = AndroidOverlayHost(this, ::buildOverlayParams)
         reconnectHost = AndroidOverlayHost(this, ::buildOverlayParams)
+        scope.launch(Dispatchers.Main) {
+            prefs.flow.map { it.overlayWidthDp to it.overlayHeightPct }.distinctUntilChanged().collect {
+                overlayHost.onConfigurationChanged()
+                reconnectHost.onConfigurationChanged()
+            }
+        }
         turnSensor = TurnSensorController(
             sensorManager = getSystemService(SENSOR_SERVICE) as? SensorManager,
             clog = ::clog,
@@ -1290,6 +1297,7 @@ class BikeRadarService : Service() {
             when (action) {
                 RideSummaryEdgeTracker.Action.ResetRideStats -> {
                     rideStats = RideStatsAccumulator()
+                    ClosePassStateBus.resetPassing()
                     cueFailedThisRide = 0
                     rideCheckpoint.onNewRide()
                 }
@@ -1416,8 +1424,8 @@ class BikeRadarService : Service() {
     private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
 
     private fun buildOverlayParams(wm: WindowManager) = WindowManager.LayoutParams(
-        dpToPx(130),
-        wm.currentWindowMetrics.bounds.height(),
+        dpToPx(prefs.overlayWidthDp).coerceAtMost(wm.currentWindowMetrics.bounds.width()),
+        (wm.currentWindowMetrics.bounds.height() * prefs.overlayHeightPct / 100),
         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
