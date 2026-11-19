@@ -291,6 +291,7 @@ internal fun SystemCard(
     dashcamFresh: Boolean,
     dashcamPaired: Boolean,
     radarBattery: BatteryEntry?,
+    radarFirmware: String? = null,
     dashcamBattery: BatteryEntry?,
     haStatus: HaStatus,
     ebikeEnabled: Boolean = false,
@@ -342,6 +343,7 @@ internal fun SystemCard(
         value = stringResource(radarLinkLabel(radarLink)),
         muted = radarLink.muted,
         battery = if (radarLink.isDelivering) radarBattery?.pct else null,
+        firmware = radarFirmware.takeIf { radarLink.isDelivering },
         dot = when (radarLink) {
             DeviceLinkState.NOT_PAIRED -> br.fgDim
             DeviceLinkState.LIVE -> br.safe
@@ -452,6 +454,7 @@ private data class SystemRow(
     val battery: Int?,
     val dot: Color,
     val hollow: Boolean = false,
+    val firmware: String? = null,
     /** Where tapping the row goes. Null renders a plain, inert row. */
     val target: SystemRowTarget? = null,
 )
@@ -522,6 +525,9 @@ private fun SystemRowRender(
                 )
                 if (row.battery != null) {
                     BatteryChip(pct = row.battery, lowThresholdPct = batteryLowThresholdPct)
+                }
+                row.firmware?.let {
+                    Text(text = stringResource(R.string.settings_radardev_firmware, it), color = br.fgDim, fontSize = 11.sp)
                 }
             }
         }

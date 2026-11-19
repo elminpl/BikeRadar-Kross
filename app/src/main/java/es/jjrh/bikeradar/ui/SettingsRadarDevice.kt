@@ -116,7 +116,6 @@ private fun SettingsRadarDeviceBody(navController: NavController, prefs: Prefs) 
     // recomposition, so the status would freeze exactly in the aborting-radar
     // case it is for.
     val tickNow = tickNowMs
-    val radarBattery = RadarSelection.radarBattery(batteryEntries, allBonded, prefsSnap.radarMac)
     // Frames outrank the battery proxy. A battery reading is evidence the link
     // works; decoded targets are evidence it is DOING its job, and the two come
     // apart in both directions. A legacy-stream radar may expose no battery at
@@ -133,7 +132,6 @@ private fun SettingsRadarDeviceBody(navController: NavController, prefs: Prefs) 
     // every 1.5 s would keep a reading permanently fresh and read Connected
     // while sending nothing. That is the state the tri-state was built to
     // stop calling Connected.
-    val freshBattery = radarBattery?.takeIf { batteryReadIsFresh(it.readAtMs, tickNow) }
     val connected = framesFresh
 
     // The static is not a snapshot read, so a service (re)start invalidates
@@ -148,6 +146,11 @@ private fun SettingsRadarDeviceBody(navController: NavController, prefs: Prefs) 
     val chosen = prefsSnap.radarMac
     val radioUp = radioUsable(!bluetoothOff, missing)
     val krossStage = linkSnap.radarDiagnosticStage.takeIf { radioUp }
+    val freshBattery = if (krossStage != null) {
+        linkSnap.krossBattery
+    } else {
+        RadarSelection.radarBattery(batteryEntries, allBonded, prefsSnap.radarMac)
+    }?.takeIf { batteryReadIsFresh(it.readAtMs, tickNow) }
     val krossCandidate by BikeRadarService.krossCandidateForUi.collectAsState()
     val krossName = krossCandidate?.name?.takeIf { radioUp }
     val activeName = RadarSelection.activeRadarName(allBonded, chosen) ?: krossName.takeIf { krossStage != null }
@@ -196,7 +199,7 @@ private fun SettingsRadarDeviceBody(navController: NavController, prefs: Prefs) 
         offsetCm = offsetCm,
         onOffsetChange = { offsetCm = it },
         onOffsetCommit = { prefs.radarLateralOffsetCm = offsetCm },
-        firmwareRev = prefsSnap.radarFirmwareRev,
+        firmwareRev = if (krossStage != null) linkSnap.krossFirmware else prefsSnap.radarFirmwareRev,
         krossName = krossName,
         krossStage = krossStage,
         onKrossAction = {

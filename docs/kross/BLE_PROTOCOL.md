@@ -47,8 +47,10 @@ The vendor also decodes a fifth slot from a separate `0x31` frame. The two
 captures contained only `0x30`. The fifth slot's lifetime, the speed field's
 units, and the direction field's mapping still need a hardware capture.
 
-Debug → Kross Echo Pro enables one read-only probe per connection, including
-an already open connection when first enabled. The probe reads Battery Level
+In k1, Debug → Kross Echo Pro enables one read-only probe per connection.
+In k2, the probe runs automatically after the Kross subscriptions, and the app
+refreshes the battery reading every 20 seconds while connected. Debug records
+the result and requests an extra reading if enabled during the connection. The probe reads Battery Level
 (`180F/2A19`) and Model Number (`180A/2A24`) if readable. On the verified
 command profile it sends `11 02 BA A9` to `FFF2` after subscribing to
 `FFF1`. This is the vendor's configuration query. A `0x10` response with
@@ -88,3 +90,19 @@ The capture held 351 empty FFE2 frames of type 0x30 and one FFF1 reply. FFE2
 frames occurred 93 ms before and 66 ms after the reply. This confirms
 the read and concurrent telemetry for this session. The meaning of each
 mode and the effect of the charging setting still require device checks.
+
+
+## Checking lamp brightness
+
+Radar 1.0.10 writes decimal 70 for the first brightness choice and 99
+for the second. Its readback classifies values above 89 as the second
+choice. The physical k1 capture confirms 70. To verify 99, change only
+brightness in the manufacturer's app on a stationary radar, close that app,
+then reconnect BikeRadar with the Kross diagnostic reading enabled. Compare
+the two readings and restore the original setting. Treat the numbers as
+configuration codes until light output is independently measured.
+
+The settings reply also exposes the selected operating mode and whether
+operation while charging is enabled. Neither field measures the current
+physical state of the lamp or charger. Other bytes in the captured reply
+remain undocumented.

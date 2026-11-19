@@ -19,7 +19,14 @@ GitHub wymaga uprawnienia **Allow GitHub Actions to create and approve pull requ
 
 Archiwum obejmuje 19 plików APK i 8 etapów funkcjonalnych, z czego 7 przypada na bazę 1.12.2. Pierwsza numerowana wersja `1.12.2.k1` obejmuje stan z ostatniego etapu. [Pełny wykaz APK i wersji z manifestów](docs/kross/PROJECT_HISTORY.md#pliki-apk)
 
-Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktualizowania GitHuba po kompilacji. Następna wersja aplikacji na bazie 1.12.2 otrzyma numer `k2`.
+Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktualizowania GitHuba po kompilacji. Kolejna wersja aplikacji na bazie 1.12.2 otrzymała numer `k2`.
+
+## 1.12.2.k2
+
+- Kross Echo Pro pokazuje procent baterii z istniejącą ikoną i wersję oprogramowania w karcie System, Szybkim stanie oraz szczegółach radaru.
+- Bateria jest odczytywana po połączeniu i odświeżana co 20 sekund. Aplikacja odczytuje firmware bez włączania Diagnostyki.
+- Przeszło 299 wybranych testów, w tym 113 testów zrzutów ekranu z JVM w UTC.
+- Kod APK to **46**. Odczyt był potwierdzony na S24+ w k1. Ekrany i odświeżanie w k2 czekają na próbę na urządzeniu.
 
 ## 1.12.2.k1
 

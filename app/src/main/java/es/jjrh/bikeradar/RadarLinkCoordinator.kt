@@ -487,7 +487,21 @@ internal class RadarLinkCoordinator(
      *  ago and the last open came within the new-ride gap
      *  (`ConnectingStretchTest`). */
     override fun markRadarDiagnosticStage(stage: RadarDiagnosticStage?) {
-        _radarLinkState.update { it.copy(radarDiagnosticStage = stage) }
+        _radarLinkState.update {
+            if (stage == RadarDiagnosticStage.SUBSCRIBED) {
+                it.copy(radarDiagnosticStage = stage)
+            } else {
+                it.copy(radarDiagnosticStage = stage, krossBattery = null, krossFirmware = null)
+            }
+        }
+    }
+
+    override fun updateKrossBattery(entry: BatteryEntry) {
+        _radarLinkState.update { it.copy(krossBattery = entry) }
+    }
+
+    override fun updateKrossFirmware(revision: String) {
+        _radarLinkState.update { it.copy(krossFirmware = revision) }
     }
 
     override fun markLinkOpen(mac: String) {
@@ -725,6 +739,8 @@ internal class RadarLinkCoordinator(
                 adapterOffInEpisode = if (fresh) adapterOff else current.adapterOffInEpisode,
                 radarGattActive = false,
                 radarDiagnosticStage = null,
+                krossBattery = null,
+                krossFirmware = null,
                 radarLinkClosedAtMs = if (current.radarGattActive) nowMs else current.radarLinkClosedAtMs,
                 radarConnectStartMs = null,
                 sessionRadarConnectedMs = current.sessionRadarConnectedMs + addedMs,

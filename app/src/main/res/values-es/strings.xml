@@ -742,7 +742,7 @@
          ════════════════════════════════════════════════════════════════ -->
     <string name="debug_kross_title">Kross Echo Pro</string>
     <string name="debug_kross_probe">Leer datos de diagnóstico</string>
-    <string name="debug_kross_probe_help">Una vez por conexión con Kross. Lee la batería, el modelo y los ajustes. Activa el registro de capturas para guardar la respuesta BLE.</string>
+    <string name="debug_kross_probe_help">Registra una lectura de diagnóstico por conexión con Kross. Si se activa durante la conexión, realiza una lectura adicional. Activa el registro antes de conectarte para guardar la respuesta BLE.</string>
     <string name="debug_kross_last_result">Última lectura: %1$s</string>
     <string name="debug_title">Depuración</string>
     <string name="debug_section_scenarios">Escenarios</string>

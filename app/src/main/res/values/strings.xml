@@ -825,7 +825,7 @@
          ════════════════════════════════════════════════════════════════ -->
     <string name="debug_kross_title">Kross Echo Pro</string>
     <string name="debug_kross_probe">Read device diagnostics</string>
-    <string name="debug_kross_probe_help">Once per Kross connection. Reads battery, model and device settings. Enable capture logging to save the BLE response.</string>
+    <string name="debug_kross_probe_help">Logs one diagnostic reading per Kross connection. If enabled during a connection, it takes an extra reading. Enable capture logging before connecting to save the BLE response.</string>
     <string name="debug_kross_last_result">Last reading: %1$s</string>
     <string name="debug_title">Debug</string>
     <string name="debug_section_scenarios">Scenarios</string>

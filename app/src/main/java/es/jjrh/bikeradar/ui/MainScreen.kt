@@ -331,7 +331,12 @@ private fun MainScreenBody(navController: NavController, prefs: Prefs) {
     val onDashcamNo = { prefs.dashcamOwnership = DashcamOwnership.NO }
 
     val bondedNow = remember(tickNowMs, prefsSnap.radarMac) { RadarSelection.bondedForBattery(ctx, prefsSnap.radarMac) }
-    val radarBattery = RadarSelection.radarBattery(batteryEntries, bondedNow, prefsSnap.radarMac)
+    val radarBattery = if (radarDiagnosticStage != null) {
+        radarLinkSnap.krossBattery?.takeIf { batteryReadIsFresh(it.readAtMs, tickNowMs) }
+    } else {
+        RadarSelection.radarBattery(batteryEntries, bondedNow, prefsSnap.radarMac)
+    }
+    val radarFirmware = radarLinkSnap.krossFirmware
     val dashcamBattery = dashcamSlug?.let { batteryEntries[it] }
     val haStatus = HaStatusDeriver.derive(haConfigured, haHealth)
     // eBike freshness samples elapsedRealtime() fresh on every recompose;
@@ -382,6 +387,7 @@ private fun MainScreenBody(navController: NavController, prefs: Prefs) {
             dashcamFresh = dashcamFresh,
             dashcamPaired = dashcamPaired,
             radarBattery = radarBattery,
+            radarFirmware = radarFirmware,
             dashcamBattery = dashcamBattery,
             haStatus = haStatus,
             closePassLoggingEnabled = prefsSnap.closePassLoggingEnabled,
@@ -431,6 +437,7 @@ internal fun MainScreenContent(
     dashcamFresh: Boolean,
     dashcamPaired: Boolean,
     radarBattery: BatteryEntry?,
+    radarFirmware: String? = null,
     dashcamBattery: BatteryEntry?,
     haStatus: HaStatus,
     closePassLoggingEnabled: Boolean,
@@ -471,6 +478,7 @@ internal fun MainScreenContent(
             dashcamFresh = dashcamFresh,
             dashcamPaired = dashcamPaired,
             radarBattery = radarBattery,
+            radarFirmware = radarFirmware,
             dashcamBattery = dashcamBattery,
             haStatus = haStatus,
             closePassLoggingEnabled = closePassLoggingEnabled,
@@ -507,6 +515,7 @@ internal fun MainScreenContent(
             dashcamFresh = dashcamFresh,
             dashcamPaired = dashcamPaired,
             radarBattery = radarBattery,
+            radarFirmware = radarFirmware,
             dashcamBattery = dashcamBattery,
             haStatus = haStatus,
             closePassLoggingEnabled = closePassLoggingEnabled,
@@ -578,6 +587,7 @@ private fun MainScreenPortrait(
     dashcamFresh: Boolean,
     dashcamPaired: Boolean,
     radarBattery: BatteryEntry?,
+    radarFirmware: String? = null,
     dashcamBattery: BatteryEntry?,
     haStatus: HaStatus,
     closePassLoggingEnabled: Boolean,
@@ -628,6 +638,7 @@ private fun MainScreenPortrait(
                 dashcamFresh = dashcamFresh,
                 dashcamPaired = dashcamPaired,
                 radarBattery = radarBattery,
+                radarFirmware = radarFirmware,
                 dashcamBattery = dashcamBattery,
                 haStatus = haStatus,
                 ebikeEnabled = eBikeDataEnabled,
@@ -681,6 +692,7 @@ private fun MainScreenLandscape(
     dashcamFresh: Boolean,
     dashcamPaired: Boolean,
     radarBattery: BatteryEntry?,
+    radarFirmware: String? = null,
     dashcamBattery: BatteryEntry?,
     haStatus: HaStatus,
     closePassLoggingEnabled: Boolean,
@@ -756,6 +768,7 @@ private fun MainScreenLandscape(
                     dashcamFresh = dashcamFresh,
                     dashcamPaired = dashcamPaired,
                     radarBattery = radarBattery,
+                    radarFirmware = radarFirmware,
                     dashcamBattery = dashcamBattery,
                     haStatus = haStatus,
                     ebikeStage = ebikeStage,

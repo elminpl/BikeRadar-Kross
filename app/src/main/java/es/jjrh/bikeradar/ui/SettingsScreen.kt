@@ -138,8 +138,6 @@ private fun SettingsScreenBody(navController: NavController, prefs: Prefs) {
     // cleared in production, so an entry survives long after the device is off,
     // and every consumer below treats "present" as "connected".
     val bondedNow = remember(tickNowMs, prefsSnap.radarMac) { RadarSelection.bondedForBattery(ctx, prefsSnap.radarMac) }
-    val radarBattery: BatteryEntry? = RadarSelection.radarBattery(batteryEntries, bondedNow, prefsSnap.radarMac)
-        ?.takeIf { batteryReadIsFresh(it.readAtMs, tickNowMs) }
     val dashcamSlug = prefsSnap.dashcamMac?.let { mac ->
         BikeRadarService.macToSlug[mac]
             ?: BikeRadarService.macToSlug[mac.uppercase(Locale.ROOT)]
@@ -193,6 +191,12 @@ private fun SettingsScreenBody(navController: NavController, prefs: Prefs) {
         connecting = RadarLinkStatus.isConnecting(radarLinkSnap, SystemClock.elapsedRealtime()),
         diagnosticStage = radarLinkSnap.radarDiagnosticStage.takeIf { radioUp },
     )
+    val radarBattery = if (radarLinkSnap.radarDiagnosticStage != null) {
+        radarLinkSnap.krossBattery
+    } else {
+        RadarSelection.radarBattery(batteryEntries, bondedNow, prefsSnap.radarMac)
+    }?.takeIf { batteryReadIsFresh(it.readAtMs, tickNowMs) }
+    val radarFirmware = radarLinkSnap.krossFirmware.takeIf { radioUp }
     val dashcamLink = deviceLinkState(
         // The camera's pairing lives in prefs, which outlive the radio, so
         // the transport half is spelled out here to match the radar rather
@@ -218,6 +222,7 @@ private fun SettingsScreenBody(navController: NavController, prefs: Prefs) {
         radarBonded = radarSelected,
         dashcamLink = dashcamLink,
         radarBattery = radarBattery,
+        radarFirmware = radarFirmware,
         dashcamBattery = dashcamBattery,
         ebikeReceiving = eBikeDataIsFresh(ebikeLastUpdated, SystemClock.elapsedRealtime()),
         ebikeStage = shownEBikeStage(ebikeStage, missingPermission),
@@ -258,6 +263,7 @@ internal fun SettingsMenuBody(
     radarLink: DeviceLinkState,
     dashcamLink: DeviceLinkState,
     radarBattery: BatteryEntry?,
+    radarFirmware: String? = null,
     dashcamBattery: BatteryEntry?,
     ebikeReceiving: Boolean,
     ebikeStage: EBikeStage,
@@ -311,6 +317,7 @@ internal fun SettingsMenuBody(
                 // device they told us does not exist.
                 showDashcam = prefsSnap.dashcamOwnership != DashcamOwnership.NO,
                 radarBattery = radarBattery,
+                radarFirmware = radarFirmware,
                 dashcamBattery = dashcamBattery,
                 batteryLowThresholdPct = prefsSnap.batteryLowThresholdPct,
             )
@@ -524,6 +531,7 @@ private fun SystemHealthBar(
     dashcamLink: DeviceLinkState,
     showDashcam: Boolean,
     radarBattery: BatteryEntry?,
+    radarFirmware: String? = null,
     dashcamBattery: BatteryEntry?,
     batteryLowThresholdPct: Int,
 ) {
@@ -548,6 +556,7 @@ private fun SystemHealthBar(
                 label = stringResource(R.string.settings_home_chip_radar),
                 status = stringResource(radarLinkLabel(radarLink)),
                 battery = radarBattery?.takeIf { radarLink.isDelivering },
+                firmware = radarFirmware.takeIf { radarLink.isDelivering },
                 batteryLowThresholdPct = batteryLowThresholdPct,
                 color = chipColour(radarLink, br),
                 modifier = Modifier.weight(1f),
@@ -585,31 +594,37 @@ private fun SystemHealthChip(
     label: String,
     status: String,
     battery: BatteryEntry?,
+    firmware: String? = null,
     batteryLowThresholdPct: Int,
     color: androidx.compose.ui.graphics.Color,
     modifier: Modifier = Modifier,
 ) {
     val br = LocalBrColors.current
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        StatusDot(color = color, size = 6.dp)
-        Text(text = label, color = br.fgMuted, fontSize = 12.sp)
-        // The state is always named, never left to the dot, and it is the
-        // same word the home row and the device's own screen use. The chip
-        // previously said "Not seen" for what those two called "No signal".
-        Text(
-            text = status,
-            color = br.fgFaint,
-            fontSize = 11.sp,
-            maxLines = 1,
-            softWrap = false,
-            overflow = TextOverflow.Ellipsis,
-        )
-        if (battery != null) {
-            BatteryChip(pct = battery.pct, lowThresholdPct = batteryLowThresholdPct)
+    Column(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            StatusDot(color = color, size = 6.dp)
+            Text(text = label, color = br.fgMuted, fontSize = 12.sp)
+            // The state is always named, never left to the dot, and it is the
+            // same word the home row and the device's own screen use. The chip
+            // previously said "Not seen" for what those two called "No signal".
+            Text(
+                text = status,
+                modifier = if (battery != null) Modifier.weight(1f, fill = false) else Modifier,
+                color = br.fgFaint,
+                fontSize = 11.sp,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (battery != null) {
+                BatteryChip(pct = battery.pct, lowThresholdPct = batteryLowThresholdPct)
+            }
+        }
+        firmware?.let {
+            Text(text = stringResource(R.string.settings_radardev_firmware, it), color = br.fgDim, fontSize = 11.sp)
         }
     }
 }

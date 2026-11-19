@@ -16,6 +16,7 @@ import es.jjrh.bikeradar.BatteryEntry
 import es.jjrh.bikeradar.BatteryStateBus
 import es.jjrh.bikeradar.BikeRadarService
 import es.jjrh.bikeradar.DataSource
+import es.jjrh.bikeradar.HaStatus
 import es.jjrh.bikeradar.RadarDiagnosticStage
 import es.jjrh.bikeradar.RadarLinkState
 import es.jjrh.bikeradar.RadarState
@@ -114,6 +115,43 @@ class SettingsRadarDeviceStatusTest {
 
         RadarStateBus.publish(RadarState(timestamp = System.currentTimeMillis(), source = DataSource.KROSS))
         composeRule.onAllNodesWithText("Limited").assertCountEquals(2)
+
+        linkFlow.value = linkFlow.value.copy(
+            krossBattery = BatteryEntry("echo", "Kross Echo Pro", 70),
+            krossFirmware = "1.0.2",
+        )
+        composeRule.onNodeWithText("70%").assertIsDisplayed()
+        composeRule.onNodeWithText("Radar software 1.0.2").assertIsDisplayed()
+
+        linkFlow.value = RadarLinkState()
+        RadarStateBus.clear()
+        composeRule.onNodeWithText("70%").assertDoesNotExist()
+        composeRule.onNodeWithText("Radar software 1.0.2").assertDoesNotExist()
+    }
+
+    @Test
+    fun systemCardShowsKrossBatteryAndFirmware() {
+        composeRule.setContent {
+            UiTheme {
+                SystemCard(
+                    radarFresh = true,
+                    radarLimited = true,
+                    radarDiagnosticStage = RadarDiagnosticStage.SUBSCRIBED,
+                    hasBond = false,
+                    btEnabled = true,
+                    dashcamOwned = false,
+                    dashcamFresh = false,
+                    dashcamPaired = false,
+                    radarBattery = BatteryEntry("echo", "Kross Echo Pro", 70),
+                    radarFirmware = "1.0.2",
+                    dashcamBattery = null,
+                    haStatus = HaStatus.NOT_CONFIGURED,
+                    onRowClick = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText("70%").assertIsDisplayed()
+        composeRule.onNodeWithText("Radar software 1.0.2").assertIsDisplayed()
     }
 
     @Test

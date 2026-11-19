@@ -43,6 +43,8 @@ data class RadarLinkState(
      *  (`BatteryProbeBackoff`). */
     val radarGattActive: Boolean = false,
     val radarDiagnosticStage: RadarDiagnosticStage? = null,
+    val krossBattery: BatteryEntry? = null,
+    val krossFirmware: String? = null,
     /** Monotonic (elapsedRealtime) ms an open link last closed, streaming or
      *  not; null if none has this session. Bridges the "Connecting" status
      *  across the gap between a failing radar's attempts, and restarts the

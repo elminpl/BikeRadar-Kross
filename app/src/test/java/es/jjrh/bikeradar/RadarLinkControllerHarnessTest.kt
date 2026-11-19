@@ -183,7 +183,7 @@ class RadarLinkControllerHarnessTest {
             return false
         }
         override fun markDisconnected(loss: LinkLoss?) {
-            state = state.copy(radarDiagnosticStage = null)
+            state = state.copy(radarDiagnosticStage = null, krossBattery = null, krossFirmware = null)
             events += "disconnected"
             losses += loss
             onDisconnect()
@@ -196,6 +196,14 @@ class RadarLinkControllerHarnessTest {
         override fun markRadarDiagnosticStage(stage: RadarDiagnosticStage?) {
             events += "diagnostic:$stage"
             state = state.copy(radarDiagnosticStage = stage)
+        }
+
+        override fun updateKrossBattery(entry: BatteryEntry) {
+            state = state.copy(krossBattery = entry)
+        }
+
+        override fun updateKrossFirmware(revision: String) {
+            state = state.copy(krossFirmware = revision)
         }
     }
 
@@ -515,9 +523,6 @@ class RadarLinkControllerHarnessTest {
         assertFalse(journalHas("radar handshake complete"))
 
         val request = "1102baa9".hexToBytes()
-        assertFalse(shadowOf(gatt).latestWrittenBytes?.contentEquals(request) == true)
-        assertNull(p.krossProbeResult)
-        p.krossProbeEnabled = true
         startDriver(link, batteryByte = 0x46)
         val command = gatt.getService(commandService).getCharacteristic(commandInput)
         assertTrue(pumpUntil { shadowOf(gatt).latestWrittenBytes?.contentEquals(request) == true })
@@ -527,10 +532,9 @@ class RadarLinkControllerHarnessTest {
         val firmware = "5645523a312e302e322041707220313020323032332031303a35353a3430"
         val reply = (header + firmware).hexToBytes()
         cb.onCharacteristicChanged(gatt, gatt.getService(commandService).getCharacteristic(commandOutput), reply)
-        assertTrue(pumpUntil { p.krossProbeResult != null })
-        val result = requireNotNull(p.krossProbeResult)
-        assertTrue(result, result.startsWith("2A19=70%"))
-        assertTrue(result, result.endsWith("FFF1=0xba (53 B) mode=1 brightness=70 charging=0 firmware≈1.0.2"))
+        assertTrue(pumpUntil { gateway.state.krossFirmware == "1.0.2" })
+        assertEquals(70, gateway.state.krossBattery?.pct)
+        assertNull(p.krossProbeResult)
         assertEquals(DataSource.KROSS, RadarStateBus.state.value.source)
         assertEquals(0, gateway.connects)
 
@@ -539,6 +543,8 @@ class RadarLinkControllerHarnessTest {
         assertNull(gateway.state.radarDiagnosticStage)
         assertEquals(DataSource.NONE, RadarStateBus.state.value.source)
         assertTrue(journalHas("Kross diagnostic notifications ffe2=2 fff1=2"))
+        assertNull(gateway.state.krossBattery)
+        assertNull(gateway.state.krossFirmware)
     }
 
     @Test fun anIncompleteKrossProfileDoesNotRunTheExistingRadarHandshake() = runTest {

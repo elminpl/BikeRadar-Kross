@@ -55,6 +55,8 @@ internal interface RadarLinkStateGateway {
     fun markLinkOpen(mac: String)
 
     fun markRadarDiagnosticStage(stage: RadarDiagnosticStage?)
+    fun updateKrossBattery(entry: BatteryEntry)
+    fun updateKrossFirmware(revision: String)
 
     /** The radar's first data frame on this connection, called once. A radar
      *  that opens the link and never streams must not reach this, or the
@@ -844,18 +846,47 @@ internal class RadarLinkController(
                     }
                     val commandUuid = commandChannel?.uuid.takeIf { commandSubscribed }
                     val configReply = AtomicReference<CompletableDeferred<ByteArray>?>(null)
-                    val probe = CoroutineScope(currentCoroutineContext()).launch {
-                        prefs.flow.first { it.krossProbeEnabled }
-                        val result = try {
-                            KrossDeviceProbe.read(gatt, queue, commandSubscribed, configReply::set)
-                        } catch (_: SecurityException) {
-                            "Bluetooth permission denied"
-                        }
+                    val updateBattery: (Int) -> Unit = { pct ->
                         synchronized(linkLock) {
-                            if (!linkDown) {
-                                prefs.krossProbeResult = result
-                                captureLog.clog("# Kross probe $result")
-                                journal("Kross probe $result")
+                            if (!linkDown) linkState.updateKrossBattery(BatteryEntry(slug(name), name, pct, wallClock()))
+                        }
+                    }
+                    val updateFirmware: (String) -> Unit = { revision ->
+                        synchronized(linkLock) {
+                            if (!linkDown) linkState.updateKrossFirmware(revision)
+                        }
+                    }
+                    val probe = CoroutineScope(currentCoroutineContext()).launch {
+                        suspend fun readDevice(report: Boolean) {
+                            val result = try {
+                                KrossDeviceProbe.read(gatt, queue, commandSubscribed, configReply::set, updateBattery, updateFirmware)
+                            } catch (_: SecurityException) {
+                                "Bluetooth permission denied"
+                            }
+                            if (report) {
+                                synchronized(linkLock) {
+                                    if (!linkDown) {
+                                        prefs.krossProbeResult = result
+                                        captureLog.clog("# Kross probe $result")
+                                        journal("Kross probe $result")
+                                    }
+                                }
+                            }
+                        }
+                        val debugEnabledAtStart = prefs.krossProbeEnabled
+                        readDevice(report = debugEnabledAtStart)
+                        if (!debugEnabledAtStart) {
+                            prefs.flow.first { it.krossProbeEnabled }
+                            readDevice(report = true)
+                        }
+                    }
+                    val batteryRefresh = CoroutineScope(currentCoroutineContext()).launch {
+                        while (isActive) {
+                            delay(20_000L)
+                            try {
+                                KrossDeviceProbe.readBattery(gatt, queue)?.let(updateBattery)
+                            } catch (_: SecurityException) {
+                                break
                             }
                         }
                     }
@@ -890,6 +921,7 @@ internal class RadarLinkController(
                         }
                     } finally {
                         probe.cancel()
+                        batteryRefresh.cancel()
                         captureLog.clog("# Kross diagnostic session ended; ffe2=$radarFrames fff1=$commandFrames")
                         if (captureEnabled) journal("Kross diagnostic notifications ffe2=$radarFrames fff1=$commandFrames")
                     }
