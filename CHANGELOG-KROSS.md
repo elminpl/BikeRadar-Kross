@@ -24,9 +24,9 @@ Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktu
 ## 1.12.2.k4
 
 - Nagłówek podglądu sygnałów ma duże litery i odstęp zgodny z pozostałymi sekcjami Diagnostyki. Tekst nadal pochodzi z zasobów językowych.
-- Po utracie działającej transmisji Krossa aplikacja robi maksymalnie dwie dodatkowe próby połączenia. Pierwsza rusza po sekundzie, druga trzy sekundy po nieudanej próbie. Potem wykrywanie znów zależy od skanowania BLE.
+- Po utracie działającej transmisji Krossa wykrytego przez skan BLE aplikacja robi maksymalnie dwie dodatkowe próby połączenia. Pierwsza rusza po sekundzie, druga trzy sekundy po nieudanej próbie. Potem wykrywanie znów zależy od skanowania BLE.
 - Z potwierdzonych ramek Krossa nakładka pokazuje odległość i zagrożenie. Cele o nieznanej stronie rysuje na osi. Prognoza ruchu jest wyszarzona przy Krossie, ponieważ wymaga prędkości celu. Licznik bliskich minięć nadal wymaga dodatkowo zmierzonego odstępu bocznego i prędkości rowerzysty.
-- Kod APK to **48**. Czas ponownego połączenia i prezentacja na telefonie czekają na próbę z fizycznym radarem.
+- Przeszło 237 wybranych testów, w tym 16 testów zrzutów ekranu w UTC. Podpis zweryfikowany. Kod APK to **48**. Czas ponownego połączenia i prezentacja na telefonie czekają na próbę z fizycznym radarem.
 
 ## 1.12.2.k3
 

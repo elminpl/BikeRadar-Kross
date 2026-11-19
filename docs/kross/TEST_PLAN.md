@@ -11,6 +11,7 @@
 | Hardware-response and roadside replay follow-up | 177 selected tests passed, including 9 Debug screenshots. The BLE harness uses the captured 53-byte FFF1 reply. The decoder replays 22 FFE2 frames with relative timestamps from the two roadside sessions, including transitions to empty frames. |
 | 1.12.2.k2 | 299 selected tests passed, including 113 screenshot tests. Test coverage includes Kross battery and firmware in System and Quick Status, and session cleanup on disconnect. |
 | 1.12.2.k3 | 311 selected tests passed, including 90 screenshots in UTC. Tests cover capture reuse, expiry and link targets in About. Six references changed for the requested UI updates. Debug APK, ktlint, release build and DEX keep verification passed. The signed APK has package `es.jjrh.bikeradar.kross`, version code 47 and the same certificate as k2. |
+| 1.12.2.k4 | 237 selected tests passed, including 16 screenshots in UTC. The BLE harness verifies the bounded retry sequence after decoded telemetry. A renderer test confirms that a decoded Kross target is drawn and cleared by the idle frame. Debug, ktlint, Release and DEX keep verification passed. Signed package `es.jjrh.bikeradar.kross` has version code 48 and the k3 certificate. |
 
 An earlier broad test run reported four Roborazzi discrepancies. The selected runs above used a UTC JVM and kept the existing reference images. The table describes the recorded checkpoints. A full clean test suite on k1 has yet to be recorded.
 
