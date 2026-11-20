@@ -22,6 +22,7 @@ Aplikacja wykrywa Kross Echo Pro, pokazuje stan połączenia i dekoduje odległo
 ## Dokumentacja
 
 - [Wersje Kross i lista zmian](CHANGELOG-KROSS.md)
+- [Plan następnej wersji](docs/kross/NEXT_VERSION.md)
 - [Zrzuty nowych funkcji](docs/kross/SCREENSHOTS.md)
 - [Historia projektu i archiwum APK](docs/kross/PROJECT_HISTORY.md)
 - [Obserwacje protokołu BLE](docs/kross/BLE_PROTOCOL.md)
