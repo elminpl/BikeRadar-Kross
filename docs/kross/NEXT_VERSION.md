@@ -18,6 +18,15 @@ Propozycje dla wersji 1.12.2.k6. Implementację i kompilację zaczniemy po sygna
 - [ ] **Audyt prywatności.** Poprawić obsługę zmiennej manifestu `${radarPermission}` w skrypcie weryfikacji.
 - [ ] **Dane Krossa.** Jeśli pojawią się nowe przejazdy z oznaczoną stroną i niezależnym pomiarem prędkości, wrócić do interpretacji tych pól. Dane o przejeździe przed rower mogą w przyszłości pozwolić na potwierdzanie zdarzeń.
 
+## Badania funkcji Echo Pro
+
+- [ ] **Szybko zbliżający się pojazd.** Porównać czerwony wskaźnik aplikacji producenta z poziomem zagrożenia w tych samych ramkach FFE2. Sprawdzić, czy istniejące czerwone oznaczenie celu w BikeRadar odpowiada temu zdarzeniu i czy jest dostatecznie czytelne. Na potrzeby szacowania wyprzedzeń nadal analizować przebieg odległości.
+- [ ] **Jedna oś celów.** Porównać zachowanie nakładki z instrukcją i nagraniami przejazdów z lewej i prawej. Dla Krossa rysować cele na osi, dopóki żaden wiarygodny pomiar nie potwierdzi strony.
+- [ ] **Lampka, Auto ON/OFF i STOP.** Sprawdzić na postoju odczyt ustawień przed i po zmianie trybu przyciskiem oraz przed i po przełączeniu Auto ON/OFF. Osobno sprawdzić światło STOP i odczyt stanu. Instrukcja podaje, że Echo Pro nie obsługuje menu Device Setting aplikacji producenta. Ewentualne sterowanie udostępnić po potwierdzeniu polecenia i skutku na tym modelu.
+- [ ] **Firmware.** Ustalić u KROSS, czy istnieje oficjalny plik lub procedura aktualizacji dla tego modelu. W bibliotece aplikacji są ślady obsługi OTA, ale bez ustalonego źródła obrazu Echo Pro. Weryfikować zgodność z modelem i rewizją urządzenia przed próbą aktualizacji.
+
+[Ustalenia z instrukcji i APK](BLE_PROTOCOL.md#echo-pro-manual-and-vendor-app)
+
 ## Wydanie
 
 - [ ] Po zatwierdzeniu zakresu wykonać testy, przygotować podpisane APK, zaktualizować dokumentację i dodać zrzuty widocznych nowości.

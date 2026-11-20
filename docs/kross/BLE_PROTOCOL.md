@@ -106,3 +106,12 @@ The settings reply also exposes the selected operating mode and whether
 operation while charging is enabled. Neither field measures the current
 physical state of the lamp or charger. Other bytes in the captured reply
 remain undocumented.
+
+
+## Echo Pro manual and vendor app
+
+The [KROSS manual](https://kross.pl/media/akeneo_connector/asset_files/e/c/echo_pro_instrukcja_obs__ugi_858f.pdf#page=2) describes the green status as no approaching target, amber as an approaching vehicle and red as a fast-approaching vehicle. Its application illustration shows the vehicle marker moving along one axis. This fits the app's distance-only target placement and our roadside captures with zero side codes. BikeRadar already renders threat level 2 in red and other decoded targets as a warning. A comparison against the vendor display is needed to verify the mapping on the same traffic event. The manual gives no numeric speed threshold.
+
+The manual describes switching the lighting mode with the lamp button and toggling manual/Auto ON/OFF with a double press. It expressly excludes Device Setting support for this model in the vendor app. The light's own braking sensor triggers STOP for about three seconds at 50 lm. Radar 1.0.10 contains settings-write and lighting-mode code, and Echo Pro responds to the read-only configuration query. Settings-write support for this model, a separate Auto ON/OFF write, and STOP control or reporting over BLE remain unverified.
+
+The vendor ARM64 library contains OTA header, transfer and verification messages. The inspected ARM64 APK split contains the library and no separate firmware asset. The app strings and official product downloads examined did not establish a firmware download URL or an official Echo Pro image. The observed device firmware is 1.0.2. Ask [KROSS support](https://kross.pl/kontakt) for the supported update procedure and exact hardware compatibility.
