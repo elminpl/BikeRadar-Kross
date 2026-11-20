@@ -657,9 +657,8 @@ internal fun SettingsRadarContent(
                 SettingsRowGroup {
                     SettingsToggleRow(
                         title = stringResource(R.string.passing_title),
-                        subtitle = stringResource(R.string.passing_settings_hint),
+                        subtitle = stringResource(if (krossStreaming) R.string.kross_estimated_passes_hint else R.string.passing_settings_hint),
                         checked = passingCountEnabled,
-                        enabled = !krossStreaming,
                         onCheckedChange = onPassingCountChange,
                     )
                 }

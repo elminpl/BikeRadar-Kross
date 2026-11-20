@@ -635,6 +635,7 @@ internal class RadarLinkController(
     @SuppressLint("MissingPermission")
     private suspend fun connectAndRun(device: BluetoothDevice, name: String, diagnosticOnly: Boolean): Boolean {
         val krossSelected = diagnosticOnly || KrossBleDiagnostics.isSelected(name, device.address, prefs.radarMac)
+        val attemptStartedMs = clock()
         val notifyChannel = Channel<Pair<UUID, ByteArray>>(if (krossSelected) 64 else Channel.UNLIMITED)
         val queue = BleOpQueue()
         val servicesReady = kotlinx.coroutines.CompletableDeferred<Boolean>()
@@ -696,6 +697,7 @@ internal class RadarLinkController(
                 journal("radar conn state status=$status newState=$newState")
                 when (newState) {
                     BluetoothProfile.STATE_CONNECTED -> {
+                        if (krossSelected) journal("Kross GATT connected after ${now - attemptStartedMs}ms")
                         if (diagnosticOnly) {
                             synchronized(linkLock) {
                                 if (linkDown || discoveryJob != null) return
@@ -973,6 +975,7 @@ internal class RadarLinkController(
                             if (overlayJob == null) {
                                 overlayJob = overlayPipeline.attach(scope, name)
                                 lastConnectionReachedDecode = true
+                                journal("Kross first decoded FFE2 frame after ${clock() - attemptStartedMs}ms")
                             }
                             RadarStateBus.publish(state)
                         }

@@ -363,6 +363,7 @@ fun BrToggle(
 // Prefixed `Br` to avoid colliding with `androidx.compose.material3.Slider`
 // on auto-import.
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun BrSlider(
     value: Float,
@@ -374,6 +375,11 @@ fun BrSlider(
     enabled: Boolean = true,
 ) {
     val br = LocalBrColors.current
+    val colors = androidx.compose.material3.SliderDefaults.colors(
+        thumbColor = Color.White,
+        activeTrackColor = br.brand,
+        inactiveTrackColor = br.bgElev3,
+    )
     androidx.compose.material3.Slider(
         value = value,
         onValueChange = onValueChange,
@@ -381,14 +387,21 @@ fun BrSlider(
         valueRange = valueRange,
         steps = steps,
         enabled = enabled,
-        colors = androidx.compose.material3.SliderDefaults.colors(
-            thumbColor = Color.White,
-            activeTrackColor = br.brand,
-            activeTickColor = br.brand,
-            inactiveTrackColor = br.bgElev3,
-            inactiveTickColor = br.bgElev3,
-        ),
-        modifier = modifier,
+        colors = colors,
+        thumb = {
+            Box(Modifier.size(14.dp).background(if (enabled) br.fg else br.fgMuted, CircleShape))
+        },
+        track = { state ->
+            androidx.compose.material3.SliderDefaults.Track(
+                sliderState = state,
+                modifier = Modifier.height(4.dp),
+                colors = colors,
+                enabled = enabled,
+                drawTick = { _, _ -> },
+                drawStopIndicator = null,
+            )
+        },
+        modifier = modifier.padding(horizontal = 12.dp),
     )
 }
 

@@ -632,6 +632,8 @@ internal fun ClosePassStatsCard(
 @Composable
 internal fun PassingStatsCard(onClick: () -> Unit) {
     val count by ClosePassStateBus.passingCount.collectAsState()
+    val estimatedCount by ClosePassStateBus.estimatedPassingCount.collectAsState()
+    val krossStreaming = isKrossStreaming()
     val br = LocalBrColors.current
     BrCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 14.dp)) {
@@ -640,7 +642,10 @@ internal fun PassingStatsCard(onClick: () -> Unit) {
                 Text(stringResource(R.string.main_close_passes_history_link), color = br.fgDim, fontSize = 11.sp)
             }
             Spacer(Modifier.height(10.dp))
-            val value = count
+            val value = if (krossStreaming) estimatedCount else count
+            if (krossStreaming) {
+                Text(stringResource(R.string.kross_estimated_passes), color = br.fgDim, fontSize = 11.sp)
+            }
             if (value != null) {
                 Text(value.toString(), color = br.fg, fontWeight = FontWeight.Light, fontSize = 38.sp)
             } else {

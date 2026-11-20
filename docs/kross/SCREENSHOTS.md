@@ -1,5 +1,13 @@
 # Zrzuty nowych funkcji BikeRadar-Kross
 
+## 1.12.2.k6
+
+Polski interfejs na przykładowych danych. Pierwszy zrzut pokazuje ustawienia nakładki z nowymi suwakami i przejściem do pełnego podglądu. Drugi pokazuje oznaczenie szacowanego licznika Krossa.
+
+<img src="screenshots/k6/nakladka.png" width="360" alt="Ustawienia nakładki z delikatniejszymi suwakami i przyciskiem pełnego podglądu"> <img src="screenshots/k6/szacowane-wyprzedzenia.png" width="360" alt="Karta szacowanych wyprzedzeń Krossa">
+
+[Lista zmian w k6](../../CHANGELOG-KROSS.md#1122k6)
+
 ## 1.12.2.k5
 
 Zrzuty pokazują polski interfejs aplikacji na przykładowych danych.

@@ -21,6 +21,15 @@ Archiwum obejmuje 19 plików APK i 8 etapów funkcjonalnych, z czego 7 przypada 
 
 Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktualizowania GitHuba po kompilacji. Kolejna wersja aplikacji na bazie 1.12.2 otrzymała numer `k2`.
 
+## 1.12.2.k6
+
+- Przeniesiono poprawki partymola [c34efc67](https://github.com/partymola/android-bike-radar-overlay/commit/c34efc67) i [a27ae3ea](https://github.com/partymola/android-bike-radar-overlay/commit/a27ae3ea). Początek jazdy liczy się od pierwszej ramki w statystykach Garmina. Alert Garmina nie zgłasza powtórnie tego samego wyprzedzenia po chwilowej zmianie położenia celu.
+- Podgląd nakładki korzysta z pełnej szerokości wybranej w ustawieniach i ma dodatkowy widok pełnoekranowy z przykładowymi celami. Suwaki mają większe marginesy, cieńszy tor i mniejszy uchwyt.
+- Włącznik licznika wyprzedzeń pozwala wyświetlić eksperymentalne oszacowanie dla Krossa. Licznik pokazuje zbliżenia zakończone zniknięciem celu blisko roweru przy ciągłej telemetrii. Szacunki są widoczne tylko w liczniku aplikacji.
+- Dziennik Krossa odnotowuje czas od początku próby do zestawienia połączenia GATT i do pierwszej poprawnej ramki FFE2. Test wybudzenia na S24+ pozostaje otwarty.
+- Audyt prywatności uwzględnia rzeczywiste nazwy uprawnienia radaru w wariantach oryginalnym i Kross.
+- Kod APK to **50**.
+
 ## 1.12.2.k5
 
 - Dziennik przechwytywania dopisuje powroty tego samego radaru w ciągu pięciu minut. Po godzinie kolejne połączenie zaczyna plik od nowa. Dłuższa ciągła sesja zachowuje jeden plik.

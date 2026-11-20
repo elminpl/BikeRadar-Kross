@@ -12,6 +12,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
 import es.jjrh.bikeradar.ClosePassStateBus
+import es.jjrh.bikeradar.DataSource
+import es.jjrh.bikeradar.RadarState
+import es.jjrh.bikeradar.RadarStateBus
 import es.jjrh.bikeradar.RideHistoryRecord
 import es.jjrh.bikeradar.data.Prefs
 import org.junit.Test
@@ -49,6 +52,25 @@ class KrossFeaturesSnapshotTest {
             }
         } finally {
             ClosePassStateBus.reset()
+            ClosePassStateBus.resetPassing()
+        }
+    }
+
+    @Test
+    fun estimatedKrossPasses() {
+        ClosePassStateBus.resetPassing()
+        ClosePassStateBus.addEstimatedPasses(7)
+        RadarStateBus.publish(RadarState(vehicles = emptyList(), timestamp = 1L, source = DataSource.KROSS))
+        try {
+            captureRoboImage {
+                UiTheme {
+                    Column(Modifier.fillMaxWidth().background(LocalBrColors.current.bg).padding(16.dp)) {
+                        PassingStatsCard(onClick = {})
+                    }
+                }
+            }
+        } finally {
+            RadarStateBus.clear()
             ClosePassStateBus.resetPassing()
         }
     }

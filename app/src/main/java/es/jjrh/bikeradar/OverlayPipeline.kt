@@ -142,6 +142,7 @@ internal class OverlayPipeline(
             var lastAttachFailure: String? = null
             var lastFrame: RadarState? = null
             var lastKrossThreat = 0
+            val krossPassEstimator = KrossPassEstimator()
             var passingDiscoverySlug: String? = null
             val passingPublicationLock = kotlinx.coroutines.sync.Mutex()
             val ticker = flow {
@@ -298,6 +299,12 @@ internal class OverlayPipeline(
                         view.setBatteryLow(lowSlugs, prefs.batteryShowLabels)
 
                         if (state.source == DataSource.KROSS) {
+                            if (!prefs.passingCountEnabled) {
+                                krossPassEstimator.reset()
+                            } else if (newFrame) {
+                                val passes = krossPassEstimator.observe(state.vehicles, nowMono)
+                                if (passes > 0) ClosePassStateBus.addEstimatedPasses(passes)
+                            }
                             if (newFrame && !prefs.isPaused) {
                                 val threat = state.vehicles
                                     .filter { it.distanceM <= overlayPrefs.alertMaxDistanceM }

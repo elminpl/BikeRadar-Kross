@@ -140,6 +140,15 @@ declared="$(awk '/<permission/,/\/>/' "$MANIFEST" \
 if [ -n "$declared" ]; then
     mapfile -t decl_arr <<<"$declared"
     for d in "${decl_arr[@]}"; do
+        if [ "$d" = '${radarPermission}' ]; then
+            mapfile -t radar_permissions < <(sed -n 's/.*manifestPlaceholders\["radarPermission"\] = "\([^"]*\)".*/\1/p' app/build.gradle.kts)
+            [ "${#radar_permissions[@]}" -ge 1 ] || blocker "radarPermission is not defined in Gradle"
+            for permission in "${radar_permissions[@]}"; do
+                has "$PRIVACY_EN" "$permission" || blocker "the Privacy copy must name $permission"
+                has "$PRIVACY_ES" "$permission" || blocker "the Spanish Privacy copy must name $permission"
+            done
+            continue
+        fi
         [ -z "$d" ] && continue
         # By name, so adding a second permission cannot ride in on the first
         # one's disclosure.
