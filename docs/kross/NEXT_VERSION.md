@@ -31,3 +31,19 @@ Propozycje dla wersji 1.12.2.k6. Implementację i kompilację zaczniemy po sygna
 
 - [ ] Po zatwierdzeniu zakresu wykonać testy, przygotować podpisane APK, zaktualizować dokumentację i dodać zrzuty widocznych nowości.
 - [ ] Dla tagu Krossa uzupełnić GitHub Releases o zmiany, wyniki, ograniczenia i link do APK.
+
+## Ocena wykonalności z 20 listopada 2026
+
+| Punkt | Wniosek przed implementacją |
+|---|---|
+| Poprawki partymola | Sprawdzono aktualne `main`. Do przeniesienia są [c34efc67](https://github.com/partymola/android-bike-radar-overlay/commit/c34efc670560c2396a7f0d2bec5a81253a817d5b), który liczy początek jazdy od pierwszej ramki, oraz [a27ae3ea](https://github.com/partymola/android-bike-radar-overlay/commit/a27ae3eac65ebca28974da5838ee22ae73c52245), który usuwa powtórny alert w trakcie tego samego wyprzedzenia. Podgląd scalenia nie pokazał konfliktów tekstowych. Pierwsza poprawka dotyka statystyk używanych przez licznik k5, a druga ścieżki alertów Garmin, więc obie wymagają testów zachowania. Ostatni tag oryginału to `v1.12.2`. |
+| Podgląd i suwaki | Wykonalne. Podgląd już używa `RadarOverlayView`, jak ekran jazdy. K5 skaluje jego szerokość do 60% i ogranicza wysokość do panelu 210 dp. Do wiernego podglądu potrzeba wspólnych reguł wymiaru i położenia. Suwaki Compose korzystają ze wspólnego komponentu `BrSlider`, co umożliwia zmianę wyglądu w jednym miejscu z zachowaniem obszaru dotyku. |
+| Szacowanie wyprzedzeń | Wykonalne jako funkcja eksperymentalna. Próbna analiza 1447 ramek FFE2 znalazła 6 kandydatów po lewej i 2 po prawej przy co najmniej czterech próbkach, spadku odległości o co najmniej 9,375 m i zniknięciu celu w promieniu 10 m. To liczba sekwencji, których jeszcze nie dopasowano do niezależnej listy pojazdów. Sprawdzić chwilowe zaniki, kilka pojazdów naraz i ponowne użycie tego samego slotu. |
+| Ponowne połączenie | Wykonalne jest rozdzielenie pomiarów skanu, połączenia GATT, odkrycia usług i pierwszej poprawnej ramki. Istniejący dziennik wskazuje jedną próbę przerwaną w trakcie odkrywania usług i drugą przed odkrywaniem. Powód opóźnienia po wybudzeniu wymaga powtarzalnych prób z S24+. |
+| Nakładka w ruchu i grupowanie logów | Do sprawdzenia na sprzęcie. Kod grupuje ponowne połączenia tego samego radaru w oknie pięciu minut i otwiera nowy plik przy kolejnym połączeniu po godzinie od rozpoczęcia zapisu. Dziennik k4 potwierdza przebieg ponownych prób. Skuteczność grupowania k5 trzeba ocenić z nowych plików. |
+| Garmin V2, historia i Home Assistant | Ścieżki są zaimplementowane w k5, a testy sprawdzają logikę i format MQTT. Odbiór zdarzeń przez rzeczywisty Home Assistant oraz zachowanie z fizycznym Garminem wymagają próby. |
+| Audyt prywatności | Wykonalne. Skrypt czyta dosłowne `${radarPermission}` z manifestu źródłowego. Gradle przypisuje różne nazwy dla pakietu oryginalnego i Kross. Kontrola powinna rozwiązać zmienną dla sprawdzanego wariantu i sprawdzić faktyczną nazwę w tekście prywatności. |
+| Kierunek, prędkość i szybkie zbliżanie | Jedna oś i czerwony stan zagrożenia są już wykonalne na potwierdzonych danych. Porównanie z aplikacją producenta wymaga wspólnego nagrania lub porównywalnych prób. Do potwierdzenia lewej/prawej strony i jednostek prędkości potrzeba niezależnych pomiarów. |
+| Tryby lampki, Auto ON/OFF i STOP | Wykonalne jest porównanie odczytów przed i po zmianie ustawienia przyciskiem. Komendy BLE pozostają niepotwierdzone dla Echo Pro. STOP jest automatyczny. Instrukcja opisuje brak obsługi Device Setting przez ten model. |
+| Firmware | Wersja `1.0.2` została odczytana z urządzenia. W aplikacji są ślady OTA, a oficjalnego obrazu ani procedury dla tej rewizji nie udało się ustalić. Dostępność wymaga odpowiedzi KROSS. |
+| APK i GitHub Releases | Podpis, tag, wysyłka APK na Dysk oraz galeria zostały sprawdzone przy k5. Odczyt repozytorium przez REST GitHub CLI zwrócił HTTP 403 w tej sesji. Dostęp do publikacji w GitHub Releases trzeba sprawdzić przed wydaniem. |
