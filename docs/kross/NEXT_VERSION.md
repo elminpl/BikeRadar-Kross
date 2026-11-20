@@ -12,6 +12,7 @@ Propozycje dla wersji 1.12.2.k6. Implementacja k6 rozpoczęła się po sygnale u
 - [x] **Delikatniejsze suwaki w całej aplikacji.** Skrócić widoczny tor i zwiększyć marginesy po obu stronach. Zastosować cieńszy tor i mniejszy uchwyt, zachowując wygodny obszar dotyku i dotychczasowe zakresy wartości. Sprawdzić wygląd na wąskich ekranach.
 - [ ] **Szacowany licznik wyprzedzeń dla Krossa.** Śledzić malejącą odległość celu w kolejnych ramkach. Jeśli cel zniknie z bliskiego zasięgu przy nadal działającej telemetrii, potraktować to jako możliwe wyprzedzenie. Sprawdzić na nagraniach, jak odróżnić je od chwilowej utraty celu i uniknąć podwójnego zliczania. Wynik oznaczać jako szacowany.
 - [ ] **Grupowanie logów.** Sprawdzić, czy szybkie ponowne połączenia faktycznie zmniejszają liczbę plików. Zmienić próg pięciu minut dopiero, jeśli nowe zapisy pokażą potrzebę.
+- [ ] **Historia szacowanych wyprzedzeń Krossa.** Zapisać wynik sesji w historii jazd z etykietą szacunku. Sprawdzić zachowanie po rozłączeniu, zakończeniu sesji i ponownym uruchomieniu aplikacji.
 
 ## Dalsze sprawdzenia i poprawki
 
