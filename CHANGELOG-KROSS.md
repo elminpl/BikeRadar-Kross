@@ -28,7 +28,7 @@ Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktu
 - Włącznik licznika wyprzedzeń pozwala wyświetlić eksperymentalne oszacowanie dla Krossa. Licznik pokazuje zbliżenia zakończone zniknięciem celu blisko roweru przy ciągłej telemetrii. Szacunki są widoczne tylko w liczniku aplikacji.
 - Dziennik Krossa odnotowuje czas od początku próby do zestawienia połączenia GATT i do pierwszej poprawnej ramki FFE2. Test wybudzenia na S24+ pozostaje otwarty.
 - Audyt prywatności uwzględnia rzeczywiste nazwy uprawnienia radaru w wariantach oryginalnym i Kross.
-- Przeszło 879 wybranych testów, w tym 186 testów zrzutów w UTC. Weryfikacja podpisu przeszła. Kod APK to **50**. [Pobierz podpisane APK](https://drive.google.com/file/d/1nvA9kw5Rb_OTuLfMRtFLJu6yDUkd_Pr0/view).
+- Przeszło 879 wybranych testów, w tym 186 testów zrzutów w UTC. Weryfikacja podpisu przeszła. Kod APK to **50**.
 
 ## 1.12.2.k5
 
