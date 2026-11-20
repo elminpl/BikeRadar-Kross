@@ -1159,4 +1159,5 @@
     <string name="settings_overlay_close_preview">Zamknij podgląd</string>
     <string name="kross_estimated_passes">Szacowane wyprzedzenia</string>
     <string name="kross_estimated_passes_hint">Szacunek eksperymentalny na podstawie zbliżających się celów Krossa.</string>
+    <string name="kross_estimated_ride_count">Szacowane wyprzedzenia %1$d</string>
 </resources>

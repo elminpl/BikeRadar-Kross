@@ -59,7 +59,7 @@ class KrossFeaturesSnapshotTest {
     @Test
     fun estimatedKrossPasses() {
         ClosePassStateBus.resetPassing()
-        ClosePassStateBus.addEstimatedPasses(7)
+        ClosePassStateBus.setEstimatedPassingCount(7)
         RadarStateBus.publish(RadarState(vehicles = emptyList(), timestamp = 1L, source = DataSource.KROSS))
         try {
             captureRoboImage {
@@ -72,6 +72,16 @@ class KrossFeaturesSnapshotTest {
         } finally {
             RadarStateBus.clear()
             ClosePassStateBus.resetPassing()
+        }
+    }
+
+    @Test
+    fun estimatedKrossHistory() {
+        captureRoboImage {
+            RideHistoryContent(
+                records = listOf(RideHistoryRecord.krossSession(1_780_733_520_000L, 1_780_736_040_000L, 21)),
+                onBack = {},
+            )
         }
     }
 

@@ -992,4 +992,5 @@
     <string name="settings_overlay_close_preview">Cerrar vista previa</string>
     <string name="kross_estimated_passes">Adelantamientos estimados</string>
     <string name="kross_estimated_passes_hint">Estimación experimental basada en objetivos Kross que se acercan.</string>
+    <string name="kross_estimated_ride_count">Adelantamientos estimados %1$d</string>
 </resources>

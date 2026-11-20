@@ -11,12 +11,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.util.Locale
 
@@ -102,6 +104,7 @@ internal class OverlayPipeline(
      *  would inherit `Dispatchers.Main` from the enclosing collect loop and
      *  put blocking network I/O on the main thread with nothing to catch it. */
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val appendRideHistory: (RideHistoryRecord) -> Unit = {},
 ) {
 
     // Cross-connection state. Sampling cadences must NOT reset on every
@@ -143,6 +146,8 @@ internal class OverlayPipeline(
             var lastFrame: RadarState? = null
             var lastKrossThreat = 0
             val krossPassEstimator = KrossPassEstimator()
+            var krossStartedAtMs: Long? = null
+            var krossPasses = 0
             var passingDiscoverySlug: String? = null
             val passingPublicationLock = kotlinx.coroutines.sync.Mutex()
             val ticker = flow {
@@ -299,11 +304,18 @@ internal class OverlayPipeline(
                         view.setBatteryLow(lowSlugs, prefs.batteryShowLabels)
 
                         if (state.source == DataSource.KROSS) {
+                            if (krossStartedAtMs == null) {
+                                krossStartedAtMs = state.timestamp
+                                ClosePassStateBus.setEstimatedPassingCount(0)
+                            }
                             if (!prefs.passingCountEnabled) {
                                 krossPassEstimator.reset()
                             } else if (newFrame) {
                                 val passes = krossPassEstimator.observe(state.vehicles, nowMono)
-                                if (passes > 0) ClosePassStateBus.addEstimatedPasses(passes)
+                                if (passes > 0) {
+                                    krossPasses += passes
+                                    ClosePassStateBus.setEstimatedPassingCount(krossPasses)
+                                }
                             }
                             if (newFrame && !prefs.isPaused) {
                                 val threat = state.vehicles
@@ -406,6 +418,11 @@ internal class OverlayPipeline(
                 if (overlayAdded) {
                     overlayHost.detach(view)
                     clog("# overlay removed")
+                }
+                val startedAt = krossStartedAtMs
+                if (startedAt != null && krossPasses > 0) {
+                    val record = RideHistoryRecord.krossSession(startedAt, System.currentTimeMillis(), krossPasses)
+                    withContext(NonCancellable + ioDispatcher) { appendRideHistory(record) }
                 }
             }
         }

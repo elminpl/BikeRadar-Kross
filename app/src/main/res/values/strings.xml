@@ -1105,4 +1105,5 @@
     <string name="settings_overlay_close_preview">Close preview</string>
     <string name="kross_estimated_passes">Estimated passes</string>
     <string name="kross_estimated_passes_hint">Experimental estimate from approaching Kross targets.</string>
+    <string name="kross_estimated_ride_count">Estimated passes %1$d</string>
 </resources>

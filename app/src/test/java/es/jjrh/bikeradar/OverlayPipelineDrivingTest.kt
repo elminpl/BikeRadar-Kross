@@ -400,6 +400,47 @@ class OverlayPipelineDrivingTest {
         }
     }
 
+    @Test
+    fun krossPassesAreSavedOnceAndTheNextConnectionStartsAtZero() = runTest {
+        prefs.passingCountEnabled = true
+        val records = mutableListOf<RideHistoryRecord>()
+        val pipeline = buildPipeline(
+            clockMono = { testScheduler.currentTime },
+            appendRideHistory = { records.add(requireNotNull(RideHistoryRecord.fromJsonLine(it.toJsonLine()))) },
+        )
+        try {
+            val first = pipeline.attach(this, "Kross")
+            var stamp = 1_000L
+            listOf(28, 21, 15, 9, null, null, null).forEach { distance ->
+                RadarStateBus.publish(
+                    RadarState(
+                        vehicles = distance?.let { listOf(Vehicle(1, it, 0f)) }.orEmpty(),
+                        source = DataSource.KROSS,
+                        timestamp = stamp++,
+                    ),
+                )
+                runCurrent()
+                advanceTimeBy(150)
+            }
+            assertEquals(1, ClosePassStateBus.estimatedPassingCount.value)
+            first.cancel()
+            first.join()
+            assertEquals(1, records.single().estimatedPassingCount)
+            assertEquals(null, records.single().passingCount)
+            RadarStateBus.clear()
+            val second = pipeline.attach(this, "Kross")
+            RadarStateBus.publish(RadarState(vehicles = emptyList(), timestamp = stamp, source = DataSource.KROSS))
+            runCurrent()
+            assertEquals(0, ClosePassStateBus.estimatedPassingCount.value)
+            second.cancel()
+            second.join()
+            assertEquals(1, records.size)
+        } finally {
+            prefs.passingCountEnabled = false
+            ClosePassStateBus.resetPassing()
+        }
+    }
+
     private fun buildPipeline(
         ha: () -> HaClient = { HaClient("", "") },
         currentRadarMac: () -> String? = { null },
@@ -413,6 +454,7 @@ class OverlayPipelineDrivingTest {
         ioDispatcher: kotlinx.coroutines.CoroutineDispatcher = Dispatchers.Unconfined,
         ebike: EBikeSnapshotCoordinator = coordinator(MonoClock(0L)),
         rideStats: () -> RideStatsAccumulator = { RideStatsAccumulator() },
+        appendRideHistory: (RideHistoryRecord) -> Unit = {},
     ): OverlayPipeline = OverlayPipeline(
         prefs = prefs,
         ha = ha,
@@ -436,6 +478,7 @@ class OverlayPipelineDrivingTest {
         // ahead, so a test that waits for one can time out before it has had
         // any real time to execute.
         ioDispatcher = ioDispatcher,
+        appendRideHistory = appendRideHistory,
     )
 
     /** Drive one stationary urgent and return the alert line it logged:

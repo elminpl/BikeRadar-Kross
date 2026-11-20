@@ -134,7 +134,12 @@ private fun RideHistoryRow(rec: RideHistoryRecord) {
         stringResource(R.string.ride_history_tightest, String.format(locale, "%.1f", it))
     }
     val passing = rec.passingCount?.let { stringResource(R.string.passing_ride_count, it) }
-    val statsLine = listOfNotNull(overtakes, passes, passing, tightest).joinToString(" • ")
+    val estimated = rec.estimatedPassingCount
+    val statsLine = if (estimated != null) {
+        stringResource(R.string.kross_estimated_ride_count, estimated)
+    } else {
+        listOfNotNull(overtakes, passes, passing, tightest).joinToString(" • ")
+    }
 
     BrCard(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -165,17 +170,19 @@ private fun RideHistoryRow(rec: RideHistoryRecord) {
                     lineHeight = 15.sp,
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = stringResource(
-                    R.string.ride_history_km_value,
-                    String.format(locale, "%.1f", rec.distanceKm),
-                ),
-                color = br.fg,
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Medium,
-                fontSize = 13.sp,
-            )
+            if (estimated == null) {
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = stringResource(
+                        R.string.ride_history_km_value,
+                        String.format(locale, "%.1f", rec.distanceKm),
+                    ),
+                    color = br.fg,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 13.sp,
+                )
+            }
         }
     }
 }

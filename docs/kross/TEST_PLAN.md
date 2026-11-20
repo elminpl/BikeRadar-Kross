@@ -23,7 +23,7 @@ An earlier broad test run reported four Roborazzi discrepancies. The selected ru
 - Powtórzyć próbę z BikeRadar i osobno z Cycling Radar. Zachować to samo ustawienie Auto ON/OFF i ten sam sposób wybudzenia. Odnotować ostatnią ramkę FFE2, rozłączenie, fizyczne wybudzenie, ponowne wykrycie w skanie BLE, połączenie GATT i pierwszą ramkę FFE2. Sprawdzić, czy aplikacja producenta sama wznawia skanowanie lub ponawia połączenie. Porównanie wskaże, czy szukać poprawki w wykrywaniu wybudzonego radaru, zestawianiu połączenia czy przywracaniu telemetrii.
 - Użytkownik zgłosił częste rozłączenia Echo Pro podczas testów k6 na postoju. Stabilność podczas jazdy pozostaje niezweryfikowana. Porównać sesje na postoju i w ruchu przy tym samym ustawieniu Auto ON/OFF i z telefonem blisko radaru. W każdej próbie odnotować, czy radar wykrywał pojazdy. Zanotować czas i liczbę rozłączeń, ostatnią ramkę FFE2, kod GATT, przebieg ponownego łączenia oraz stan ekranu telefonu. Porównać z próbą w Cycling Radar przy tych samych warunkach. Przyczyna częstych rozłączeń pozostaje nieustalona.
 - **Punkt odniesienia do logów z 20 listopada 2026.** Około 11:49 czasu polskiego (10:49 UTC) użytkownik zaczął ręcznie poruszać radarem, symulując jazdę. Porównać okres postoju sprzed tej godziny z okresem symulowanego ruchu pod kątem ciągłości ramek FFE2, rozłączeń GATT i prób ponownego połączenia.
-- Użytkownik widział liczbę szacowanych wyprzedzeń Krossa na ekranie głównym k6 i zgłosił brak wpisu w historii. Wynik Krossa w k6 jest przechowywany w pamięci sesji. Sprawdzić zapis szacunków po zakończeniu sesji i ich widoczność po ponownym uruchomieniu aplikacji.
+- Użytkownik widział liczbę szacowanych wyprzedzeń Krossa na ekranie głównym k6 i zgłosił brak wpisu w historii. Po ponownym połączeniu licznik pokazał poprzedni wynik 21. W k6 wartość była trzymana w pamięci procesu i nie była zapisywana w historii. Sprawdzić zapis szacunków po zakończeniu sesji i ich widoczność po ponownym uruchomieniu aplikacji.
 
 - Użytkownik zgłosił, że po włączeniu Echo Pro przy już uruchomionej aplikacji k6 wymagane jest ręczne połączenie. Sprawdzić, czy Android zgłasza wynik skanowania BLE po włączeniu radaru, czy aplikacja go akceptuje i czy rozpoczyna próbę GATT. Zanotować, czy wcześniej użyto przycisku Rozłącz. W k6 automatyczna ścieżka czeka na wynik skanowania i respektuje ręczne rozłączenie, podczas gdy przycisk Połącz może użyć zapamiętanego radaru.
 
@@ -53,3 +53,7 @@ For k3, exercise the Polish diagnostics screen at a narrow width and large font.
 Keep the original reference images for environment-only differences. Track the test results and hardware limitations for each named APK in the [Kross changelog](../../CHANGELOG-KROSS.md).
 
 The standalone privacy shell check reports the unresolved manifest placeholder `${radarPermission}` on both k4 and k5. The MQTT disclosure contract test passes in k5.
+
+### Weryfikacja zapisu sesji Krossa
+
+Test automatyczny potwierdził zapis jednego wpisu po rozłączeniu, odczyt szacunku z historii i wyzerowanie licznika przy pierwszej ramce następnej sesji. Sesja bez wyprzedzeń nie tworzy wpisu. W wybranym zestawie przeszło 71 testów jednostkowych i 7 testów zrzutów. Weryfikacja na fizycznym Echo Pro pozostaje do wykonania.

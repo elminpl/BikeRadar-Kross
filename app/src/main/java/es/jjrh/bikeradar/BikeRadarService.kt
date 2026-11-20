@@ -489,6 +489,7 @@ class BikeRadarService : Service() {
             macToSlug = { macToSlug },
             clog = { line -> clog(line) },
             clockMono = { SystemClock.elapsedRealtime() },
+            appendRideHistory = rideHistory::append,
         )
         haPublisher = HaPublisher(
             scope = scope,

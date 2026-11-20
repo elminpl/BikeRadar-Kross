@@ -20,13 +20,13 @@ object ClosePassStateBus {
     private val _estimatedPassingCount = MutableStateFlow(0)
     val estimatedPassingCount: StateFlow<Int> = _estimatedPassingCount
 
-    internal fun addEstimatedPasses(count: Int) {
-        _estimatedPassingCount.update { it + count }
+    internal fun setEstimatedPassingCount(count: Int) {
+        _estimatedPassingCount.value = count
     }
 
     internal fun resetPassing() {
         setPassingCount(null)
-        _estimatedPassingCount.value = 0
+        setEstimatedPassingCount(0)
     }
 
     /** Atomic increment. `value += n` would be a read-modify-write race when
