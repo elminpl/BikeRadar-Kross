@@ -4,6 +4,7 @@ Propozycje dla wersji 1.12.2.k6. Implementację i kompilację zaczniemy po sygna
 
 ## Priorytet
 
+- [ ] **Najnowsze poprawki partymola.** Przed rozpoczęciem k6 sprawdzić, które poprawki z oryginalnego repozytorium są nowsze od aktualnej bazy forka. Wdrożyć brakujące poprawki, zapisać ich źródło w opisie wydania i sprawdzić w testach, czy Kross Echo Pro oraz Garmin V1/V2 nadal działają poprawnie.
 - [ ] **Ponowne połączenie Krossa na S24+.** Zmierzyć czas od wybudzenia do pierwszej poprawnej ramki FFE2. W logu odróżnić moment wykrycia radaru, połączenie GATT, odkrycie usług i powrót telemetrii. Dobrać ewentualną poprawkę do etapu, który powoduje zwłokę.
 - [ ] **Nakładka w ruchu.** Sprawdzić pozycje celów, kolory zagrożenia, dźwięk oraz znikanie pojazdów. Porównać podgląd szerokości, wysokości i przezroczystości z rzeczywistą nakładką w pionie i poziomie.
 - [ ] **Podgląd oryginalnej nakładki w ustawieniach.** Pokazać ten sam widok nakładki, który aplikacja wyświetla podczas jazdy, z zachowaniem jego wyglądu i położenia przy krawędzi ekranu. Zmiany szerokości, wysokości, przezroczystości i zasięgu mają być widoczne od razu.
