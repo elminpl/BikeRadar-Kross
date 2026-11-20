@@ -25,6 +25,8 @@ An earlier broad test run reported four Roborazzi discrepancies. The selected ru
 - **Punkt odniesienia do logów z 20 listopada 2026.** Około 11:49 czasu polskiego (10:49 UTC) użytkownik zaczął ręcznie poruszać radarem, symulując jazdę. Porównać okres postoju sprzed tej godziny z okresem symulowanego ruchu pod kątem ciągłości ramek FFE2, rozłączeń GATT i prób ponownego połączenia.
 - Użytkownik widział liczbę szacowanych wyprzedzeń Krossa na ekranie głównym k6 i zgłosił brak wpisu w historii. Wynik Krossa w k6 jest przechowywany w pamięci sesji. Sprawdzić zapis szacunków po zakończeniu sesji i ich widoczność po ponownym uruchomieniu aplikacji.
 
+- Użytkownik zgłosił, że po włączeniu Echo Pro przy już uruchomionej aplikacji k6 wymagane jest ręczne połączenie. Sprawdzić, czy Android zgłasza wynik skanowania BLE po włączeniu radaru, czy aplikacja go akceptuje i czy rozpoczyna próbę GATT. Zanotować, czy wcześniej użyto przycisku Rozłącz. W k6 automatyczna ścieżka czeka na wynik skanowania i respektuje ręczne rozłączenie, podczas gdy przycisk Połącz może użyć zapamiętanego radaru.
+
 ### Pakiet diagnostyczny z 20 listopada, 11:54
 
 - Na telefonie powstał jeden plik przechwytywania (231 KB) mimo wielu prób połączenia. To potwierdza grupowanie plików w tej próbie k6.
