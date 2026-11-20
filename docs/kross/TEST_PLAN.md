@@ -21,6 +21,7 @@ An earlier broad test run reported four Roborazzi discrepancies. The selected ru
 
 - Użytkownik zaobserwował, że bez pojazdów w zasięgu Echo Pro dość szybko zachowuje się jak uśpiony, a BikeRadar nie odzyskuje połączenia. Brak celów i uśpienie wystąpiły w tej samej próbie. Przyczyna i dokładny czas pozostają nieustalone.
 - Powtórzyć próbę z BikeRadar i osobno z Cycling Radar. Zachować to samo ustawienie Auto ON/OFF i ten sam sposób wybudzenia. Odnotować ostatnią ramkę FFE2, rozłączenie, fizyczne wybudzenie, ponowne wykrycie w skanie BLE, połączenie GATT i pierwszą ramkę FFE2. Sprawdzić, czy aplikacja producenta sama wznawia skanowanie lub ponawia połączenie. Porównanie wskaże, czy szukać poprawki w wykrywaniu wybudzonego radaru, zestawianiu połączenia czy przywracaniu telemetrii.
+- Użytkownik zgłosił również częste rozłączenia Echo Pro podczas testów k6. Sprawdzić stabilność już zestawionego połączenia, także przy aktywnych celach i z telefonem blisko radaru. Zanotować czas i liczbę rozłączeń, ostatnią ramkę FFE2, kod GATT, przebieg ponownego łączenia oraz stan ekranu telefonu. Porównać z próbą w Cycling Radar przy tych samych warunkach. Przyczyna częstych rozłączeń pozostaje nieustalona.
 
 ## Next device checks
 
