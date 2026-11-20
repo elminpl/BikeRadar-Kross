@@ -17,6 +17,11 @@
 
 An earlier broad test run reported four Roborazzi discrepancies. The selected runs above used a UTC JVM and kept the existing reference images. The table describes the recorded checkpoints. A full clean test suite on k1 has yet to be recorded.
 
+## Obserwacje z testów k6
+
+- Użytkownik zaobserwował, że bez pojazdów w zasięgu Echo Pro dość szybko zachowuje się jak uśpiony, a BikeRadar nie odzyskuje połączenia. Brak celów i uśpienie wystąpiły w tej samej próbie. Przyczyna i dokładny czas pozostają nieustalone.
+- Powtórzyć próbę z BikeRadar i osobno z Cycling Radar. Zachować to samo ustawienie Auto ON/OFF i ten sam sposób wybudzenia. Odnotować ostatnią ramkę FFE2, rozłączenie, fizyczne wybudzenie, ponowne wykrycie w skanie BLE, połączenie GATT i pierwszą ramkę FFE2. Sprawdzić, czy aplikacja producenta sama wznawia skanowanie lub ponawia połączenie. Porównanie wskaże, czy szukać poprawki w wykrywaniu wybudzonego radaru, zestawianiu połączenia czy przywracaniu telemetrii.
+
 ## Next device checks
 
 1. **Connection and status on S24+.** Open the Radar screen and select the Echo Pro. Check its status in Home, System, Settings → Quick Status and Settings → Connections. Expect connecting, Bluetooth connected, and limited coverage once decoded frames arrive. Confirm that Paired reflects the Android bond. Repeat after turning Bluetooth off and on, moving out of range and restarting the app.
