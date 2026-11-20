@@ -25,6 +25,13 @@ An earlier broad test run reported four Roborazzi discrepancies. The selected ru
 - **Punkt odniesienia do logów z 20 listopada 2026.** Około 11:49 czasu polskiego (10:49 UTC) użytkownik zaczął ręcznie poruszać radarem, symulując jazdę. Porównać okres postoju sprzed tej godziny z okresem symulowanego ruchu pod kątem ciągłości ramek FFE2, rozłączeń GATT i prób ponownego połączenia.
 - Użytkownik widział liczbę szacowanych wyprzedzeń Krossa na ekranie głównym k6 i zgłosił brak wpisu w historii. Wynik Krossa w k6 jest przechowywany w pamięci sesji. Sprawdzić zapis szacunków po zakończeniu sesji i ich widoczność po ponownym uruchomieniu aplikacji.
 
+### Pakiet diagnostyczny z 20 listopada, 11:54
+
+- Na telefonie powstał jeden plik przechwytywania (231 KB) mimo wielu prób połączenia. To potwierdza grupowanie plików w tej próbie k6.
+- Po rozpoczęciu symulowanego ruchu sesja od 11:50:41 do 11:51:37 odebrała 350 powiadomień FFE2. Sesja od 11:52:02 do 11:52:48 odebrała 282. Telemetria wracała w trakcie symulowanego ruchu, a połączenie nadal się przerywało.
+- Próby wznowienia po sekundzie zestawiły GATT w 26 i 33 ms, lecz po rozpoczęciu odkrywania usług zakończyły się statusem 8. Jedna kolejna próba zakończyła się statusem 147 przed zestawieniem GATT. W udanej próbie o 11:51:53 GATT zestawiono po 7912 ms, a pierwszą ramkę odebrano po 9038 ms.
+- Do ustalenia pozostaje, czy strumień zamilkł przed zerwaniem połączenia i ile trwały przerwy przed 11:49. Sam pakiet diagnostyczny nie zawiera pełnych ramek. Przy analizie pliku przechwytywania sprawdzić przerwy między ramkami i wpisy o przekroczeniu limitu oczekiwania na telemetrię.
+
 ## Next device checks
 
 1. **Connection and status on S24+.** Open the Radar screen and select the Echo Pro. Check its status in Home, System, Settings → Quick Status and Settings → Connections. Expect connecting, Bluetooth connected, and limited coverage once decoded frames arrive. Confirm that Paired reflects the Android bond. Repeat after turning Bluetooth off and on, moving out of range and restarting the app.
