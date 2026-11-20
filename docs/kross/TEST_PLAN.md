@@ -32,6 +32,12 @@ An earlier broad test run reported four Roborazzi discrepancies. The selected ru
 - Próby wznowienia po sekundzie zestawiły GATT w 26 i 33 ms, lecz po rozpoczęciu odkrywania usług zakończyły się statusem 8. Jedna kolejna próba zakończyła się statusem 147 przed zestawieniem GATT. W udanej próbie o 11:51:53 GATT zestawiono po 7912 ms, a pierwszą ramkę odebrano po 9038 ms.
 - Do ustalenia pozostaje, czy strumień zamilkł przed zerwaniem połączenia i ile trwały przerwy przed 11:49. Sam pakiet diagnostyczny nie zawiera pełnych ramek. Przy analizie pliku przechwytywania sprawdzić przerwy między ramkami i wpisy o przekroczeniu limitu oczekiwania na telemetrię.
 
+### Analiza pełnego przechwycenia k6 z 20 listopada
+
+- Przed około 11:49 zapisano 2630 powiadomień FFE2 w pięciu sesjach. Po rozpoczęciu poruszania radarem zapisano 1033 w czterech sesjach, z których jedna odebrała pojedyncze powiadomienie. Przerwy nadal występowały. Ostatnie ramki dłuższych sesji po 11:49 zapisano o 11:50:17, 11:51:34 i 11:52:45 czasu polskiego.
+- W ośmiu z dziewięciu sesji z FFE2 aplikacja zanotowała ciszę w kanale diagnostycznym. W k6 ten wpis powstaje po 3 sekundach bez poprawnej ramki już po uruchomieniu strumienia, jeśli aplikacja nie odnotowała jeszcze rozłączenia BLE. Następnie zamyka połączenie i próbuje połączyć się ponownie. Przerwy dotyczyły także odcinków z wykrytymi pojazdami. Log nie rozstrzyga, dlaczego radar przestał nadawać.
+- Wszystkie 28 wznowień zapisu trafiły do tego samego pliku. Przy kolejnej próbie sprawdzić oddzielny stan braku świeżej telemetrii z krótkim dalszym oczekiwaniem na tym samym GATT oraz porównać wynik z Cycling Radar. Sprawdzić, czy strumień wraca sam i czy liczba rozłączeń spada.
+
 ## Next device checks
 
 1. **Connection and status on S24+.** Open the Radar screen and select the Echo Pro. Check its status in Home, System, Settings → Quick Status and Settings → Connections. Expect connecting, Bluetooth connected, and limited coverage once decoded frames arrive. Confirm that Paired reflects the Android bond. Repeat after turning Bluetooth off and on, moving out of range and restarting the app.
