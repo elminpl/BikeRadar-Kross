@@ -6,13 +6,15 @@ Propozycje dla wersji 1.12.2.k6. Implementację i kompilację zaczniemy po sygna
 
 - [ ] **Ponowne połączenie Krossa na S24+.** Zmierzyć czas od wybudzenia do pierwszej poprawnej ramki FFE2. W logu odróżnić moment wykrycia radaru, połączenie GATT, odkrycie usług i powrót telemetrii. Dobrać ewentualną poprawkę do etapu, który powoduje zwłokę.
 - [ ] **Nakładka w ruchu.** Sprawdzić pozycje celów, kolory zagrożenia, dźwięk oraz znikanie pojazdów. Porównać podgląd szerokości, wysokości i przezroczystości z rzeczywistą nakładką w pionie i poziomie.
+- [ ] **Podgląd oryginalnej nakładki w ustawieniach.** Pokazać ten sam widok nakładki, który aplikacja wyświetla podczas jazdy, z zachowaniem jego wyglądu i położenia przy krawędzi ekranu. Zmiany szerokości, wysokości, przezroczystości i zasięgu mają być widoczne od razu.
+- [ ] **Szacowany licznik wyprzedzeń dla Krossa.** Śledzić malejącą odległość celu w kolejnych ramkach. Jeśli cel zniknie z bliskiego zasięgu przy nadal działającej telemetrii, potraktować to jako możliwe wyprzedzenie. Sprawdzić na nagraniach, jak odróżnić je od chwilowej utraty celu i uniknąć podwójnego zliczania. Wynik oznaczać jako szacowany.
 - [ ] **Grupowanie logów.** Sprawdzić, czy szybkie ponowne połączenia faktycznie zmniejszają liczbę plików. Zmienić próg pięciu minut dopiero, jeśli nowe zapisy pokażą potrzebę.
 
 ## Dalsze sprawdzenia i poprawki
 
 - [ ] **Garmin V2 i Home Assistant.** Sprawdzić licznik potwierdzonych wyprzedzeń, historię jazd i MQTT oraz działanie istniejących bliskich wyprzedzeń.
 - [ ] **Audyt prywatności.** Poprawić obsługę zmiennej manifestu `${radarPermission}` w skrypcie weryfikacji.
-- [ ] **Dane Krossa.** Jeśli pojawią się nowe przejazdy z oznaczoną stroną i niezależnym pomiarem prędkości, wrócić do interpretacji tych pól. Potwierdzenie przejazdu przed rower jest warunkiem licznika potwierdzonych wyprzedzeń dla Krossa.
+- [ ] **Dane Krossa.** Jeśli pojawią się nowe przejazdy z oznaczoną stroną i niezależnym pomiarem prędkości, wrócić do interpretacji tych pól. Dane o przejeździe przed rower mogą w przyszłości pozwolić na potwierdzanie zdarzeń.
 
 ## Wydanie
 
