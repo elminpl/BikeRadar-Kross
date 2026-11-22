@@ -70,3 +70,5 @@ Na S24+ wyłączyć Auto ON/OFF i połączyć radar raz. Zostawić BikeRadar uru
 Cztery wcześniejsze niepowodzenia wynikały z założeń testów sprzed zmian Krossa. Audyt dziennika rozpoznaje wpisy techniczne Krossa. Test alertów uwzględnia osobną gałąź Krossa, która obsługuje dźwięk przed wyjściem z kolektora. Test IPC sprawdza warunkowy sufiks pakietu w instalacji obok oryginału i zachowanie oryginalnego identyfikatora w wydaniu domyślnym. Test telemetrii uwzględnia Krossa jako źródło bez opcjonalnych flag pomiarowych IPC.
 
 Kompilacja debug i ktlint przeszły. Pierwszy przebieg objął 441 testów, w tym 214 testów zestawu zrzutów i nakładki w UTC. Osobny przebieg objął 171 testów kontrolera BLE, dekodera i estymatora. Oba przebiegi zakończyły się bez błędów, a obrazy wzorcowe pozostały bez zmian.
+
+Podpisane APK k7 z commita `de2536b8` przeszło kompilację Release, kontrolę DEX (31 stałych w 9 typach enum) oraz kontrolę pakietu, kodu 51, obsługi ARM64 i zgodności certyfikatu z k6. Kopia na Dysku Google ma ten sam rozmiar co lokalne APK. Próby urządzenia pozostają otwarte.

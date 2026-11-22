@@ -28,7 +28,7 @@ Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktu
 - Zaktualizowano Gradle do 9.9.1, Robolectric do 4.18, Roborazzi do 1.79.0 i `actions/setup-java` do 6.3.0. Cztery wcześniej nieudane testy uwzględniają specyfikę Krossa.
 - Przeszło 612 wybranych testów, w tym 214 z zestawu zrzutów i nakładki w UTC. Kompilacja debug i ktlint przeszły.
 - Do sprawdzenia na S24+ pozostają samoczynne połączenie po włączeniu radaru przy uruchomionej aplikacji oraz historia i reset licznika. Na radarze zalecany jest tryb ręczny z wyłączonym Auto ON/OFF.
-- Kod APK to **51**.
+- Kompilacja Release i kontrola DEX przeszły. Zweryfikowano pakiet `es.jjrh.bikeradar.kross`, kod APK **51**, obsługę ARM64 i certyfikat zgodny z k6. APK z commita `de2536b8` ma 8 698 692 bajty. SHA-256 `4c10f53358df1f8cd792d44e2ca612235cf51ac18d33a1cad8b8013e0871d6bf`.
 
 ## 1.12.2.k6
 
