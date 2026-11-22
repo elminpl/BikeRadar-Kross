@@ -2,6 +2,8 @@
 
 ## Recorded test results
 
+The Dependabot updates in [PR #1](https://github.com/elminpl/BikeRadar-Kross/pull/1) and [PR #2](https://github.com/elminpl/BikeRadar-Kross/pull/2) were merged after review. The debug APK built with Gradle 9.9.1. Roborazzi 1.79.0 and Robolectric 4.18 passed a separate UTC verification run of 214 selected tests with the existing screenshot references. The full run reported 3,994 tests, with four failures and one skipped. A targeted run before the Gradle and test dependency update reproduced all four failures in `JournalScopeIsDisclosedTest`, `OverlayHideDoesNotReachTheAlertPathTest`, `RadarContractTest`, and `RadarStateProjectionTest`.
+
 | Build checkpoint | Verification |
 |---|---|
 | Targets on the overlay | 261 selected tests passed, including 43 screenshot tests. The Kotlin decoder replayed 1,447 type 0x30 frames from two S24+ captures, with 301 frames containing active targets. |
