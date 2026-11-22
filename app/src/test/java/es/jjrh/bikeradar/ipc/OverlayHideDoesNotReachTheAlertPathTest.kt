@@ -86,10 +86,12 @@ class OverlayHideDoesNotReachTheAlertPathTest {
         val gateAt = text.indexOf(GATE)
         val cueAt = text.indexOf(CUE)
         val between = text.substring(gateAt, cueAt)
+        val krossReturn = Regex("""if \(state\.source == DataSource\.KROSS\) \{(?:(?!return@collect)[\s\S])*?return@collect\s*}""")
+        val garminPath = between.replace(krossReturn, "")
 
         assertTrue(
             "an early return between the gate and the alert would skip the cue",
-            !between.contains("return@collect"),
+            !garminPath.contains("return@collect"),
         )
     }
 

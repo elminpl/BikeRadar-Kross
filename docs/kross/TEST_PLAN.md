@@ -60,3 +60,13 @@ The standalone privacy shell check reports the unresolved manifest placeholder `
 ### Weryfikacja zapisu sesji Krossa
 
 Test automatyczny potwierdził zapis jednego wpisu po rozłączeniu, odczyt szacunku z historii i wyzerowanie licznika przy pierwszej ramce następnej sesji. Sesja bez wyprzedzeń nie tworzy wpisu. W wybranym zestawie przeszło 71 testów jednostkowych i 7 testów zrzutów. Weryfikacja na fizycznym Echo Pro pozostaje do wykonania.
+
+### Automatyczne łączenie zapamiętanego Krossa przed k7
+
+Skan BLE uwzględnia zapamiętany adres Krossa, więc kolejne ogłoszenie może uruchomić próbę także wtedy, gdy nie zawiera UUID usługi. Pierwsze wykrycie nadal korzysta z istniejącego rozpoznawania nazwy i usług. Ręczne rozłączenie pozostaje respektowane, a zapamiętany Kross nie zastępuje innego przypiętego radaru.
+
+Na S24+ wyłączyć Auto ON/OFF i połączyć radar raz. Zostawić BikeRadar uruchomiony, wyłączyć radar przyciskiem, odczekać na zakończenie prób połączenia i ponownie go włączyć bez naciskania Połącz. Sprawdzić wpisy `Kross advertisement received`, `Kross GATT connected` i `Kross first decoded FFE2 frame`. Powtórzyć po ręcznym Rozłącz w aplikacji i sprawdzić, że połączenie pozostaje wstrzymane do naciśnięcia Połącz. Jeśli po włączeniu nie ma wpisu o ogłoszeniu, sprawdzić wynik skanu systemowego i adres BLE. Po zapisaniu sesji z dodatnim szacunkiem sprawdzić pojedynczy wpis w historii i zero przy pierwszej ramce kolejnego połączenia.
+
+Cztery wcześniejsze niepowodzenia wynikały z założeń testów sprzed zmian Krossa. Audyt dziennika rozpoznaje wpisy techniczne Krossa. Test alertów uwzględnia osobną gałąź Krossa, która obsługuje dźwięk przed wyjściem z kolektora. Test IPC sprawdza warunkowy sufiks pakietu w instalacji obok oryginału i zachowanie oryginalnego identyfikatora w wydaniu domyślnym. Test telemetrii uwzględnia Krossa jako źródło bez opcjonalnych flag pomiarowych IPC.
+
+Kompilacja debug i ktlint przeszły. Pierwszy przebieg objął 441 testów, w tym 214 testów zestawu zrzutów i nakładki w UTC. Osobny przebieg objął 171 testów kontrolera BLE, dekodera i estymatora. Oba przebiegi zakończyły się bez błędów, a obrazy wzorcowe pozostały bez zmian.

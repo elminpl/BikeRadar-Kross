@@ -45,7 +45,7 @@ class RadarStateProjectionTest {
         // Exhaustive on purpose: a new DataSource makes this fail until someone
         // writes its literal, which is the moment the mapping starts to matter.
         assertEquals(
-            mapOf(DataSource.NONE to 0, DataSource.V1 to 0, DataSource.V2 to 15),
+            mapOf(DataSource.NONE to 0, DataSource.V1 to 0, DataSource.V2 to 15, DataSource.KROSS to 0),
             DataSource.entries.associateWith { RadarStateProjection.capabilitiesOf(it) },
         )
     }

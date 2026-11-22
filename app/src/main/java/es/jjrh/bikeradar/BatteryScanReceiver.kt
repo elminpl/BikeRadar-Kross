@@ -23,7 +23,8 @@ import java.util.UUID
  * Receives advertisement-batch broadcasts from the OS BLE scanner.
  *
  * BikeRadarService registers a PendingIntent scan with a hardware filter on
- * the supported service UUIDs. Kross candidates also require a matching local name.
+ * the supported service UUIDs and the last known Kross address. New Kross
+ * candidates require a matching service UUID and local name.
  *
  * For each matching result we hand off to BikeRadarService via ACTION_READ_DEVICE;
  * the service throttles per-device so rapid-fire adverts don't trigger rapid-fire
@@ -73,17 +74,19 @@ class BatteryScanReceiver : BroadcastReceiver() {
         // of the explicitly pinned radar MAC passes even with a foreign name,
         // so a pinned unit can reach the link path at all.
         val pinnedRadarMac = prefs.radarMac
+        val rememberedKross = BikeRadarService.KrossCandidate.fromPreference(prefs.lastKrossSighting)
 
         for (s in seen) {
-            val name = s.name ?: continue
             val mac = s.mac ?: continue
+            val remembered = rememberedKross?.takeIf { mac.equals(it.mac, ignoreCase = true) }
+            val name = s.name ?: remembered?.name ?: continue
             val pinned = pinnedRadarMac != null && mac.equals(pinnedRadarMac, ignoreCase = true)
             val knownAccessory = matchesVariaName(name)
             val accessoryAdvert = Uuids.SVC_ACCESSORY_ADVERT in s.services
             val diagnostic = !knownAccessory &&
                 !accessoryAdvert &&
                 (pinned || pinnedRadarMac == null) &&
-                KrossBleDiagnostics.matchesAdvertisement(name, s.services)
+                (remembered != null || KrossBleDiagnostics.matchesAdvertisement(name, s.services))
             if (!knownAccessory && !pinned && !diagnostic) continue
             // New filters must not widen the regular accessory path.
             if (!diagnostic && !accessoryAdvert && s.services.any { it in KrossBleDiagnostics.advertisedServices }) continue
@@ -96,7 +99,7 @@ class BatteryScanReceiver : BroadcastReceiver() {
 
             val i = Intent(ctx, BikeRadarService::class.java).apply {
                 action = BikeRadarService.ACTION_READ_DEVICE
-                putExtra(BikeRadarService.EXTRA_NAME, name)
+                putExtra(BikeRadarService.EXTRA_NAME, if (diagnostic) remembered?.name ?: name else name)
                 putExtra(BikeRadarService.EXTRA_MAC, mac)
                 if (diagnostic) putExtra(BikeRadarService.EXTRA_KROSS_DIAGNOSTIC, true)
             }

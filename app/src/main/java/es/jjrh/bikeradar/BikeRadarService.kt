@@ -328,9 +328,7 @@ class BikeRadarService : Service() {
         rideStats = RideStatsAccumulator()
         ClosePassStateBus.resetPassing()
         prefs = Prefs(this)
-        krossCandidate.value = prefs.lastKrossSighting?.split('|', limit = 2)
-            ?.takeIf { it.size == 2 && android.bluetooth.BluetoothAdapter.checkBluetoothAddress(it[0].uppercase(Locale.ROOT)) }
-            ?.let { KrossCandidate(it[1], it[0]) }
+        krossCandidate.value = KrossCandidate.fromPreference(prefs.lastKrossSighting)
         // Dirty-restart detection: the marker survives a crash / system kill /
         // force-stop (only onDestroy clears it), so finding it set here means
         // the previous instance died without a clean shutdown.
@@ -781,7 +779,14 @@ class BikeRadarService : Service() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    internal data class KrossCandidate(val name: String, val mac: String)
+    internal data class KrossCandidate(val name: String, val mac: String) {
+        companion object {
+            fun fromPreference(value: String?): KrossCandidate? = value?.split('|', limit = 2)
+                ?.takeIf { it.size == 2 && it[1].isNotBlank() }
+                ?.let { (address, name) -> KrossCandidate(name, address.uppercase(Locale.ROOT)) }
+                ?.takeIf { android.bluetooth.BluetoothAdapter.checkBluetoothAddress(it.mac) }
+        }
+    }
 
     private var krossManuallyStopped = false
 
@@ -794,13 +799,18 @@ class BikeRadarService : Service() {
                 if (!prefs.isPaused) {
                     if (intent.getBooleanExtra(EXTRA_KROSS_DIAGNOSTIC, false)) {
                         if (!radarLink.isActive() || krossCandidate.value == null) {
-                            val candidate = KrossCandidate(name, mac)
+                            val candidate = KrossCandidate.fromPreference("$mac|$name") ?: return START_STICKY
                             if (candidate != krossCandidate.value) {
                                 prefs.lastKrossSighting = "$mac|$name"
                                 krossCandidate.value = candidate
+                                unregisterEventScan()
+                                registerEventScan()
                             }
                         }
-                        if (!krossManuallyStopped) startKrossDiagnostic(name, mac)
+                        if (!krossManuallyStopped && !radarLink.isActive()) {
+                            linkJournal.log("Kross advertisement received")
+                            startKrossDiagnostic(name, mac)
+                        }
                     } else {
                         scheduleRead(name, mac)
                     }
@@ -1122,7 +1132,10 @@ class BikeRadarService : Service() {
         }
         val services = listOf(Uuids.SVC_ACCESSORY_ADVERT) +
             KrossBleDiagnostics.advertisedServices
-        val filters = services.map { ScanFilter.Builder().setServiceUuid(ParcelUuid(it)).build() }
+        val filters = services.map { ScanFilter.Builder().setServiceUuid(ParcelUuid(it)).build() }.toMutableList()
+        krossCandidate.value?.let { candidate ->
+            filters += ScanFilter.Builder().setDeviceAddress(candidate.mac).build()
+        }
         // FIRST_MATCH + MATCH_LOST: host process wakes once when a known
         // device appears and once when it disappears, instead of for every
         // advert (~1 Hz/device under ALL_MATCHES). Battery values for the

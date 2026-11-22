@@ -234,6 +234,30 @@ class BatteryScanReceiverTest {
     }
 
     @Test
+    fun aRememberedKrossCanReconnectWithoutItsAdvertisingServices() {
+        val mac = "AA:BB:CC:DD:EE:FF"
+        val prefs = es.jjrh.bikeradar.data.Prefs(app)
+        prefs.lastKrossSighting = "$mac|Radar123"
+        val result = scanResultFor(mac, "Unknown", BluetoothDevice.BOND_NONE)
+        receiver.onReceive(app, batchIntent(ScanSettings.CALLBACK_TYPE_FIRST_MATCH, result))
+        val started = shadowOf(app).peekNextStartedService()
+        assertNotNull(started)
+        assertEquals("Radar123", started.getStringExtra(BikeRadarService.EXTRA_NAME))
+        assertTrue(started.getBooleanExtra(BikeRadarService.EXTRA_KROSS_DIAGNOSTIC, false))
+    }
+
+    @Test
+    fun aRememberedKrossDoesNotOverrideAPinnedRadar() {
+        val mac = "AA:BB:CC:DD:EE:FF"
+        val prefs = es.jjrh.bikeradar.data.Prefs(app)
+        prefs.lastKrossSighting = "$mac|Radar123"
+        prefs.radarMac = "AA:BB:CC:DD:EE:01"
+        val result = scanResultFor(mac, "Unknown", BluetoothDevice.BOND_NONE)
+        receiver.onReceive(app, batchIntent(ScanSettings.CALLBACK_TYPE_FIRST_MATCH, result))
+        assertNull(shadowOf(app).peekNextStartedService())
+    }
+
+    @Test
     fun batteryOnlyAccessoriesDoNotQualifyForRadarDiagnostics() {
         val r = scanResultAdvertising("AA:BB:CC:DD:EE:FF", "Garmin Watch", BluetoothDevice.BOND_BONDED, byteArrayOf(3, 3, 0x0f, 0x18))
         receiver.onReceive(app, batchIntent(ScanSettings.CALLBACK_TYPE_FIRST_MATCH, r))

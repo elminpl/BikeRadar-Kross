@@ -105,9 +105,12 @@ class RadarContractTest {
         val open = gradle.indexOf("        release {")
         val close = gradle.indexOf("""        getByName("debug")""", startIndex = open + 1)
         assertTrue("the release build type moved; this check cannot see it", open in 0 until close)
+        val release = gradle.substring(open, close)
+        val optionalKrossSuffix = Regex("""if \(krossSideBySide\) \{\s*applicationIdSuffix = "\.kross"""")
+        assertTrue("the side-by-side release has its own package", optionalKrossSuffix.containsMatchIn(release))
         assertFalse(
-            "a suffix on the release build type makes RadarContract.PACKAGE unbindable",
-            gradle.substring(open, close).contains("applicationIdSuffix"),
+            "a suffix outside the optional Kross block would break the original contract",
+            optionalKrossSuffix.replace(release, "").contains("applicationIdSuffix"),
         )
     }
 }
