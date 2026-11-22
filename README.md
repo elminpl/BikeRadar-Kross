@@ -1,7 +1,7 @@
 # BikeRadar-Kross
 
 [![CI](https://github.com/elminpl/BikeRadar-Kross/actions/workflows/ci.yml/badge.svg)](https://github.com/elminpl/BikeRadar-Kross/actions/workflows/ci.yml)
-[![Test release](https://img.shields.io/badge/pre--release-1.12.2.k6-blue)](https://github.com/elminpl/BikeRadar-Kross/releases/tag/kross-1.12.2.k6)
+[![Test release](https://img.shields.io/badge/pre--release-1.12.2.k7-blue)](CHANGELOG-KROSS.md#1122k7)
 [![License](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)](https://github.com/elminpl/BikeRadar-Kross/blob/feature/kross-echo-pro/LICENSE)
 ![Android 12+](https://img.shields.io/badge/android-12%2B-brightgreen)
 
@@ -11,11 +11,11 @@
 
 **An independent fork of [Bike Radar Overlay by partymola](https://github.com/partymola/android-bike-radar-overlay) with experimental Bluetooth Low Energy (BLE) support for the Kross Echo Pro.** The project aims to retain existing Garmin V1/V2 support.
 
-> **Kross Echo Pro setup.** Disable **Auto ON/OFF** on the radar and use manual mode. With Auto ON/OFF disabled, telemetry continued until the radar was manually turned off in both Galaxy S24+ tests. Automatic reconnection after turning the radar back on may still require tapping **Connect** in k6. [Kross manual](https://kross.pl/media/akeneo_connector/asset_files/e/c/echo_pro_instrukcja_obs__ugi_858f.pdf) · [Test results](docs/kross/TEST_PLAN.md)
+> **Kross Echo Pro setup.** Disable **Auto ON/OFF** on the radar and use manual mode. With Auto ON/OFF disabled, telemetry continued until the radar was manually turned off in both Galaxy S24+ tests. Automatic reconnection after power-on is ready for hardware testing in k7. [Kross manual](https://kross.pl/media/akeneo_connector/asset_files/e/c/echo_pro_instrukcja_obs__ugi_858f.pdf) · [Test results](docs/kross/TEST_PLAN.md)
 
 ### Project status
 
-Test release `1.12.2.k6` discovers the Echo Pro, shows its connection status, and displays target distance and threat level. System and Quick Status also show battery level and radar firmware. Stationary tests confirmed configuration and firmware readback. Speed, passing side, and alerts while riding still need hardware validation.
+Test release `1.12.2.k7` discovers the Echo Pro, shows its connection status, and displays target distance and threat level. System and Quick Status also show battery level and radar firmware. Stationary tests confirmed configuration and firmware readback. Speed, passing side, and alerts while riding still need hardware validation.
 
 The Debug screen includes a device readout. Capture logging groups quick reconnects to the same radar into one file. The development goals include reliable BLE/GATT connections and notification subscriptions, clear connection and telemetry states, validated frame decoding, and on-road verification of the overlay and alerts.
 
@@ -46,9 +46,9 @@ The original authors retain copyright in their code. This independent fork prese
 
 Projekt jest prywatną, niezależną modyfikacją [Bike Radar Overlay autorstwa partymola](https://github.com/partymola/android-bike-radar-overlay). Celem jest dodanie obsługi Kross Echo Pro bez pogorszenia kompatybilności z radarami Garmin. Nie jest to oficjalna aplikacja Kross ani wydanie oryginalnego autora.
 
-> **Konfiguracja Kross Echo Pro.** Wyłącz **Auto ON/OFF** w radarze i używaj trybu ręcznego. Przy wyłączonej funkcji w obu próbach na Galaxy S24+ dane napływały aż do ręcznego wyłączenia radaru. W k6 po ponownym włączeniu radaru może być jeszcze potrzebne kliknięcie **Połącz**. [Instrukcja Kross](https://kross.pl/media/akeneo_connector/asset_files/e/c/echo_pro_instrukcja_obs__ugi_858f.pdf) · [Wyniki testów](docs/kross/TEST_PLAN.md)
+> **Konfiguracja Kross Echo Pro.** Wyłącz **Auto ON/OFF** w radarze i używaj trybu ręcznego. Przy wyłączonej funkcji w obu próbach na Galaxy S24+ dane napływały aż do ręcznego wyłączenia radaru. Automatyczne połączenie po ponownym włączeniu radaru w k7 wymaga próby na sprzęcie. [Instrukcja Kross](https://kross.pl/media/akeneo_connector/asset_files/e/c/echo_pro_instrukcja_obs__ugi_858f.pdf) · [Wyniki testów](docs/kross/TEST_PLAN.md)
 
-> **Stan projektu.** Wersja testowa `1.12.2.k6` odbiera dane Kross Echo Pro i pokazuje odległość oraz poziom zagrożenia. Karta System i Szybki stan pokazują także baterię oraz wersję oprogramowania radaru. Dwa nagrania z S24+ potwierdzają dekodowanie odległości i zagrożenia. Na postoju potwierdzono też odczyt ustawień i firmware. Prędkość, strona mijania i działanie alertów podczas jazdy wymagają dalszych prób na sprzęcie.
+> **Stan projektu.** Wersja testowa `1.12.2.k7` odbiera dane Kross Echo Pro i pokazuje odległość oraz poziom zagrożenia. Karta System i Szybki stan pokazują także baterię oraz wersję oprogramowania radaru. Dwa nagrania z S24+ potwierdzają dekodowanie odległości i zagrożenia. Na postoju potwierdzono też odczyt ustawień i firmware. Prędkość, strona mijania i działanie alertów podczas jazdy wymagają dalszych prób na sprzęcie.
 
 ### Cele
 

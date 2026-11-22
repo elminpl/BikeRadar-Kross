@@ -1,10 +1,10 @@
 # Zrzuty nowych funkcji BikeRadar-Kross
 
-## Następna wersja
+## 1.12.2.k7
 
 Przykładowa sesja Krossa zakończona z 21 szacowanymi wyprzedzeniami. Wynik jest widoczny w historii przejazdów.
 
-<img src="screenshots/next/historia-kross.png" width="360" alt="Historia przejazdów z 21 szacowanymi wyprzedzeniami Krossa">
+<img src="screenshots/k7/historia-kross.png" width="360" alt="Historia przejazdów z 21 szacowanymi wyprzedzeniami Krossa">
 
 ## 1.12.2.k6
 

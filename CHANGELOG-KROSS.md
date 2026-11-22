@@ -21,6 +21,15 @@ Archiwum obejmuje 19 plików APK i 8 etapów funkcjonalnych, z czego 7 przypada 
 
 Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktualizowania GitHuba po kompilacji. Kolejna wersja aplikacji na bazie 1.12.2 otrzymała numer `k2`.
 
+## 1.12.2.k7
+
+- Skan BLE rozpoznaje zapamiętany Kross Echo Pro po adresie, także gdy ogłoszenie nie zawiera UUID usługi. Dziennik odnotowuje odbiór ogłoszenia przed próbą połączenia. Wybór innego radaru i ręczne rozłączenie nadal wstrzymują automatyczne łączenie z Krossem.
+- Historia przejazdów zapisuje dodatni wynik zakończonej sesji Krossa jako szacowane wyprzedzenia. Przy pierwszej ramce kolejnej sesji licznik startuje od zera. [Zrzut historii](docs/kross/SCREENSHOTS.md#1122k7)
+- Zaktualizowano Gradle do 9.9.1, Robolectric do 4.18, Roborazzi do 1.79.0 i `actions/setup-java` do 6.3.0. Cztery wcześniej nieudane testy uwzględniają specyfikę Krossa.
+- Przeszło 612 wybranych testów, w tym 214 z zestawu zrzutów i nakładki w UTC. Kompilacja debug i ktlint przeszły.
+- Do sprawdzenia na S24+ pozostają samoczynne połączenie po włączeniu radaru przy uruchomionej aplikacji oraz historia i reset licznika. Na radarze zalecany jest tryb ręczny z wyłączonym Auto ON/OFF.
+- Kod APK to **51**.
+
 ## 1.12.2.k6
 
 - Przeniesiono poprawki partymola [c34efc67](https://github.com/partymola/android-bike-radar-overlay/commit/c34efc67) i [a27ae3ea](https://github.com/partymola/android-bike-radar-overlay/commit/a27ae3ea). Początek jazdy liczy się od pierwszej ramki w statystykach Garmina. Alert Garmina nie zgłasza powtórnie tego samego wyprzedzenia po chwilowej zmianie położenia celu.
