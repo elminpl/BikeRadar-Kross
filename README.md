@@ -1,5 +1,10 @@
 # BikeRadar-Kross
 
+[![CI](https://github.com/elminpl/BikeRadar-Kross/actions/workflows/ci.yml/badge.svg?branch=feature%2Fkross-echo-pro)](https://github.com/elminpl/BikeRadar-Kross/actions/workflows/ci.yml)
+[![Wydanie testowe](https://img.shields.io/badge/pre--release-1.12.2.k6-blue)](https://github.com/elminpl/BikeRadar-Kross/releases/tag/kross-1.12.2.k6)
+[![Licencja](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)](https://github.com/elminpl/BikeRadar-Kross/blob/feature/kross-echo-pro/LICENSE)
+![Android 12+](https://img.shields.io/badge/android-12%2B-brightgreen)
+
 **Rozwijana wersja aplikacji Bike Radar Overlay z obsługą radaru rowerowego Kross Echo Pro przez Bluetooth Low Energy (BLE).**
 
 Projekt jest prywatną, niezależną modyfikacją [Bike Radar Overlay autorstwa partymola](https://github.com/partymola/android-bike-radar-overlay). Celem jest dodanie obsługi Kross Echo Pro bez pogorszenia kompatybilności z radarami Garmin. Nie jest to oficjalna aplikacja Kross ani wydanie oryginalnego autora.
