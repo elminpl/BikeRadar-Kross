@@ -2,6 +2,10 @@
 
 Bieżące prace prowadzą do 1.12.2.k7. Wyniki wdrożenia i ocena wykonalności z k6 pozostają poniżej jako odniesienie.
 
+## Tłumaczenie polskie
+
+Bazą jest polski plik zasobów z oryginalnego projektu partymola ([`b88fff07`](https://github.com/partymola/android-bike-radar-overlay/commit/b88fff07f05fc2eb9b600f60e85428ecda7fb633)). Przy kolejnych aktualizacjach porównuj go z angielskimi zasobami aktualnej gałęzi Krossa. Zachowuj tłumaczenia k7 dla funkcji dostępnych tylko w forku oraz tekst dopasowany do zachowania forka przy wspólnych kluczach o różnym znaczeniu.
+
 ## Priorytet
 
 - [x] **Najnowsze poprawki partymola.** Przed rozpoczęciem k6 sprawdzić, które poprawki z oryginalnego repozytorium są nowsze od aktualnej bazy forka. Wdrożyć brakujące poprawki, zapisać ich źródło w opisie wydania i sprawdzić w testach, czy Kross Echo Pro oraz Garmin V1/V2 nadal działają poprawnie.
