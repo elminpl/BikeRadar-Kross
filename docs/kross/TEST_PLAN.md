@@ -72,3 +72,9 @@ Cztery wcześniejsze niepowodzenia wynikały z założeń testów sprzed zmian K
 Kompilacja debug i ktlint przeszły. Pierwszy przebieg objął 441 testów, w tym 214 testów zestawu zrzutów i nakładki w UTC. Osobny przebieg objął 171 testów kontrolera BLE, dekodera i estymatora. Oba przebiegi zakończyły się bez błędów, a obrazy wzorcowe pozostały bez zmian.
 
 Podpisane APK k7 z commita `de2536b8` przeszło kompilację Release, kontrolę DEX (31 stałych w 9 typach enum) oraz kontrolę pakietu, kodu 51, obsługi ARM64 i zgodności certyfikatu z k6. Kopia na Dysku Google ma ten sam rozmiar co lokalne APK. Próby urządzenia pozostają otwarte.
+
+### Wybudzanie k7 z włączonym Auto ON/OFF
+
+Użytkownik zgłosił dwie próby, w których Echo Pro połączył się automatycznie zaraz po wybudzeniu. Przechwycenie k7 na S24+ z 22 listopada 2026 r., rozpoczęte o 17:04:18 czasu polskiego, obejmuje cztery sesje z telemetrią i trzy powroty strumienia. Pierwsze ramki po przerwach pojawiły się o 17:05:53, 17:07:04 i 17:08:30. Odstępy od ostatniej ramki poprzedniej sesji wyniosły odpowiednio 9,461 s, 11,589 s i 28,791 s. W czterech sesjach zapisano łącznie 1377 powiadomień FFE2, a maksymalny odstęp w ramach nieprzerwanej sesji wyniósł 326 ms.
+
+Przed udanymi powrotami wystąpiły rozłączenia GATT ze statusem 8, a przed trzecim powrotem również status 147. Po ostatniej sesji zapis kończy się dwiema nieudanymi próbami. W pliku nie ma czasu fizycznego wybudzenia ani wpisu o odebraniu ogłoszenia BLE, ponieważ ten trafia do dziennika połączeń. Z samego przechwycenia nie można więc zmierzyć czasu od wybudzenia ani odróżnić udanego wznowienia z automatycznej próby GATT od połączenia wywołanego przez skan.
