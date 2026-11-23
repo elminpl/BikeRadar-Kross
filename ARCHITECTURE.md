@@ -280,13 +280,13 @@ protocol is documented in the sibling `bike-radar-docs` repository.
 | `app/src/main/java/es/jjrh/bikeradar/ui/SystemRowVisibility.kt` | Pure `deviceLinkState` classifier - the ONE answer to "is this device delivering", read by the home card, both Settings surfaces and each device screen |
 | `app/src/main/java/es/jjrh/bikeradar/ui/DeviceStatusLabels.kt` | The ONE word per state per device, in both languages. Gender is why radar / camera / eBike each get their own mapping; English collapses all three, so nothing in the en strings shows a mismatch |
 | `app/src/main/java/es/jjrh/bikeradar/PermissionsSummaryDeriver.kt` | Pure permissions-row summary (all-granted / partial / action-needed) |
-| `app/src/main/java/es/jjrh/bikeradar/BatteryChipLevel.kt` | Pure battery derivations: `batteryIsLow` (shared by the chip and the overlay marker), the chip's colour band, and `lowBatterySlugs` |
+| `app/src/main/java/es/jjrh/bikeradar/BatteryChipLevel.kt` | Pure battery derivations: `batteryIsLow` (shared by the chip and the overlay marker), the chip's colour band, `lowBatterySlugs`, and `overlayBatterySlugs` (which low devices the overlay marks: the picked camera and the radar) |
 | `app/src/main/java/es/jjrh/bikeradar/RadarV2Decoder.kt` | V2 target-struct decoder (stateful) |
 | `app/src/main/java/es/jjrh/bikeradar/EnablingSequence.kt` | AMV 04 handshake; `DeviceVariant` selects rear-radar or front-camera UUID pair |
 | `app/src/main/java/es/jjrh/bikeradar/RadarOverlayView.kt` | Canvas overlay |
 | `app/src/main/java/es/jjrh/bikeradar/AlertCue.kt` | Pure mapping from an `AlertDecider` event to the cue it sounds; the ride, the debug overlay and the sound demo all go through it |
 | `app/src/main/java/es/jjrh/bikeradar/CuePlayer.kt` | The play-a-cue interface `AlertBeeper` implements, and `playCue`, the one place an `AlertCue` becomes a sound |
-| `app/src/main/java/es/jjrh/bikeradar/SoundDemo.kt` | The example ride's scripted scene, run through a fresh `AlertDecider` at default settings so it cannot teach a sound the ride would not make |
+| `app/src/main/java/es/jjrh/bikeradar/SoundDemo.kt` | The example ride's scripted scene, run through a fresh `AlertDecider` at the rider's alert distance from Settings and at the default one in onboarding, with every other setting at its default, so it cannot teach a sound the ride would not make |
 | `app/src/main/java/es/jjrh/bikeradar/ui/SoundDemoStep.kt` | The example ride screen (onboarding and Settings), its screen-scoped beeper, and the volume-key routing both sound screens share |
 | `app/src/main/java/es/jjrh/bikeradar/ui/AlertVolumeStep.kt` | The alert volume screen (onboarding and Settings) and the one Alert volume slider |
 | `app/src/main/java/es/jjrh/bikeradar/ui/SettingsAlertSounds.kt` | Settings -> Alerts -> Alert sounds: each cue with its meaning, playable while the radar is off |

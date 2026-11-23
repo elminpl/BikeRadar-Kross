@@ -84,6 +84,8 @@
          "desconectado"); aparece cuando ya ha sonado el aviso. -->
     <string name="overlay_radar_not_on">Sin radar trasero</string>
     <string name="overlay_radar_not_on_sub">¿Está encendido?</string>
+    <string name="overlay_battery_letter_radar">R</string>
+    <string name="overlay_battery_letter_dashcam">C</string>
 
     <!-- ════════════════════════════════════════════════════════════════
          Pantalla de inicio (MainScreen.kt, MainStatus.kt)
@@ -200,7 +202,7 @@
 
     <!-- Tarjeta de aviso de si tienes dashcam (flujos de primer uso). -->
     <string name="main_dashcam_prompt_title">¿Usas una cámara delantera?</string>
-    <string name="main_dashcam_prompt_body">La barra lateral muestra su batería y avisa cuando deja de emitir.</string>
+    <string name="main_dashcam_prompt_body">La barra lateral avisa si la cámara tiene poca batería o si el teléfono no la detecta.</string>
     <string name="main_dashcam_prompt_yes">Configurarla</string>
     <string name="main_dashcam_prompt_no">No tengo</string>
 
@@ -286,7 +288,7 @@
     <string name="onboarding_pair_dashcam_picked_fallback">Elegida</string>
     <string name="onboarding_pair_dashcam_picked_detail"><xliff:g id="name" example="Vue-123">%1$s</xliff:g> · <xliff:g id="mac" example="AB:CD:EF">%2$s</xliff:g></string>
     <string name="onboarding_pair_dashcam_pick_detail">Elige la cámara delantera que usas para activar los avisos de apagado.</string>
-    <string name="onboarding_pair_dashcam_unanswered_detail">¿Tienes una cámara delantera con Bluetooth? La barra lateral muestra su batería y avisa cuando deja de emitir.</string>
+    <string name="onboarding_pair_dashcam_unanswered_detail">¿Tienes una cámara delantera con Bluetooth? La barra lateral avisa si la cámara tiene poca batería o si el teléfono no la detecta.</string>
     <string name="onboarding_pair_change_device">Cambiar dispositivo</string>
     <string name="onboarding_pair_pick_device">Elegir dispositivo</string>
     <string name="onboarding_pair_dont_have_one">No tengo</string>
@@ -304,7 +306,7 @@
     <string name="onboarding_ebike_title">El estado de tu eBike</string>
     <string name="onboarding_ebike_sub">Muestra la batería y el estado de conexión de tu eBike durante la ruta - funciona junto con la app Bosch Flow.</string>
     <string name="onboarding_ebike_bullet_status">Batería y estado de la eBike en la pantalla de inicio</string>
-    <string name="onboarding_ebike_bullet_timing">El ritmo de los pitidos se ajusta a la velocidad de tu rueda</string>
+    <string name="onboarding_ebike_bullet_timing">Los pitidos se callan al parar y vuelven antes al ponerte en marcha</string>
     <string name="onboarding_ebike_bullet_no_radar">Un aviso si vas sin el radar encendido</string>
     <string name="onboarding_ebike_have_title">Tengo una</string>
     <string name="onboarding_ebike_have_sub">Enciéndela.</string>
@@ -441,7 +443,7 @@
     <string name="settings_radar_alert_volume_title">Volumen de los avisos</string>
     <string name="settings_radar_alert_volume_helper">Lo fuerte que suenan los avisos. Con 0 no suenan; la barra lateral se sigue viendo.</string>
     <string name="settings_radar_alert_distance_title">Distancia de alerta</string>
-    <string name="settings_radar_alert_distance_helper">Empieza a pitar cuando un vehículo está a esta distancia. Los vehículos más lejanos aparecen en la barra lateral pero sin sonido. Se ajusta a la velocidad de la bici cuando las alertas adaptativas están activadas.</string>
+    <string name="settings_radar_alert_distance_helper">Empieza a pitar cuando un vehículo está a esta distancia. Los vehículos más lejanos aparecen en la barra lateral pero sin sonido.</string>
     <string name="settings_radar_urgent_clearance_title">Holgura del aviso urgente</string>
     <string name="settings_radar_urgent_clearance_helper">El aviso urgente no suena si parece que un vehículo va a pasar a más de esta distancia del centro de tu bici. Increméntala para incluir también adelantamientos más holgados.</string>
     <string name="settings_radar_closing_ceiling_title">Avisar hasta</string>
@@ -478,9 +480,9 @@
     <string name="settings_radar_no_radar_warning_title">Avisar si vas sin el radar</string>
     <string name="settings_radar_no_radar_warning_subtitle">Con los datos de la eBike activados y Bosch Flow en segundo plano: si llevas <xliff:g id="seconds" example="90">%1$d</xliff:g> s en marcha sin el radar conectado, suenan 3 pulsos graves, hasta 3 veces, y aparece un aviso en la barra lateral.</string>
     <string name="settings_radar_low_battery_title">Umbral de batería baja</string>
-    <string name="settings_radar_low_battery_helper">Muestra un aviso ámbar junto al ciclista cuando cualquier dispositivo emparejado baja de este nivel.</string>
-    <string name="settings_radar_show_labels_title">Mostrar etiquetas de dispositivo</string>
-    <string name="settings_radar_show_labels_subtitle">Muestra \'RADAR 12%\' o \'CÁMARA 8%\' en pantalla en lugar de un cambio de color discreto.</string>
+    <string name="settings_radar_low_battery_helper">Muestra un aviso ámbar al pie de la barra lateral cuando la batería del radar o de la cámara está en este nivel o por debajo.</string>
+    <string name="settings_radar_show_labels_title">Identificar el dispositivo</string>
+    <string name="settings_radar_show_labels_subtitle">El aviso muestra una <xliff:g id="radar_letter" example="R">%1$s</xliff:g> para el radar y una <xliff:g id="dashcam_letter" example="C">%2$s</xliff:g> para la cámara. Con esta opción desactivada, verás un solo punto ámbar para cualquiera de los dos.</string>
     <string name="settings_radar_close_pass_title">Contar adelantamientos ajustados</string>
     <string name="settings_radar_close_pass_subtitle">Cuenta los adelantamientos que pasan demasiado cerca y los muestra en la pantalla de inicio y en tu historial de rutas.</string>
     <string name="settings_radar_close_pass_subtitle_ha">Cuenta los adelantamientos que pasan demasiado cerca; los muestra en la pantalla de inicio y en tu historial de rutas, y los envía a Home Assistant.</string>
@@ -504,7 +506,7 @@
     <string name="settings_radardev_pair_title">Empareja tu radar</string>
     <string name="settings_radardev_pair_subtitle">Pon el radar en modo de emparejamiento y luego emparéjalo en los ajustes de Bluetooth de Android.</string>
     <string name="settings_radardev_not_selected">No seleccionado</string>
-    <string name="settings_radardev_limited_source">Este radar solo mide la distancia. Tienes pitidos de aproximación y el aviso de carretera despejada, y los colores de la barra lateral muestran distancia en vez de velocidad. Sin aviso urgente, sin registro de adelantamientos ajustados y sin alarma si dejas el radar encendido. Con los datos de la eBike activados y Bosch Flow en segundo plano, el aviso de desconexión funciona desde la bici, como siempre; si no, solo suena si el radar seguía viendo tráfico detrás justo antes del corte.</string>
+    <string name="settings_radardev_limited_source">Este radar solo mide la distancia. Tienes pitidos de aproximación y el aviso de carretera despejada, y los colores de la barra lateral muestran distancia en vez de velocidad. Sin aviso urgente, sin registro de adelantamientos ajustados, sin recuento de los que te adelantan y sin alarma si dejas el radar encendido. Con los datos de la eBike activados y Bosch Flow en segundo plano, el aviso de desconexión funciona desde la bici, como siempre; si no, solo suena si el radar seguía viendo tráfico detrás justo antes del corte.</string>
     <string name="settings_radardev_choose_radar">Elige el radar de esta bici</string>
     <string name="settings_radardev_selected">Seleccionado</string>
     <string name="settings_radardev_tap_to_use">Toca para usar este radar</string>
@@ -608,7 +610,7 @@
     <string name="settings_ebike_open">Abrir</string>
     <string name="settings_ebike_what_it_does_label">Qué hace</string>
     <string name="settings_ebike_does_item_battery">Muestra la batería y el estado de conexión de la eBike en la pantalla de inicio</string>
-    <string name="settings_ebike_does_item_timing">Ajusta el ritmo de los pitidos a la velocidad de tu rueda</string>
+    <string name="settings_ebike_does_item_timing">Calla los pitidos al parar y los recupera antes al ponerte en marcha</string>
     <string name="settings_ebike_does_item_no_radar">Te avisa si vas sin el radar encendido</string>
     <string name="settings_ebike_whats_collected_label">Qué se recopila</string>
     <string name="settings_ebike_collected_item_reads">Lee la batería, la velocidad, el pedaleo y el estado de bloqueo: solo lectura, nunca envía órdenes a tu bici</string>
@@ -634,7 +636,7 @@
     <string name="settings_dashcam_change">Cambiar</string>
     <string name="settings_dashcam_behaviour_label">Comportamiento</string>
     <string name="settings_dashcam_warn_off">Avisar en la barra lateral cuando la cámara delantera está apagada</string>
-    <string name="settings_dashcam_warn_off_subtitle">Muestra un icono de cámara apagada junto al ciclista cuando el teléfono no detecta la cámara delantera.</string>
+    <string name="settings_dashcam_warn_off_subtitle">Muestra un icono de cámara apagada al pie de la barra lateral cuando el teléfono no detecta la cámara delantera.</string>
     <string name="settings_dashcam_walkaway_label">Alarma al alejarte</string>
     <string name="settings_dashcam_walkaway_alert">Avisar si la cámara sigue encendida</string>
     <string name="settings_dashcam_walkaway_alert_subtitle">Suena cuando el radar lleva desconectado el tiempo que elijas (30 s por defecto) y el teléfono sigue detectando la cámara delantera.\n• Usa el sonido de alarma del teléfono a todo volumen y vibra\n• Se repite cada 5 min hasta que la descartes. Se detiene si vuelve el radar o el teléfono deja de detectar la cámara\n• Sin el cambio automático día/noche de la luz de la cámara (Ajustes → Modo automático de luces), se detiene unos 15 min después de que se desconecte el radar\n• No suena si el radar se desconecta en marcha o en los 30 s siguientes a parar. Con un radar que solo mide la distancia, puede sonar en marcha\n• Con los datos de la eBike activados y Bosch Flow en segundo plano, sí suena si bloqueas la bici y te alejas enseguida, y no suena si la bici estaba sin bloquear cuando se desconectó el radar\n• Si suena la alarma del radar al alejarte (Ajustes → Alertas), esta no suena, y la del radar nombra la cámara si el teléfono la estaba detectando</string>
@@ -651,13 +653,13 @@
     <string name="settings_privacy_on_phone_approx_location">Si concedes la ubicación aproximada y usas el modo automático de luces, la app guarda una sola zona aproximada, de unos 11 km de norte a sur y menos de este a oeste, para que tus luces sigan el atardecer local en las rutas que empiezan con la app cerrada. Android solo deja leer tu ubicación mientras la app está abierta: al abrirla, al cambiar el modo automático de luces, la cámara delantera que usas o tus coordenadas, y cuando el radar o la cámara delantera se conectan. Cada lectura nueva sustituye a la anterior. Se guarda en el almacenamiento privado de la app, que ninguna otra app puede leer, y no está en tu copia de seguridad de Android ni en la transferencia directa entre teléfonos. Nunca va a Home Assistant ni a otras apps, ni aparece en ningún registro o paquete de diagnóstico. Se borra cuando introduces coordenadas o desactivas el modo automático de las dos luces, y la próxima vez que se inicie la app sin el permiso de ubicación. Desactivar la ubicación en los ajustes del teléfono no la borra.</string>
     <string name="settings_privacy_on_phone_creds">La URL de tu Home Assistant y el token residen en el mismo almacenamiento privado que tus ajustes y pasan al teléfono nuevo con tu copia de seguridad de Android (cifrada por Android con tu bloqueo de pantalla) y con la transferencia directa entre teléfonos, que no pasa por ningún servidor. No van a ningún otro sitio.</string>
     <string name="settings_privacy_on_phone_files">Algunos datos se guardan como archivos en la carpeta propia de la app en el teléfono: el historial de rutas, los registros de capturas, las capturas periódicas de pantalla, los informes de fallos y el registro de conexiones. A diferencia de tus ajustes, no viajan en tu copia de seguridad de Android ni en la transferencia directa entre teléfonos. Ninguna otra app puede abrirlos por su cuenta, pero se pueden copiar a un ordenador por USB.</string>
-    <string name="settings_privacy_on_phone_rides">Se guarda un breve historial de rutas (horas, distancia, recuentos de adelantamientos totales y ajustados, y a qué distancia y velocidad pasaron los vehículos más cercanos - sin ubicación, sin recorrido) en la carpeta propia de la app para la pantalla Historial de rutas. Las entradas más antiguas se descartan a partir de 200 rutas; no se comparte nada.</string>
+    <string name="settings_privacy_on_phone_rides">Se guarda un breve historial de rutas (horas, distancia, cuántos vehículos se detectaron detrás y, aproximadamente, cuántos te adelantaron, recuentos de adelantamientos ajustados, velocidades de aproximación, tiempo con tráfico detrás, avisos por km, y a qué distancia y velocidad pasaron los vehículos más cercanos, sin ubicación ni recorrido) en la carpeta propia de la app para la pantalla Historial de rutas. Las entradas más antiguas se descartan a partir de 200 rutas; no se comparte nada.</string>
     <string name="settings_privacy_on_phone_capture">El registro de capturas está desactivado por defecto. Si lo activas (pantalla de Depuración), la app registra cada ruta - paquetes del radar, notificaciones BLE, datos de la eBike de Bosch Flow, muestras de batería del teléfono, cuándo empieza o termina una llamada mientras otra app tiene oculta la barra lateral, y hacia qué lado y con qué brusquedad giras, de los sensores de movimiento (con Retener «Carretera despejada» en curvas activado al conectar el radar). Cada registro incluye la versión del firmware de tu radar. Con Registrar el inicio de la conexión activado, registra además los pasos de conexión, y el modelo y el número de serie de tu radar. No se registra la ubicación, pero tus giros y velocidades juntos pueden sugerir un recorrido. Los registros se quedan en tu teléfono (comprimidos con gzip para ahorrar espacio) y solo se comparten si tocas Compartir.</string>
     <string name="settings_privacy_on_phone_screenshots">Las capturas periódicas de pantalla están desactivadas por defecto. Si las activas en la pantalla de Depuración (Android te pide permiso para grabar la pantalla cada vez que lo haces), la app guarda una imagen de toda la pantalla cada minuto mientras el radar está conectado, aunque otra app haya ocultado la barra lateral. Cada imagen muestra la app que haya en pantalla, que puede revelar dónde estás. Solo se conservan las <xliff:g id="count" example="30">%1$d</xliff:g> más recientes, en la carpeta propia de la app, y la app nunca las comparte.</string>
     <string name="settings_privacy_on_phone_crashes">Si la app falla, se guarda un informe (versión de la app, hilo y traza del error; sin datos de rutas ni ubicación) en la carpeta propia de la app. Solo se comparte si tocas Compartir en la pantalla de Depuración o si copias el paquete de diagnóstico, que incluye el más reciente.</string>
     <string name="settings_privacy_on_phone_linklog">Se guarda un pequeño registro de conexiones (cuándo el radar, la cámara delantera, la eBike y el servicio de la app se conectaron, desconectaron o fallaron al conectar, además de eventos de la app del mismo tipo, como cuando suena el aviso de desconexión, cuando se ajusta la luz trasera del radar, o cuando le dices que la ruta ha terminado o silencias la alarma al alejarte; nombres de dispositivo, horas, qué ocurrió y, en un radar antiguo, cuántas lecturas envió y cuántas eran de un vehículo, sin ubicación y sin nada sobre dónde estaban esos vehículos) en la carpeta propia de la app para diagnóstico en la pantalla de Depuración, y se incluye en el paquete de diagnóstico si lo copias.</string>
     <string name="settings_privacy_to_ha_label">Qué va a tu Home Assistant</string>
-    <string name="settings_privacy_to_ha_publish">Si configuras HA, la app publica por MQTT, directamente a la URL de tu HA - nada pasa por el desarrollador ni por ningún tercero:\n• el nombre Bluetooth de tu radar y de tu cámara delantera, que Home Assistant usa para nombrar sus dispositivos y entidades\n• batería del radar y de la cámara delantera\n• modo de la luz delantera\n• eventos de inicio/fin de ruta\n• un resumen de la ruta, que se actualiza cada minuto durante la ruta (hora de inicio, distancia, recuentos de adelantamientos totales y ajustados, porcentaje de ajustados, velocidades de aproximación, holguras, tiempo con tráfico detrás, avisos por km y por hora, y el adelantamiento más ajustado: hora, lado, tamaño del vehículo, holgura, velocidad de aproximación y distancia por detrás)\n• un registro de adelantamientos ajustados por evento, si lo activas\n• Si activas el contador, se publican los recuentos y eventos de adelantamientos confirmados.</string>
+    <string name="settings_privacy_to_ha_publish">Si configuras HA, la app publica por MQTT, directamente a la URL de tu HA - nada pasa por el desarrollador ni por ningún tercero:\n• el nombre Bluetooth de tu radar y de tu cámara delantera, que Home Assistant usa para nombrar sus dispositivos y entidades\n• batería del radar y de la cámara delantera\n• modo de la luz delantera\n• eventos de inicio/fin de ruta\n• un resumen de la ruta, que se actualiza cada minuto durante la ruta (hora de inicio, distancia, cuántos vehículos se detectaron detrás y, aproximadamente, cuántos te adelantaron, recuentos de adelantamientos ajustados, porcentaje de adelantamientos ajustados sobre los vehículos detectados, velocidades de aproximación, holguras, tiempo con tráfico detrás, avisos por km y por hora, y el adelantamiento más ajustado: hora, lado, tamaño del vehículo, holgura, velocidad de aproximación y distancia por detrás)\n• un registro de adelantamientos ajustados por evento, si lo activas\n• Si activas el contador, se publican los recuentos y eventos de adelantamientos confirmados.</string>
     <string name="settings_privacy_to_ha_stop">Puedes dejar de publicar en cualquier momento tocando Borrar la configuración de HA en Ajustes → Home Assistant. Las credenciales guardadas se eliminan del teléfono de inmediato.</string>
     <string name="settings_privacy_to_apps_label">Compartir con otras apps</string>
     <string name="settings_privacy_to_apps_body">Otra app de este móvil puede pedir usar tu radar trasero, y no le llega nada hasta que digas que sí en una pantalla que la nombra. Lo que puede leer entonces es lo que informa el radar: vehículos detrás de ti, a qué distancia están y a qué velocidad se acercan, su distancia lateral, tu propia velocidad, de qué tipo es cada vehículo, si tu radar está conectado y su batería. Si además se lo permites, puede cambiar el modo de tu luz trasera y ocultar la barra lateral, y una barra lateral oculta sigue oculta, estés en esa app o en cualquier otra, salvo durante una llamada, porque entonces los avisos sonoros están desactivados. Mientras se lo permitas, una app recibe todo esto de forma continua durante la ruta, así que puede saber cuándo estás en la bici y cómo has pedaleado.\n\nEl traspaso ocurre en este dispositivo, de app a app, no por la red y sin pasar por el desarrollador. Lo que esa app haga después con ello depende de ella, así que permite solo apps en las que confíes.\n\nMira Ajustes, Apps con permiso para tu radar, para ver qué has permitido y para dejar de compartir. Esa lista se guarda en el almacenamiento privado de la app en Android y, como el resto de tus ajustes, viaja en la copia de seguridad de Android cuando la tienes activada, y en una transferencia directa entre móviles.</string>
@@ -726,13 +728,33 @@
     <string name="ride_history_title">Historial de rutas</string>
     <string name="ride_history_empty_title">Aún no hay rutas</string>
     <string name="ride_history_empty_body">Cada ruta aparece aquí unos minutos después de que el radar se apague. Todo se queda en tu teléfono.</string>
-    <plurals name="ride_history_overtakes">
-        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> adelantamiento</item>
-        <item quantity="other"><xliff:g id="count" example="48">%1$d</xliff:g> adelantamientos</item>
+    <!-- Línea de datos de la fila: "37 vehículos detectados detrás • unos 8
+         adelantamientos (1 ajustado) • mínimo 0,8 m". Cada tramo se coloca
+         entero, así que la línea se parte entre tramos, y dentro de uno solo
+         si por sí solo no cabe en la fila. -->
+    <plurals name="ride_history_detected">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> vehículo detectado detrás</item>
+        <item quantity="other"><xliff:g id="count" example="37">%1$d</xliff:g> vehículos detectados detrás</item>
     </plurals>
-    <plurals name="ride_history_close_passes">
+    <!-- El recuento aproximado de adelantamientos, con los ajustados dentro
+         (_close, con ride_history_close_in_passed como segundo argumento) o,
+         en una ruta que no contó los ajustados, solo. -->
+    <plurals name="ride_history_passed_close">
+        <item quantity="one">aprox. <xliff:g id="count" example="1">%1$d</xliff:g> adelantamiento (<xliff:g id="close" example="1 ajustado">%2$s</xliff:g>)</item>
+        <item quantity="other">unos <xliff:g id="count" example="8">%1$d</xliff:g> adelantamientos (<xliff:g id="close" example="1 ajustado">%2$s</xliff:g>)</item>
+    </plurals>
+    <plurals name="ride_history_passed">
+        <item quantity="one">aprox. <xliff:g id="count" example="1">%1$d</xliff:g> adelantamiento</item>
+        <item quantity="other">unos <xliff:g id="count" example="8">%1$d</xliff:g> adelantamientos</item>
+    </plurals>
+    <plurals name="ride_history_close_in_passed">
         <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> ajustado</item>
         <item quantity="other"><xliff:g id="count" example="3">%1$d</xliff:g> ajustados</item>
+    </plurals>
+    <!-- Los ajustados solos, para una ruta sin recuento de adelantamientos. -->
+    <plurals name="ride_history_close_passes">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> adelantamiento ajustado</item>
+        <item quantity="other"><xliff:g id="count" example="3">%1$d</xliff:g> adelantamientos ajustados</item>
     </plurals>
     <string name="ride_history_tightest">mínimo <xliff:g id="m" example="0,8">%1$s</xliff:g> m</string>
     <string name="ride_history_km_value"><xliff:g id="km" example="12,4">%1$s</xliff:g> km</string>
@@ -838,8 +860,13 @@
     <string name="notif_ride_summary_channel_name">Resúmenes de ruta</string>
     <string name="notif_ride_summary_channel_desc">Un repaso silencioso de cada ruta cuando el radar se apaga.</string>
     <string name="notif_ride_summary_title">Resumen de la ruta</string>
-    <string name="notif_ride_summary_text">Adelantamientos: <xliff:g id="overtakes" example="48">%1$d</xliff:g> • Ajustados: <xliff:g id="passes" example="2">%2$d</xliff:g> • <xliff:g id="km" example="12,4">%3$s</xliff:g> km</string>
-    <string name="notif_ride_summary_text_uncounted">Adelantamientos: <xliff:g id="overtakes" example="48">%1$d</xliff:g> • <xliff:g id="km" example="12,4">%2$s</xliff:g> km</string>
+    <!-- Los ajustados van primero, luego los km y al final los vehículos
+         detectados: la línea plegada se corta por el final y así se queda con
+         los ajustados y pierde antes los detectados. Los argumentos siguen en
+         el orden vehículos detectados, ajustados, km. -->
+    <string name="notif_ride_summary_text">Adelantamientos ajustados: <xliff:g id="passes" example="2">%2$d</xliff:g> • <xliff:g id="km" example="12,4">%3$s</xliff:g> km • Vehículos detectados detrás: <xliff:g id="overtakes" example="48">%1$d</xliff:g></string>
+    <string name="notif_ride_summary_text_uncounted"><xliff:g id="km" example="12,4">%2$s</xliff:g> km • Vehículos detectados detrás: <xliff:g id="overtakes" example="48">%1$d</xliff:g></string>
+    <string name="notif_ride_summary_passed">Adelantamientos: aprox. <xliff:g id="count" example="8">%1$d</xliff:g></string>
     <string name="notif_ride_summary_alerts">Alertas por km: <xliff:g id="rate" example="1,4">%1$s</xliff:g></string>
     <string name="notif_ride_summary_tightest">El más ajustado: <xliff:g id="m" example="0,8">%1$s</xliff:g> m a <xliff:g id="kmh" example="32">%2$d</xliff:g> km/h</string>
     <!-- Aviso de fin de ruta (bucket 3): compartido por la notificación de resumen y la tarjeta de inicio. -->
@@ -948,6 +975,7 @@
     <string name="sound_demo_caption_three">Muy cerca: 3 pitidos.</string>
     <string name="sound_demo_caption_clear">El radar ya no ve nada en tu distancia de alerta: «Carretera despejada».</string>
     <string name="sound_demo_caption_urgent">Se acerca rápido mientras estás parado o vas despacio: el aviso urgente (solo con radares que miden velocidad).</string>
+    <string name="sound_demo_alert_distance">Distancia de alerta: <xliff:g id="metres" example="20">%1$d</xliff:g> m</string>
     <string name="alert_volume_title">Ajusta el volumen de los avisos</string>
     <string name="alert_volume_sub">Reproduce un sonido de prueba mientras lo ajustas.</string>
     <string name="alert_alarm_volume_note">En esta pantalla también puedes cambiar el volumen de los avisos con los botones de volumen del móvil. Nota: para que los avisos te lleguen, usan el volumen de alarma del móvil, y tu despertador usa ese mismo volumen.</string>

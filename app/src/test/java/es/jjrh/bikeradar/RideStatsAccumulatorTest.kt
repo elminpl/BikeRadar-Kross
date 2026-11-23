@@ -21,13 +21,13 @@ class RideStatsAccumulatorTest {
     private fun acc(clock: FakeClock = FakeClock()) = RideStatsAccumulator(clock.provider, clock.provider)
 
     /** The close-pass closing floor at its 6 m/s default, for every test that
-     *  is not about the floor itself, with close-pass counting off. */
-    private fun RideStatsAccumulator.observeFrame(state: RadarState) = observeFrame(state, 6f, counting = false)
+     *  is not about the floor itself, with close-pass counting off and no turn. */
+    private fun RideStatsAccumulator.observeFrame(state: RadarState) = observeFrame(state, 6f, counting = false, turnState = TurnStateDecider.State.IDLE)
 
-    private fun RideStatsAccumulator.observeFrame(state: RadarState, closingFloorMs: Float) = observeFrame(state, closingFloorMs, counting = false)
+    private fun RideStatsAccumulator.observeFrame(state: RadarState, closingFloorMs: Float) = observeFrame(state, closingFloorMs, counting = false, turnState = TurnStateDecider.State.IDLE)
 
     /** A frame close-pass counting runs on. */
-    private fun RideStatsAccumulator.observeCountedFrame(state: RadarState) = observeFrame(state, 6f, counting = true)
+    private fun RideStatsAccumulator.observeCountedFrame(state: RadarState) = observeFrame(state, 6f, counting = true, turnState = TurnStateDecider.State.IDLE)
 
     private fun veh(
         id: Int,
@@ -1254,7 +1254,7 @@ class RideStatsAccumulatorTest {
         val stats = RideStatsAccumulator()
         val approaching = Vehicle(id = 1, distanceM = 12, speedMs = -6f, bornAtMs = 10L)
         fun frame(vararg vehicles: Vehicle, source: DataSource = DataSource.V2, enabled: Boolean = true) {
-            stats.observeFrame(RadarState(vehicles = vehicles.toList(), source = source, timestamp = 1L), 6f, false, enabled)
+            stats.observeFrame(RadarState(vehicles = vehicles.toList(), source = source, timestamp = 1L), 6f, false, countPassing = enabled)
         }
 
         frame(approaching, source = DataSource.KROSS)

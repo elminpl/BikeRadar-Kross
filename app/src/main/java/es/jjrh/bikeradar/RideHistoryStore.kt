@@ -104,6 +104,8 @@ internal class RideHistoryStore(
 internal data class RideHistoryRecord(
     val startedAtMs: Long,
     val endedAtMs: Long,
+    /** Vehicles detected behind, stored under the key `overtakes` that every
+     *  ride already on disk holds. */
     val overtakes: Int,
     val closePasses: Int,
     val grazingPasses: Int,
@@ -126,6 +128,10 @@ internal data class RideHistoryRecord(
     val closePassesCounted: Boolean? = null,
     val passingCount: Int? = null,
     val estimatedPassingCount: Int? = null,
+    /** The approximate count of vehicles that passed the rider; null on a
+     *  radar with no lateral channel and on records stored before the app
+     *  kept it, which show no passed figure. */
+    val vehiclesPassed: Int? = null,
 ) {
     fun toJsonLine(): String = JSONObject()
         .put("v", SCHEMA_VERSION)
@@ -147,6 +153,7 @@ internal data class RideHistoryRecord(
         .putOpt("tightest_kmh", tightestPassClosingKmh)
         .apply { if (partial) put("partial", true) }
         .putOpt(COUNTED_KEY, closePassesCounted)
+        .putOpt(PASSED_KEY, vehiclesPassed)
         .toString()
 
     companion object {
@@ -162,6 +169,7 @@ internal data class RideHistoryRecord(
         const val SCHEMA_VERSION = 2
 
         private const val COUNTED_KEY = "close_passes_counted"
+        private const val PASSED_KEY = "vehicles_passed"
 
         fun krossSession(startedAtMs: Long, endedAtMs: Long, count: Int): RideHistoryRecord = RideHistoryRecord(
             startedAtMs = startedAtMs,
@@ -199,6 +207,7 @@ internal data class RideHistoryRecord(
             tightestPassClearanceM = snap.tightestPass?.clearanceM,
             tightestPassClosingKmh = snap.tightestPass?.closingKmh,
             closePassesCounted = snap.closePassesCounted,
+            vehiclesPassed = snap.vehiclesPassed,
         )
 
         /** Parse one stored line; null for blank or corrupt lines. */
@@ -225,6 +234,7 @@ internal data class RideHistoryRecord(
                     tightestPassClosingKmh = o.optIntOrNull("tightest_kmh"),
                     partial = o.optBoolean("partial", false),
                     closePassesCounted = if (o.has(COUNTED_KEY) && !o.isNull(COUNTED_KEY)) o.getBoolean(COUNTED_KEY) else null,
+                    vehiclesPassed = o.optIntOrNull(PASSED_KEY),
                 )
             } catch (_: Throwable) {
                 null

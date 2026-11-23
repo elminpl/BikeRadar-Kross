@@ -630,7 +630,10 @@ class Prefs(context: Context) {
      *  stricter mid-turn bar in [es.jjrh.bikeradar.BornCloseGate]: a vehicle
      *  first seen close behind can then earn its beep on closing a turn
      *  produced. Pinned by
-     *  `OverlayPipelineDrivingTest.theCornerSettingAlsoGovernsTheCloseBehindFilter`. */
+     *  `OverlayPipelineDrivingTest.theCornerSettingAlsoGovernsTheCloseBehindFilter`.
+     *  The setting and TURNING also shape the ride's passed count, through the
+     *  ride statistics' own copy of that filter
+     *  (`theCornerSettingAlsoGovernsWhichCarsFirstSeenCloseArePassed`). */
     var turnAwareAlertsEnabled: Boolean
         get() = sp.getBoolean(KEY_TURN_AWARE_ALERTS, true)
         set(v) {
@@ -1292,8 +1295,7 @@ class Prefs(context: Context) {
          *  source: the getter below and the Compose default both read it. */
         const val DEFAULT_BATTERY_LOW_THRESHOLD_PCT = 20
 
-        /** The alert distance an untouched install runs at. The single source:
-         *  the getter below and the sound demo's scene both read it. */
+        /** The alert distance an untouched install runs at. */
         const val DEFAULT_ALERT_MAX_DISTANCE_M = 20
 
         /** The alert distance slider's range, and the clamp on [alertMaxDistanceM]. */

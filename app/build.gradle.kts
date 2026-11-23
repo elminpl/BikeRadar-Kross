@@ -158,8 +158,8 @@ android {
         manifestPlaceholders["radarPermission"] = "es.jjrh.bikeradar.permission.RADAR"
         minSdk = 31
         targetSdk = 36
-        versionCode = 44
-        versionName = "1.12.2"
+        versionCode = 45
+        versionName = "1.13.0"
 
         // Empty by default so no HA bearer token is ever baked into a
         // release (or any non-debug) APK's DEX. The debug buildType below
@@ -248,7 +248,6 @@ android {
             signingConfig = release ?: signingConfigs.getByName("debug")
             if (krossSideBySide) {
                 applicationIdSuffix = ".kross"
-                versionNameSuffix = ".k${krossVersion.get().getProperty("revision").toInt()}"
                 // Android also requires a unique permission owner when both APKs are installed.
                 manifestPlaceholders["radarPermission"] = "es.jjrh.bikeradar.kross.permission.RADAR"
                 signingConfig = signingConfigs.getByName("debug")
@@ -355,7 +354,12 @@ androidComponents {
     onVariants(selector().withBuildType("release")) { variant ->
         if (krossSideBySide) {
             val versionCode = krossVersion.get().getProperty("androidVersionCode").toInt()
-            variant.outputs.forEach { it.versionCode.set(versionCode) }
+            val revision = krossVersion.get().getProperty("revision").toInt()
+            val versionName = "${requireNotNull(android.defaultConfig.versionName).removeSuffix(".0")}.k$revision"
+            variant.outputs.forEach {
+                it.versionCode.set(versionCode)
+                it.versionName.set(versionName)
+            }
         }
     }
 }

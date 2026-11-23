@@ -21,6 +21,14 @@ Archiwum obejmuje 19 plików APK i 8 etapów funkcjonalnych, z czego 7 przypada 
 
 Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktualizowania GitHuba po kompilacji. Kolejna wersja aplikacji na bazie 1.12.2 otrzymała numer `k2`.
 
+## 1.13.k7
+
+- Połączono kod [Bike Radar Overlay v1.13.0](https://github.com/partymola/android-bike-radar-overlay/releases/tag/v1.13.0) z gałęzią Krossa. Zachowano rewizję k7 zgodnie z przyjętą nazwą wydania. Kod APK zwiększono do **52**, żeby można było zaktualizować `1.12.2.k7`.
+- Przeniesiono poprawki ostrzeżeń o baterii i wyłączonej kamerze, opisów ustawień oraz podglądu alertu dostosowanego do ustawionej odległości.
+- Dodano z oryginału osobne statystyki pojazdów wykrytych z tyłu i pojazdów, które według Garmina minęły rower. Zachowano licznik potwierdzonych wyprzedzeń Garmina oraz szacowanie i historię Krossa z k7. Dotychczasowe pola Home Assistant mają te same klucze.
+- Polskie zasoby oparto na pliku partymola z v1.13.0, z zachowaniem napisów właściwych dla forka.
+- Debug, ktlint i Roborazzi w UTC przeszły. Pełny przebieg objął 4137 testów, z czego 4136 przeszło, a jeden pominięto. Próby na fizycznych radarach pozostają do wykonania. [Zrzuty](docs/kross/SCREENSHOTS.md#113k7)
+
 ## 1.12.2.k7
 
 - Skan BLE rozpoznaje zapamiętany Kross Echo Pro po adresie, także gdy ogłoszenie nie zawiera UUID usługi. Dziennik odnotowuje odbiór ogłoszenia przed próbą połączenia. Wybór innego radaru i ręczne rozłączenie nadal wstrzymują automatyczne łączenie z Krossem.

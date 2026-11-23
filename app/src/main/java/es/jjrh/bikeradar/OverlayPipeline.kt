@@ -217,6 +217,14 @@ internal class OverlayPipeline(
                         // Read once: the ride figure and the detector below use the same floor.
                         val closingFloorMs = prefs.closePassClosingSpeedFloorMs.toFloat()
                         val countingEnabled = prefs.closePassLoggingEnabled
+                        // Read once too: the ride figure's ghost filter and the
+                        // decider's judge a car on the same turn
+                        // (`theCornerSettingAlsoGovernsWhichCarsFirstSeenCloseArePassed`).
+                        val turn = if (newFrame && overlayPrefs.turnAwareAlertsEnabled) {
+                            turnState()
+                        } else {
+                            TurnStateDecider.State.IDLE
+                        }
                         // Ride statistics run paused or not
                         // (`rideStatisticsStillRunWhilePaused`).
                         if (newFrame && state.source != DataSource.KROSS) {
@@ -225,7 +233,7 @@ internal class OverlayPipeline(
                             val counting = countingEnabled && state.source.hasLateral && state.bikeSpeedMs != null
                             val stats = rideStats()
                             val before = stats.passingCount ?: 0
-                            stats.observeFrame(state, closingFloorMs, counting, countPassing = prefs.passingCountEnabled)
+                            stats.observeFrame(state, closingFloorMs, counting, turn, countPassing = prefs.passingCountEnabled)
                             val after = stats.passingCount
                             ClosePassStateBus.setPassingCount(after)
                             if (after != null && after > before && ha().isConfigured()) {
@@ -301,7 +309,13 @@ internal class OverlayPipeline(
                             nowMs = now,
                             staleAfterMs = BikeRadarService.BATTERY_STALE_MS,
                         )
-                        view.setBatteryLow(lowSlugs, prefs.batteryShowLabels)
+                        val table = macToSlug()
+                        val radarSlugs = listOfNotNull(currentRadarMac(), prefs.radarMac)
+                            .mapNotNullTo(HashSet()) { table[it] ?: table[it.uppercase(Locale.ROOT)] }
+                        view.setBatteryLow(
+                            overlayBatterySlugs(lowSlugs, batteries, dashcamSlug, radarSlugs),
+                            prefs.batteryShowLabels,
+                        )
 
                         if (state.source == DataSource.KROSS) {
                             if (krossStartedAtMs == null) {
@@ -327,7 +341,7 @@ internal class OverlayPipeline(
                             return@collect
                         }
                         if (!prefs.isPaused) {
-                            if (newFrame) fireAlertCue(state, alerts, overlayPrefs, nowMono, now)
+                            if (newFrame) fireAlertCue(state, alerts, overlayPrefs, nowMono, now, turn)
                         } else {
                             alerts.reset()
                         }
@@ -348,7 +362,6 @@ internal class OverlayPipeline(
                             closingSpeedFloorMs = closingFloorMs,
                             emitMinRangeXM = prefs.closePassEmitMinRangeXM,
                         )
-                        val table = macToSlug()
                         val radarMac = currentRadarMac()
                         val radarSlug = radarMac?.let { table[it] ?: table[it.uppercase(Locale.ROOT)] }
                         if (cpCfg.enabled && ha().isConfigured() && !closePassDiscoveryPublished && !closePassDiscoveryInFlight && radarSlug != null) {
@@ -459,6 +472,7 @@ internal class OverlayPipeline(
         overlayPrefs: PrefsSnapshot,
         nowMonoMs: Long,
         nowWallMs: Long,
+        turn: TurnStateDecider.State,
     ) {
         val snap = ebike.snapshot()
         val preferredBikeSpeedMs = snap?.speedRaw?.let { it / 360f } ?: state.bikeSpeedMs
@@ -471,11 +485,7 @@ internal class OverlayPipeline(
             bikeNotDriving = snap?.bikeNotDriving,
             urgentLowSpeedEnabled = overlayPrefs.urgentLowSpeedEnabled,
             urgentUnconfidentWaitEnabled = overlayPrefs.urgentUnconfidentWaitEnabled,
-            turnState = if (overlayPrefs.turnAwareAlertsEnabled) {
-                turnState()
-            } else {
-                TurnStateDecider.State.IDLE
-            },
+            turnState = turn,
             passClearanceM = overlayPrefs.urgentPassClearanceM,
             closingCeilingMs = closingCeilingMs,
         )

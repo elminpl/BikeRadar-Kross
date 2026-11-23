@@ -1,5 +1,11 @@
 # Zrzuty nowych funkcji BikeRadar-Kross
 
+## 1.13.k7
+
+Przykładowa historia pokazuje oddzielnie pojazdy wykryte z tyłu i potwierdzone wyprzedzenia Garmina.
+
+<img src="screenshots/113k7/historia-garmin.png" width="360" alt="Historia przejazdu z oddzielnym licznikiem wykrytych pojazdów i potwierdzonych wyprzedzeń">
+
 ## 1.12.2.k7
 
 Przykładowa sesja Krossa zakończona z 21 szacowanymi wyprzedzeniami. Wynik jest widoczny w historii przejazdów.

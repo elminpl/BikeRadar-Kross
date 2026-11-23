@@ -101,6 +101,11 @@
          the radar may be on but held by another app or device. -->
     <string name="overlay_radar_not_on">No rear radar</string>
     <string name="overlay_radar_not_on_sub">Is it on?</string>
+    <!-- The single letters the overlay's low-battery warning draws for the radar
+         and the dashcam. settings_radar_show_labels_subtitle formats both in, so
+         it needs no edit, but check it still reads right when a letter changes. -->
+    <string name="overlay_battery_letter_radar">R</string>
+    <string name="overlay_battery_letter_dashcam">D</string>
 
     <!-- ════════════════════════════════════════════════════════════════
          Home screen (MainScreen.kt, MainStatus.kt)
@@ -245,7 +250,7 @@
 
     <!-- Dashcam-ownership prompt card (first-run flows). -->
     <string name="main_dashcam_prompt_title">Do you run a dashcam?</string>
-    <string name="main_dashcam_prompt_body">The overlay shows its battery and flags when it stops broadcasting.</string>
+    <string name="main_dashcam_prompt_body">The overlay warns when the dashcam\'s battery is low or your phone can\'t pick it up.</string>
     <string name="main_dashcam_prompt_yes">Set it up</string>
     <string name="main_dashcam_prompt_no">I don\'t have one</string>
 
@@ -342,7 +347,7 @@
     <string name="onboarding_pair_dashcam_picked_fallback">Picked</string>
     <string name="onboarding_pair_dashcam_picked_detail"><xliff:g id="name" example="Vue-123">%1$s</xliff:g> · <xliff:g id="mac" example="AB:CD:EF">%2$s</xliff:g></string>
     <string name="onboarding_pair_dashcam_pick_detail">Pick the dashcam you ride with to enable off-warnings.</string>
-    <string name="onboarding_pair_dashcam_unanswered_detail">Got a Bluetooth dashcam? The overlay shows its battery and flags when it stops broadcasting.</string>
+    <string name="onboarding_pair_dashcam_unanswered_detail">Got a Bluetooth dashcam? The overlay warns when the dashcam\'s battery is low or your phone can\'t pick it up.</string>
     <string name="onboarding_pair_change_device">Change device</string>
     <string name="onboarding_pair_pick_device">Pick device</string>
     <string name="onboarding_pair_dont_have_one">I don\'t have one</string>
@@ -360,7 +365,7 @@
     <string name="onboarding_ebike_title">Your eBike status</string>
     <string name="onboarding_ebike_sub">Show your eBike battery and connection status while you ride - works alongside the Bosch Flow app.</string>
     <string name="onboarding_ebike_bullet_status">eBike battery and status on the home screen</string>
-    <string name="onboarding_ebike_bullet_timing">Beep timing scales with your wheel speed</string>
+    <string name="onboarding_ebike_bullet_timing">Beeps pause at a stop and come back sooner when you set off</string>
     <string name="onboarding_ebike_bullet_no_radar">A warning if you ride without the radar on</string>
     <string name="onboarding_ebike_have_title">I have one</string>
     <string name="onboarding_ebike_have_sub">Turn it on.</string>
@@ -500,7 +505,7 @@
          and both radar pulses. The walk-away alarm has its own volume. -->
     <string name="settings_radar_alert_volume_helper">How loud the alert sounds are. At 0 they are silent; the overlay still shows.</string>
     <string name="settings_radar_alert_distance_title">Alert distance</string>
-    <string name="settings_radar_alert_distance_helper">Start beeping when a vehicle is this close. Vehicles farther away appear on the overlay but stay silent. Scaled by bike speed when adaptive alerts are on.</string>
+    <string name="settings_radar_alert_distance_helper">Start beeping when a vehicle is this close. Vehicles farther away appear on the overlay but stay silent.</string>
     <string name="settings_radar_urgent_clearance_title">Urgent warning clearance</string>
     <string name="settings_radar_urgent_clearance_helper">The urgent warning stays quiet when a vehicle looks set to clear the middle of your bike by more than this. Raise it to include wider passes too.</string>
     <!-- Closing-speed cut-off: above it a target gets no beep and no urgent
@@ -549,9 +554,11 @@
          interval, longer beyond it (RadarLinkCoordinator.noRadarGraceMs). -->
     <string name="settings_radar_no_radar_warning_subtitle">With eBike data on and Bosch Flow running: <xliff:g id="seconds" example="90">%1$d</xliff:g> seconds into a ride with no radar connected, you hear three low pulses, up to three times, and see a warning on the overlay.</string>
     <string name="settings_radar_low_battery_title">Low-battery threshold</string>
-    <string name="settings_radar_low_battery_helper">Show an amber warning beside the rider when any paired device drops below this level.</string>
-    <string name="settings_radar_show_labels_title">Show device labels</string>
-    <string name="settings_radar_show_labels_subtitle">Show \'RADAR 12%\' or \'DASHCAM 8%\' on screen instead of a silent warning tint.</string>
+    <string name="settings_radar_low_battery_helper">Show an amber warning at the bottom of the overlay when the radar or dashcam battery is at this level or lower.</string>
+    <string name="settings_radar_show_labels_title">Show which device is low</string>
+    <!-- The arguments are the two letters the overlay draws
+         (overlay_battery_letter_radar, overlay_battery_letter_dashcam). -->
+    <string name="settings_radar_show_labels_subtitle">The warning shows <xliff:g id="radar_letter" example="R">%1$s</xliff:g> for the radar and <xliff:g id="dashcam_letter" example="D">%2$s</xliff:g> for the dashcam. With this off, one amber dot stands for either.</string>
     <string name="settings_radar_close_pass_title">Count close passes</string>
     <string name="settings_radar_close_pass_subtitle">Count overtakes that squeeze past too close - on the home screen and in your ride history.</string>
     <string name="settings_radar_close_pass_subtitle_ha">Count overtakes that squeeze past too close - on the home screen, in your ride history, and sent to Home Assistant.</string>
@@ -575,7 +582,7 @@
     <string name="settings_radardev_pair_title">Pair your radar</string>
     <string name="settings_radardev_pair_subtitle">Put the radar in pair mode, then pair it in Android\'s Bluetooth settings.</string>
     <string name="settings_radardev_not_selected">Not selected</string>
-    <string name="settings_radardev_limited_source">This radar reports distance only. You get approach beeps and the all-clear, and the overlay colours show distance rather than speed. No urgent warning, no close-pass logging, and no alarm for a radar left on. With eBike data on and Bosch Flow running, the drop alert works from the bike as before; otherwise it sounds only if the radar was still seeing traffic behind you shortly before the link died.</string>
+    <string name="settings_radardev_limited_source">This radar reports distance only. You get approach beeps and the all-clear, and the overlay colours show distance rather than speed. No urgent warning, no close-pass logging, no count of vehicles that passed you, and no alarm for a radar left on. With eBike data on and Bosch Flow running, the drop alert works from the bike as before; otherwise it sounds only if the radar was still seeing traffic behind you shortly before the link died.</string>
     <string name="settings_radardev_choose_radar">Choose this bike\'s radar</string>
     <string name="settings_radardev_selected">Selected</string>
     <string name="settings_radardev_tap_to_use">Tap to use this radar</string>
@@ -685,7 +692,7 @@
     <string name="settings_ebike_open">Open</string>
     <string name="settings_ebike_what_it_does_label">What it does</string>
     <string name="settings_ebike_does_item_battery">Shows eBike battery and connection status on the home screen</string>
-    <string name="settings_ebike_does_item_timing">Scales beep timing to your wheel speed</string>
+    <string name="settings_ebike_does_item_timing">Pauses beeps at a stop and brings them back sooner when you set off</string>
     <string name="settings_ebike_does_item_no_radar">Warns you if you ride without the radar on</string>
     <string name="settings_ebike_whats_collected_label">What\'s collected</string>
     <string name="settings_ebike_collected_item_reads">Reads battery, speed, pedalling and lock state: read-only, never sends a command to your bike</string>
@@ -711,7 +718,7 @@
     <string name="settings_dashcam_change">Change</string>
     <string name="settings_dashcam_behaviour_label">Behaviour</string>
     <string name="settings_dashcam_warn_off">Warn on overlay when dashcam is off</string>
-    <string name="settings_dashcam_warn_off_subtitle">Show a camera-off icon next to the rider when your phone can\'t pick up the dashcam.</string>
+    <string name="settings_dashcam_warn_off_subtitle">Show a camera-off icon at the bottom of the overlay when your phone can\'t pick up the dashcam.</string>
     <string name="settings_dashcam_walkaway_label">Walk-away alarm</string>
     <string name="settings_dashcam_walkaway_alert">Alert if the dashcam is still on</string>
     <!-- The 15 min is IdleGate.DASHCAM_POST_DISCONNECT_WINDOW_MS, after which
@@ -734,13 +741,13 @@
     <string name="settings_privacy_on_phone_approx_location">If you grant approximate location and use light auto-mode, the app keeps one rough area, about 11 km north to south and narrower east to west, so your lights follow local sunset on rides that start with the app closed. Android lets the app read your location only while the app is open: when you open it, when you change light auto-mode, the dashcam you use or your coordinates, and when your radar or dashcam connects. Each new reading replaces it. It is kept in Android\'s app-private storage, which no other app can read, and is not in your Android backup or the phone-to-phone transfer. It never goes to Home Assistant or to other apps, and never appears in any log or diagnostic bundle. It is deleted when you enter coordinates or turn light auto-mode off for both lights, and the next time the app starts without its location permission. Turning off Location in your phone\'s settings does not delete it.</string>
     <string name="settings_privacy_on_phone_creds">Your Home Assistant URL and token live in the same app-private storage as your settings and move to a new phone with your Android backup (encrypted by Android with your screen lock) and the direct phone-to-phone transfer, which never touches a server. They go nowhere else.</string>
     <string name="settings_privacy_on_phone_files">Some data is kept as files in the app\'s own folder on the phone: ride history, capture logs, periodic screenshots, crash reports and the connection log. Unlike your settings, these files are left out of your Android backup and the phone-to-phone transfer. Other apps can\'t open them on their own, but they can be copied to a computer over USB.</string>
-    <string name="settings_privacy_on_phone_rides">A short ride history (ride times, distance, overtake and close-pass counts, and how close and how fast the closest passes were - no location, no route) is kept in the app\'s own folder for the Ride history screen. The oldest entries are dropped after 200 rides; nothing is shared.</string>
+    <string name="settings_privacy_on_phone_rides">A short ride history (ride times, distance, how many vehicles were detected behind you and roughly how many passed you, close-pass counts, closing speeds, time with traffic behind you, alerts per km, and how close and how fast the closest passes were, with no location and no route) is kept in the app\'s own folder for the Ride history screen. The oldest entries are dropped after 200 rides; nothing is shared.</string>
     <string name="settings_privacy_on_phone_capture">Capture logging is off by default. Turn it on (Debug screen) and the app records each ride - radar packets, BLE notifications, eBike data from Bosch Flow, phone-battery samples, when a call starts or ends while another app has the overlay hidden, and which way and how sharply you turn, from the phone\'s motion sensors (when \"Hold the all-clear in corners\" was on as your radar connected). Every log records your radar\'s firmware version. With \"Record connection setup\" on, it also records the connection steps, plus your radar\'s model and serial number. No location is recorded, but your turns and speeds together can suggest a route. Logs stay on your phone (gzipped to save space) and are shared only if you tap Share.</string>
     <string name="settings_privacy_on_phone_screenshots">Periodic screenshots are off by default. Turn them on from the Debug screen (Android asks you to allow screen recording each time you do) and the app saves a picture of the whole screen once a minute while your radar is connected, even if another app has hidden the overlay. Each picture shows whatever app is on screen, which can reveal where you are. Only the newest <xliff:g id="count" example="30">%1$d</xliff:g> are kept, in the app\'s own folder, and the app never shares them.</string>
     <string name="settings_privacy_on_phone_crashes">If the app crashes, a report (app version, thread, stack trace - no ride data, no location) is kept in the app\'s own folder. It is shared only if you tap Share on the Debug screen, or copy the diagnostic bundle, which carries the newest one.</string>
     <string name="settings_privacy_on_phone_linklog">A small connection log (when the radar, dashcam, eBike and the app\'s service connected, disconnected or failed to connect, plus app events of the same kind, such as the drop alert sounding, the radar tail light being set, or you telling the app a ride is over or silencing the walk-away alarm; device names, times, what happened, and on an older radar a count of the readings it sent and how many reported a vehicle, no location and nothing about where those vehicles were) is kept in the app\'s own folder for troubleshooting on the Debug screen, and it goes with the diagnostic bundle if you copy that.</string>
     <string name="settings_privacy_to_ha_label">What goes to your Home Assistant</string>
-    <string name="settings_privacy_to_ha_publish">If you set up HA, the app publishes over MQTT, straight to your HA URL - nothing routed through the developer or any third party:\n• your radar\'s and dashcam\'s Bluetooth names, which Home Assistant uses to name their devices and entities\n• radar and dashcam battery\n• front-light mode\n• ride start/end events\n• a ride summary, updated every minute during the ride (start time, distance, overtake and close-pass counts, the close-pass rate, closing speeds, clearances, time with traffic behind you, alerts per km and per hour, and the tightest pass: time, side, vehicle size, clearance, closing speed and distance behind)\n• a per-event close-pass log, if you turn it on\n• Confirmed passing counts and events are published if you enable the counter.</string>
+    <string name="settings_privacy_to_ha_publish">If you set up HA, the app publishes over MQTT, straight to your HA URL - nothing routed through the developer or any third party:\n• your radar\'s and dashcam\'s Bluetooth names, which Home Assistant uses to name their devices and entities\n• radar and dashcam battery\n• front-light mode\n• ride start/end events\n• a ride summary, updated every minute during the ride (start time, distance, how many vehicles were detected behind you and roughly how many passed you, close-pass counts, the close-pass rate per vehicle detected, closing speeds, clearances, time with traffic behind you, alerts per km and per hour, and the tightest pass: time, side, vehicle size, clearance, closing speed and distance behind)\n• a per-event close-pass log, if you turn it on\n• Confirmed passing counts and events are published if you enable the counter.</string>
     <string name="settings_privacy_to_ha_stop">You can stop publishing at any time by tapping Clear HA configuration in Settings → Home Assistant. Stored credentials are removed from the phone immediately.</string>
     <string name="settings_privacy_to_apps_label">Sharing with other apps</string>
     <string name="settings_privacy_to_apps_body">Another app on this phone can ask to use your rear radar, and nothing reaches it until you say yes on a screen naming the app. What it can then read is what the radar reports: vehicles behind you, how far away and how fast they are closing, how far to your side they sit, your own speed, what type each vehicle is, whether your radar is connected, and its battery. If you also allow it, it can change your tail light mode and hide the overlay, and a hidden overlay stays hidden while you are in that app or any other, except during a call, since the alert sounds are off then. While you allow it, an app receives all of this continuously as you ride, so it can tell when you are out on the bike and how you rode.\n\nThe handover happens on this device, app to app, not over the network and not through the developer. What the other app does with it afterwards is up to that app, so only allow one you trust.\n\nSee Settings, Apps allowed to use your radar, for what you have allowed and to stop any of it. That list is kept in Android\'s app-private storage, and like your other settings it travels in your Android backup when you have it turned on, and in a direct phone-to-phone transfer.</string>
@@ -809,10 +816,30 @@
     <string name="ride_history_title">Ride history</string>
     <string name="ride_history_empty_title">No rides yet</string>
     <string name="ride_history_empty_body">Each ride lands here a few minutes after the radar powers down. Everything stays on your phone.</string>
-    <plurals name="ride_history_overtakes">
-        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> overtake</item>
-        <item quantity="other"><xliff:g id="count" example="48">%1$d</xliff:g> overtakes</item>
+    <!-- The row's stats line, "37 vehicles detected behind • about 8 passed you
+         (1 close) • tightest 0.8 m". Each segment is laid out whole, so a line
+         breaks between segments first, and inside one only if it alone is
+         wider than the row. -->
+    <plurals name="ride_history_detected">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> vehicle detected behind</item>
+        <item quantity="other"><xliff:g id="count" example="37">%1$d</xliff:g> vehicles detected behind</item>
     </plurals>
+    <!-- The approximate passed count, with the close passes nested in it
+         (_close, the second argument being ride_history_close_in_passed) or,
+         on a ride that did not count close passes, alone. -->
+    <plurals name="ride_history_passed_close">
+        <item quantity="one">about <xliff:g id="count" example="1">%1$d</xliff:g> passed you (<xliff:g id="close" example="1 close">%2$s</xliff:g>)</item>
+        <item quantity="other">about <xliff:g id="count" example="8">%1$d</xliff:g> passed you (<xliff:g id="close" example="1 close">%2$s</xliff:g>)</item>
+    </plurals>
+    <plurals name="ride_history_passed">
+        <item quantity="one">about <xliff:g id="count" example="1">%1$d</xliff:g> passed you</item>
+        <item quantity="other">about <xliff:g id="count" example="8">%1$d</xliff:g> passed you</item>
+    </plurals>
+    <plurals name="ride_history_close_in_passed">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> close</item>
+        <item quantity="other"><xliff:g id="count" example="3">%1$d</xliff:g> close</item>
+    </plurals>
+    <!-- Close passes on their own, for a ride with no passed figure. -->
     <plurals name="ride_history_close_passes">
         <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> close pass</item>
         <item quantity="other"><xliff:g id="count" example="3">%1$d</xliff:g> close passes</item>
@@ -922,10 +949,16 @@
     <string name="notif_ride_summary_channel_name">Ride summaries</string>
     <string name="notif_ride_summary_channel_desc">A quiet recap of each ride once the radar powers down.</string>
     <string name="notif_ride_summary_title">Ride summary</string>
-    <string name="notif_ride_summary_text">Overtakes: <xliff:g id="overtakes" example="48">%1$d</xliff:g> • Close passes: <xliff:g id="passes" example="2">%2$d</xliff:g> • <xliff:g id="km" example="12.4">%3$s</xliff:g> km</string>
+    <!-- Close passes lead, then the distance, then the vehicles detected, so the
+         collapsed line (which cuts at its end) keeps the close passes and drops
+         the vehicles detected first. The arguments stay in the order vehicles
+         detected, close passes, km. -->
+    <string name="notif_ride_summary_text">Close passes: <xliff:g id="passes" example="2">%2$d</xliff:g> • <xliff:g id="km" example="12.4">%3$s</xliff:g> km • Vehicles detected behind: <xliff:g id="overtakes" example="48">%1$d</xliff:g></string>
     <!-- The same line for a ride with close-pass counting off, which has no
          close-pass figure to give. -->
-    <string name="notif_ride_summary_text_uncounted">Overtakes: <xliff:g id="overtakes" example="48">%1$d</xliff:g> • <xliff:g id="km" example="12.4">%2$s</xliff:g> km</string>
+    <string name="notif_ride_summary_text_uncounted"><xliff:g id="km" example="12.4">%2$s</xliff:g> km • Vehicles detected behind: <xliff:g id="overtakes" example="48">%1$d</xliff:g></string>
+    <!-- Its own line in the expanded notification, when the ride has a figure. -->
+    <string name="notif_ride_summary_passed">About <xliff:g id="count" example="8">%1$d</xliff:g> passed you</string>
     <string name="notif_ride_summary_alerts">Alerts per km: <xliff:g id="rate" example="1.4">%1$s</xliff:g></string>
     <string name="notif_ride_summary_tightest">Tightest pass: <xliff:g id="m" example="0.8">%1$s</xliff:g> m at <xliff:g id="kmh" example="32">%2$d</xliff:g> km/h</string>
     <!-- Needs-attention feed (end-of-trip): shared by the summary notification and the home-screen card. -->
@@ -1039,7 +1072,8 @@
          since the bands follow each rider's alert distance. The all-clear
          and the silence keep both halves: "the radar sees nothing", as in
          the riding-aid notice, and "within your alert distance", since cars
-         further back can still be on the overlay. -->
+         further back can still be on the overlay. The alert distance line shows
+         only when the demo is opened from Settings, where the scene runs at it. -->
     <string name="sound_demo_mark">Before your first ride</string>
     <string name="sound_demo_title">What you\'ll hear</string>
     <string name="sound_demo_sub">A 20-second example ride: a car passes you, then another closes in while you\'re stopped.</string>
@@ -1053,6 +1087,7 @@
     <string name="sound_demo_caption_three">Close to you: three beeps.</string>
     <string name="sound_demo_caption_clear">The radar sees nothing within your alert distance any more: the all-clear.</string>
     <string name="sound_demo_caption_urgent">Closing fast while you are stopped or slow: the urgent warning (only on radars that report speed).</string>
+    <string name="sound_demo_alert_distance">Alert distance: <xliff:g id="metres" example="20">%1$d</xliff:g> m</string>
     <string name="alert_volume_title">Set the alert volume</string>
     <string name="alert_volume_sub">Play a test sound while you set it.</string>
     <!-- Shown on every screen that hands the volume buttons to the alerts

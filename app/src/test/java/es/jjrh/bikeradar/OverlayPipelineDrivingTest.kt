@@ -882,6 +882,35 @@ class OverlayPipelineDrivingTest {
     }
 
     @Test
+    fun aCameraNoLongerPickedIsNotMarkedAsTheRadar() = runTest {
+        // The overlay draws every low device but the picked camera as the
+        // radar. A radar the name test does not know counts by its address.
+        val radarMac = "AA:BB:CC:DD:EE:01"
+        val cameraMac = "AA:BB:CC:DD:EE:02"
+        val table = mapOf(radarMac to "my_radar", cameraMac to "vue_old")
+        BatteryStateBus.update(BatteryEntry(slug = "my_radar", name = "My Radar", pct = 5))
+        BatteryStateBus.update(BatteryEntry(slug = "vue_old", name = "VUE-OLD", pct = 5))
+        suspend fun marked(): Set<String>? {
+            val job = buildPipeline(currentRadarMac = { radarMac }, macToSlug = { table }).attach(this, "TestRadar")
+            runCurrent()
+            RadarStateBus.publish(liveFrame(100L))
+            runCurrent()
+            job.cancel()
+            job.join()
+            RadarStateBus.clear()
+            return fakeHost.view?.markedBatterySlugs
+        }
+        try {
+            assertEquals("not picked", setOf("my_radar"), marked())
+            prefs.dashcamOwnership = es.jjrh.bikeradar.data.DashcamOwnership.YES
+            prefs.dashcamMac = cameraMac
+            assertEquals("picked", setOf("my_radar", "vue_old"), marked())
+        } finally {
+            prefs.clearDashcamPick()
+        }
+    }
+
+    @Test
     fun aFramePublishedWhilePausedIsNotCountedAfterTheResume() = runTest {
         val cues = timedBeeper()
         val job = buildPipeline(clockMono = virtualMono()).attach(this, "TestRadar")
@@ -1063,10 +1092,10 @@ class OverlayPipelineDrivingTest {
             }
         }
         // The bus drops a snapshot equal to the one it holds, and the ledger
-        // decides on it: so the pipeline sees five fewer than the ledger here,
-        // and none of the five moves a cue.
+        // decides on it: so the pipeline sees three fewer than the ledger here,
+        // and none of the three moves a cue.
         val decoded = decodeAll()
-        assertEquals("repeated snapshots", 5, decoded.zipWithNext().count { (a, b) -> a.second == b.second })
+        assertEquals("repeated snapshots", 3, decoded.zipWithNext().count { (a, b) -> a.second == b.second })
 
         val ledger = mutableListOf<String>()
         val pipeline = buildPipeline(
@@ -1295,6 +1324,65 @@ class OverlayPipelineDrivingTest {
         val off = closeBehindWhileTurning(settingOn = false)
         assertEquals(off.toString(), 1, off.count { it.contains("event=Beep") })
         assertEquals(off.toString(), 1, off.count { it.contains("event=Beep(2)") })
+    }
+
+    @Test
+    fun theCornerSettingAlsoGovernsWhichCarsFirstSeenCloseArePassed() = runTest {
+        // A car first seen 3 m behind, closing at 3 m/s while the sensor says
+        // TURNING, then lost beside a moving rider. The ride figure's filter
+        // sees the turn as the decider's does, so with the setting on it is
+        // not a pass, and off it is.
+        assertEquals(0, passedAfterCloseBehindWhileTurning(settingOn = true))
+        assertEquals(1, passedAfterCloseBehindWhileTurning(settingOn = false))
+    }
+
+    @Test
+    fun aPauseLeavesTheTurnWithTheRideFiguresFilter() = runTest {
+        // The beeps are not decided while paused, but the ride figure is kept,
+        // and its filter still sees the turn.
+        prefs.pausedUntilEpochMs = Long.MAX_VALUE
+        try {
+            assertEquals(0, passedAfterCloseBehindWhileTurning(settingOn = true))
+            assertEquals(1, passedAfterCloseBehindWhileTurning(settingOn = false))
+        } finally {
+            prefs.pausedUntilEpochMs = 0L
+        }
+    }
+
+    private suspend fun kotlinx.coroutines.test.TestScope.passedAfterCloseBehindWhileTurning(settingOn: Boolean): Int? {
+        prefs.turnAwareAlertsEnabled = settingOn
+        var mono = 1_000L
+        val stats = RideStatsAccumulator(monoMsProvider = { mono })
+        val pipeline = buildPipeline(
+            clockMono = { mono },
+            turnState = { TurnStateDecider.State.TURNING },
+            rideStats = { stats },
+        )
+        val job = pipeline.attach(this, "TestRadar")
+        runCurrent()
+        repeat(5) { i ->
+            mono = 1_000L + i * 100L
+            val car = Vehicle(
+                id = 5,
+                distanceM = 3 - i % 2,
+                speedMs = -3f,
+                bornDistanceM = 3,
+                bornInformative = true,
+                bornAtMs = 1_000L,
+                heardAtMs = mono,
+            )
+            RadarStateBus.publish(
+                RadarState(source = DataSource.V2, timestamp = mono, vehicles = listOf(car), bikeSpeedMs = 5f),
+            )
+            runCurrent()
+        }
+        mono = 1_500L
+        RadarStateBus.publish(RadarState(source = DataSource.V2, timestamp = mono, vehicles = emptyList(), bikeSpeedMs = 5f))
+        runCurrent()
+        job.cancel()
+        job.join()
+        RadarStateBus.clear()
+        return stats.snapshot().vehiclesPassed
     }
 
     private suspend fun kotlinx.coroutines.test.TestScope.closeBehindWhileTurning(settingOn: Boolean): List<String> {
@@ -1716,7 +1804,8 @@ class OverlayPipelineDrivingTest {
         var configChangedCount = 0
         var canDraw = true
         var attachResult: () -> Throwable? = { null }
-        override fun createView(): RadarOverlayView = RadarOverlayView(ctx)
+        var view: RadarOverlayView? = null
+        override fun createView(): RadarOverlayView = RadarOverlayView(ctx).also { view = it }
         override fun canDrawOverlays(): Boolean = canDraw
         override fun attach(view: RadarOverlayView): Throwable? {
             val failed = attachResult()
