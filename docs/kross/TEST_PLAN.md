@@ -82,3 +82,7 @@ Przed udanymi powrotami wystąpiły rozłączenia GATT ze statusem 8, a przed tr
 ### Polska lokalizacja oparta na oryginale
 
 Polski plik partymola z commita `b88fff07` uzupełniono o 26 kluczy z k7. Dla 13 wspólnych kluczy z innym angielskim tekstem sprawdzono znaczenie w aktualnym forku i dostosowano polski tekst. Zweryfikowano 785 kluczy oraz zgodność argumentów formatowania. Kompilacja debug i 214 testów Roborazzi z zestawu zrzutów i nakładki w UTC przeszły na istniejących obrazach wzorcowych. Android Lint nie zgłosił błędów tłumaczenia, ale zatrzymał się na istniejącym w k7 odczycie `StateFlow.value` w kompozycji (`SettingsAtoms.kt:631`).
+
+### Integracja 1.13.k7
+
+Pełny przebieg objął 4137 testów, w tym 222 z zestawu zrzutów i nakładki w UTC. Przeszło 4136 testów, a jeden pominięto (CorpusReplayGate). Sprawdzono 792 polskie klucze i ich argumenty formatowania. Dwanaście wzorców zweryfikowano i dostosowano po integracji tekstów oraz widoków z v1.13.0. Kompilacje debug i Release, ktlint oraz kontrola DEX przeszły. Podpisany APK ma kod 52 i certyfikat poprzedniego k7. Próba na fizycznym Echo Pro lub Garminie pozostaje otwarta.

@@ -28,6 +28,7 @@ Po `k1` dodano automatyzację aktualizacji oryginału i zapisano procedurę aktu
 - Dodano z oryginału osobne statystyki pojazdów wykrytych z tyłu i pojazdów, które według Garmina minęły rower. Zachowano licznik potwierdzonych wyprzedzeń Garmina oraz szacowanie i historię Krossa z k7. Dotychczasowe pola Home Assistant mają te same klucze.
 - Polskie zasoby oparto na pliku partymola z v1.13.0, z zachowaniem napisów właściwych dla forka.
 - Debug, ktlint i Roborazzi w UTC przeszły. Pełny przebieg objął 4137 testów, z czego 4136 przeszło, a jeden pominięto. Próby na fizycznych radarach pozostają do wykonania. [Zrzuty](docs/kross/SCREENSHOTS.md#113k7)
+- Kompilacja Release i kontrola DEX przeszły. Zweryfikowano pakiet `es.jjrh.bikeradar.kross`, ARM64, kod 52 i ten sam certyfikat co w `1.12.2.k7`. APK z commita `979a490b` ma 8 719 948 bajtów. SHA-256 `65f97bcba4c269d04d8b0c4c062691c7d463494193d1ab82ac061ef1ff843ec6`.
 
 ## 1.12.2.k7
 
